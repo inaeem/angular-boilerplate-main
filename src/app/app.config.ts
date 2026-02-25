@@ -11,6 +11,7 @@ import { RouteReusableStrategy } from '@core/helpers';
 import { provideServiceWorker } from '@angular/service-worker';
 import { SocketIoModule } from '@core/socket-io';
 import { provideHotToastConfig } from '@ngxpert/hot-toast';
+import { provideOAuthClient } from 'angular-oauth2-oidc';
 
 if (environment.production) {
   enableProdMode();
@@ -65,6 +66,9 @@ export const appConfig: ApplicationConfig = {
 
     // provideHttpClient is required for Angular's HttpClient with additional configuration, which includes interceptors from DI (dependency injection) , means to use class based interceptors
     provideHttpClient(withInterceptorsFromDi()),
+
+    // provideOAuthClient is required for angular-oauth2-oidc
+    provideOAuthClient(),
     {
       provide: HTTP_INTERCEPTORS,
       useClass: ApiPrefixInterceptor,
