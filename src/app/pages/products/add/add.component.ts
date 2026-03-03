@@ -1,45 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { TranslateService } from '@ngx-translate/core';
 import { ProductsService } from '../services/products.service';
 import { ToastService } from '@shared/services/toast.service';
-
-interface ProductVariant {
-  id: string;
-  name: string;
-  sku: string;
-  price: number | null;
-  stock: number | null;
-  attributes: { [key: string]: string }; // e.g., { color: 'Red', size: 'L' }
-}
-
-interface ProductFormData {
-  // Step 1: Basic Information
-  name: string;
-  category: string;
-  description: string;
-  status: string;
-
-  // Step 2: Pricing & Stock
-  price: number | null;
-  compareAtPrice: number | null;
-  costPerItem: number | null;
-  sku: string;
-  stock: number | null;
-  lowStockThreshold: number | null;
-
-  // Step 3: Images & Media
-  imageUrl: string;
-  galleryImages: string[];
-
-  // Step 4: Variants
-  variants: ProductVariant[];
-
-  // Step 5: Additional Details
-  tags: string;
-  weight: number | null;
-  dimensions: string;
-}
+import { ProductFormData, ProductVariant } from '../entities';
 
 @UntilDestroy()
 @Component({
@@ -102,6 +67,7 @@ export class AddComponent implements OnInit {
     private readonly _route: ActivatedRoute,
     private readonly _productsService: ProductsService,
     private readonly _toastService: ToastService,
+    private readonly _translateService: TranslateService,
   ) {}
 
   ngOnInit(): void {
@@ -144,7 +110,10 @@ export class AddComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error loading product:', error);
-          this._toastService.error('Load Failed', 'Failed to load product details.');
+          this._toastService.error(
+            this._translateService.instant('Load Failed'),
+            this._translateService.instant('Failed to load product details.')
+          );
           this.isLoading = false;
           this._router.navigate(['/products']);
         },
@@ -156,7 +125,10 @@ export class AddComponent implements OnInit {
 
     if (!this.isStepValid(this.currentStep)) {
       const errors = this.getStepErrors(this.currentStep);
-      this._toastService.warning('Validation Error', errors.join(', '));
+      this._toastService.warning(
+        this._translateService.instant('Validation Error'),
+        errors.join(', ')
+      );
       return;
     }
 
@@ -230,39 +202,39 @@ export class AddComponent implements OnInit {
     switch (step) {
       case 1:
         if (!this.formData.name || this.formData.name.trim().length < 3) {
-          errors.push('Product name must be at least 3 characters');
+          errors.push(this._translateService.instant('Product name must be at least 3 characters'));
         }
         if (!this.formData.category) {
-          errors.push('Category is required');
+          errors.push(this._translateService.instant('Category is required'));
         }
         if (!this.formData.description || this.formData.description.trim().length < 10) {
-          errors.push('Description must be at least 10 characters');
+          errors.push(this._translateService.instant('Description must be at least 10 characters'));
         }
         break;
 
       case 2:
         if (!this.formData.price || this.formData.price <= 0) {
-          errors.push('Price must be greater than 0');
+          errors.push(this._translateService.instant('Price must be greater than 0'));
         }
         if (!this.formData.sku || this.formData.sku.trim().length < 3) {
-          errors.push('SKU must be at least 3 characters');
+          errors.push(this._translateService.instant('SKU must be at least 3 characters'));
         }
         if (this.formData.stock === null || this.formData.stock < 0) {
-          errors.push('Stock quantity must be 0 or greater');
+          errors.push(this._translateService.instant('Stock quantity must be 0 or greater'));
         }
         if (this.formData.compareAtPrice && this.formData.compareAtPrice <= 0) {
-          errors.push('Compare at price must be greater than 0');
+          errors.push(this._translateService.instant('Compare at price must be greater than 0'));
         }
         if (this.formData.costPerItem && this.formData.costPerItem < 0) {
-          errors.push('Cost per item cannot be negative');
+          errors.push(this._translateService.instant('Cost per item cannot be negative'));
         }
         break;
 
       case 3:
         if (!this.formData.imageUrl) {
-          errors.push('Main product image is required');
+          errors.push(this._translateService.instant('Main product image is required'));
         } else if (!this.isValidUrl(this.formData.imageUrl)) {
-          errors.push('Please enter a valid image URL');
+          errors.push(this._translateService.instant('Please enter a valid image URL'));
         }
         break;
 
@@ -270,16 +242,16 @@ export class AddComponent implements OnInit {
         if (this.formData.variants.length > 0) {
           this.formData.variants.forEach((variant, index) => {
             if (!variant.name) {
-              errors.push(`Variant ${index + 1}: Name is required`);
+              errors.push(`${this._translateService.instant('Variant')} ${index + 1}: ${this._translateService.instant('Name')} ${this._translateService.instant('is required')}`);
             }
             if (!variant.sku) {
-              errors.push(`Variant ${index + 1}: SKU is required`);
+              errors.push(`${this._translateService.instant('Variant')} ${index + 1}: ${this._translateService.instant('SKU')} ${this._translateService.instant('is required')}`);
             }
             if (variant.price !== null && variant.price < 0) {
-              errors.push(`Variant ${index + 1}: Price cannot be negative`);
+              errors.push(`${this._translateService.instant('Variant')} ${index + 1}: ${this._translateService.instant('Price')} ${this._translateService.instant('cannot be negative')}`);
             }
             if (variant.stock !== null && variant.stock < 0) {
-              errors.push(`Variant ${index + 1}: Stock cannot be negative`);
+              errors.push(`${this._translateService.instant('Variant')} ${index + 1}: ${this._translateService.instant('Stock')} ${this._translateService.instant('cannot be negative')}`);
             }
           });
         }
@@ -288,21 +260,21 @@ export class AddComponent implements OnInit {
       case 5:
         // Aggregate errors from all previous steps
         if (!this.isStepValid(1)) {
-          errors.push('Basic information is incomplete');
+          errors.push(this._translateService.instant('Basic information is incomplete'));
         }
         if (!this.isStepValid(2)) {
-          errors.push('Pricing & stock information is incomplete');
+          errors.push(this._translateService.instant('Pricing & stock information is incomplete'));
         }
         if (!this.isStepValid(3)) {
-          errors.push('Product image is required');
+          errors.push(this._translateService.instant('Product image is required'));
         }
         if (!this.isStepValid(4)) {
-          errors.push('Some variants have validation errors');
+          errors.push(this._translateService.instant('Some variants have validation errors'));
         }
         break;
     }
 
-    return errors.length > 0 ? errors : ['Please complete all required fields'];
+    return errors.length > 0 ? errors : [this._translateService.instant('Please complete all required fields')];
   }
 
   isValidUrl(url: string): boolean {

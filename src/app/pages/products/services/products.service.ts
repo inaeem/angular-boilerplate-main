@@ -1,24 +1,16 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, delay } from 'rxjs';
-
-export interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  stock: number;
-  rating: number;
-  image: string;
-  isFavorite: boolean;
-  status: 'in-stock' | 'low-stock' | 'out-of-stock';
-  deprecated: boolean;
-}
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, of, delay, timeout, catchError, throwError, map } from 'rxjs';
+import { environment } from '@env/environment';
+import { Product } from '../entities';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProductsService {
+  private readonly useMockData = environment.useMockData;
+  private readonly apiBaseUrl = environment.apiBaseUrl;
+  private readonly apiTimeout = environment.apiTimeout;
   private mockProducts: Product[] = [
     {
       id: 1,
@@ -178,67 +170,257 @@ export class ProductsService {
     },
   ];
 
-  constructor() {}
+  constructor(private readonly http: HttpClient) {}
 
   /**
-   * Mock API call to get all products with a delay of 3-5 seconds
+   * Helper method to build full API URL
+   */
+  private buildUrl(endpoint: string, params?: { [key: string]: string | number }): string {
+    let url = `${this.apiBaseUrl}${endpoint}`;
+
+    // Replace URL parameters (e.g., :id)
+    if (params) {
+      Object.keys(params).forEach((key) => {
+        url = url.replace(`:${key}`, String(params[key]));
+      });
+    }
+
+    return url;
+  }
+
+  /**
+   * Helper method to get random delay time for mock data
+   */
+  private getRandomDelay(): number {
+    const min = environment.mockDataDelay.min;
+    const max = environment.mockDataDelay.max;
+    return Math.floor(Math.random() * (max - min)) + min;
+  }
+
+  /**
+   * Get all products (supports both mock and API modes)
    */
   getProducts(): Observable<Product[]> {
-    const delayTime = Math.floor(Math.random() * 2000) + 3000; // Random delay between 3-5 seconds
-    return of([...this.mockProducts]).pipe(delay(delayTime));
+    if (this.useMockData) {
+      return this.getMockProducts();
+    }
+
+    const url = this.buildUrl(environment.apiEndpoints.products.getAll);
+    return this.http.get<Product[]>(url).pipe(
+      timeout(this.apiTimeout),
+      catchError((error) => {
+        console.error('Error fetching products from API:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
-   * Mock API call to get a single product by ID
+   * Mock implementation of getProducts
+   */
+  private getMockProducts(): Observable<Product[]> {
+    return of([...this.mockProducts]).pipe(delay(this.getRandomDelay()));
+  }
+
+  /**
+   * Get a single product by ID (supports both mock and API modes)
    */
   getProductById(id: number): Observable<Product | undefined> {
-    const delayTime = Math.floor(Math.random() * 2000) + 3000;
-    const product = this.mockProducts.find((p) => p.id === id);
-    return of(product).pipe(delay(delayTime));
+    if (this.useMockData) {
+      return this.getMockProductById(id);
+    }
+
+    const url = this.buildUrl(environment.apiEndpoints.products.getById, { id });
+    return this.http.get<Product>(url).pipe(
+      timeout(this.apiTimeout),
+      catchError((error) => {
+        console.error(`Error fetching product ${id} from API:`, error);
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
-   * Mock API call to search products
+   * Mock implementation of getProductById
+   */
+  private getMockProductById(id: number): Observable<Product | undefined> {
+    const product = this.mockProducts.find((p) => p.id === id);
+    return of(product).pipe(delay(this.getRandomDelay()));
+  }
+
+  /**
+   * Search products by query (supports both mock and API modes)
    */
   searchProducts(query: string): Observable<Product[]> {
-    const delayTime = Math.floor(Math.random() * 2000) + 3000;
+    if (this.useMockData) {
+      return this.mockSearchProducts(query);
+    }
+
+    const url = this.buildUrl(environment.apiEndpoints.products.search);
+    const params = new HttpParams().set('q', query);
+
+    return this.http.get<Product[]>(url, { params }).pipe(
+      timeout(this.apiTimeout),
+      catchError((error) => {
+        console.error('Error searching products from API:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Mock implementation of searchProducts
+   */
+  private mockSearchProducts(query: string): Observable<Product[]> {
     const lowerQuery = query.toLowerCase().trim();
 
     if (!lowerQuery) {
-      return of([...this.mockProducts]).pipe(delay(delayTime));
+      return of([...this.mockProducts]).pipe(delay(this.getRandomDelay()));
     }
 
     const filtered = this.mockProducts.filter(
       (product) =>
         product.name.toLowerCase().includes(lowerQuery) ||
         product.description.toLowerCase().includes(lowerQuery) ||
-        product.category.toLowerCase().includes(lowerQuery),
+        product.category.toLowerCase().includes(lowerQuery)
     );
 
-    return of(filtered).pipe(delay(delayTime));
+    return of(filtered).pipe(delay(this.getRandomDelay()));
   }
 
   /**
-   * Mock API call to toggle favorite status
+   * Toggle favorite status of a product (supports both mock and API modes)
    */
   toggleFavorite(productId: number): Observable<boolean> {
+    if (this.useMockData) {
+      return this.mockToggleFavorite(productId);
+    }
+
+    const url = this.buildUrl(environment.apiEndpoints.products.toggleFavorite, { id: productId });
+    return this.http.patch<{ success: boolean }>(url, {}).pipe(
+      map((response) => response.success),
+      timeout(this.apiTimeout),
+      catchError((error) => {
+        console.error(`Error toggling favorite for product ${productId}:`, error);
+        return throwError(() => error);
+      }),
+      delay(500) // Quick action
+    );
+  }
+
+  /**
+   * Mock implementation of toggleFavorite
+   */
+  private mockToggleFavorite(productId: number): Observable<boolean> {
     const product = this.mockProducts.find((p) => p.id === productId);
     if (product) {
       product.isFavorite = !product.isFavorite;
-      return of(true).pipe(delay(500)); // Quick action
+      return of(true).pipe(delay(500));
     }
     return of(false).pipe(delay(500));
   }
 
   /**
-   * Mock API call to delete a product
+   * Delete a product by ID (supports both mock and API modes)
    */
   deleteProduct(productId: number): Observable<boolean> {
+    if (this.useMockData) {
+      return this.mockDeleteProduct(productId);
+    }
+
+    const url = this.buildUrl(environment.apiEndpoints.products.delete, { id: productId });
+    return this.http.delete<{ success: boolean }>(url).pipe(
+      map((response) => response.success),
+      timeout(this.apiTimeout),
+      catchError((error) => {
+        console.error(`Error deleting product ${productId}:`, error);
+        return throwError(() => error);
+      }),
+      delay(1000)
+    );
+  }
+
+  /**
+   * Mock implementation of deleteProduct
+   */
+  private mockDeleteProduct(productId: number): Observable<boolean> {
     const index = this.mockProducts.findIndex((p) => p.id === productId);
     if (index !== -1) {
       this.mockProducts.splice(index, 1);
       return of(true).pipe(delay(1000));
     }
     return of(false).pipe(delay(1000));
+  }
+
+  /**
+   * Create a new product (supports both mock and API modes)
+   */
+  createProduct(product: Partial<Product>): Observable<Product> {
+    if (this.useMockData) {
+      return this.mockCreateProduct(product);
+    }
+
+    const url = this.buildUrl(environment.apiEndpoints.products.create);
+    return this.http.post<Product>(url, product).pipe(
+      timeout(this.apiTimeout),
+      catchError((error) => {
+        console.error('Error creating product:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Mock implementation of createProduct
+   */
+  private mockCreateProduct(product: Partial<Product>): Observable<Product> {
+    const newId = Math.max(...this.mockProducts.map((p) => p.id)) + 1;
+    const newProduct: Product = {
+      id: newId,
+      name: product.name || 'New Product',
+      description: product.description || '',
+      category: product.category || 'Uncategorized',
+      price: product.price || 0,
+      stock: product.stock || 0,
+      rating: product.rating || 0,
+      image: product.image || '',
+      isFavorite: product.isFavorite || false,
+      status: product.status || 'in-stock',
+      deprecated: product.deprecated || false,
+    };
+
+    this.mockProducts.push(newProduct);
+    return of(newProduct).pipe(delay(this.getRandomDelay()));
+  }
+
+  /**
+   * Update an existing product (supports both mock and API modes)
+   */
+  updateProduct(productId: number, updates: Partial<Product>): Observable<Product> {
+    if (this.useMockData) {
+      return this.mockUpdateProduct(productId, updates);
+    }
+
+    const url = this.buildUrl(environment.apiEndpoints.products.update, { id: productId });
+    return this.http.put<Product>(url, updates).pipe(
+      timeout(this.apiTimeout),
+      catchError((error) => {
+        console.error(`Error updating product ${productId}:`, error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Mock implementation of updateProduct
+   */
+  private mockUpdateProduct(productId: number, updates: Partial<Product>): Observable<Product> {
+    const product = this.mockProducts.find((p) => p.id === productId);
+    if (!product) {
+      return throwError(() => new Error(`Product with ID ${productId} not found`));
+    }
+
+    Object.assign(product, updates);
+    return of(product).pipe(delay(this.getRandomDelay()));
   }
 }

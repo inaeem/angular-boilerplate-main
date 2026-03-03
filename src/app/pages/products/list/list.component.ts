@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { Product, ProductsService } from '../services/products.service';
+import { ProductsService } from '../services/products.service';
+import { Product } from '../entities';
 import { ToastService } from '@shared/services/toast.service';
 
 @UntilDestroy()
