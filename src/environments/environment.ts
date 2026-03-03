@@ -8,6 +8,7 @@ export const environment = {
 
   // API Configuration
   useMockData: true, // Set to false to use real API endpoints
+  useApiMapper: false, // Set to true if API uses different structure (snake_case, etc.)
   apiBaseUrl: 'http://localhost:3000/api', // Base URL for API endpoints
   apiEndpoints: {
     products: {

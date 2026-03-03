@@ -8,6 +8,7 @@ export const environment = {
 
   // API Configuration
   useMockData: false, // Use real API in production
+  useApiMapper: true, // Set to true if API uses different structure (snake_case, etc.)
   apiBaseUrl: 'https://api.yourapp.com/api', // Production API URL
   apiEndpoints: {
     products: {
