@@ -1,9 +1,8 @@
-import { ApplicationRef, Component, Inject, Injectable, Optional } from '@angular/core';
+import { ApplicationRef, Injectable } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { concat, interval } from 'rxjs';
 import { first, startWith } from 'rxjs/operators';
-import { HotToastRef, HotToastService } from '@ngxpert/hot-toast';
 
 /* The `AppUpdateService` is responsible for checking for app updates using a
 service worker and displaying update alerts to the user. */
@@ -12,11 +11,10 @@ service worker and displaying update alerts to the user. */
   providedIn: 'root',
 })
 export class AppUpdateService {
-  private _isUpdateToastShown = false;
+  private _isUpdateAlertShown = false;
 
   constructor(
     private readonly _swUpdate: SwUpdate,
-    private readonly _toastService: HotToastService,
     appRef: ApplicationRef,
   ) {
     console.log('%c Update service is running...', 'color: green; font-weight: bold;');
@@ -32,7 +30,7 @@ export class AppUpdateService {
       everySixHoursOnceAppIsStable$.pipe(untilDestroyed(this)).subscribe(async () => {
         try {
           console.log('%c Checking for app updates...', 'color: yellow; font-weight: bold;');
-          this._isUpdateToastShown = false;
+          this._isUpdateAlertShown = false;
           const updateFound = await this._swUpdate.checkForUpdate();
           console.log('%c Finish checking for updates...', 'color: yellow; font-weight: bold;');
           console.log(updateFound ? '%c A new version is available.' : '%c Already on the latest version.', 'color: white; font-weight: bold;');
@@ -65,32 +63,20 @@ export class AppUpdateService {
   }
 
   private _showAppUpdateAlert() {
-    if (this._isUpdateToastShown) {
+    if (this._isUpdateAlertShown) {
       return;
     }
-    this._isUpdateToastShown = true;
-    const toastRef = this._toastService.show(UpdateComponent, {
-      autoClose: false,
-      dismissible: false,
-    });
-    toastRef.afterClosed.subscribe(() => {
-      this._swUpdate.activateUpdate().then(() => document.location.reload());
-      this._isUpdateToastShown = false;
-    });
-  }
-}
+    this._isUpdateAlertShown = true;
 
-// App Update Notification Component
-@UntilDestroy({ checkProperties: true })
-@Component({
-  selector: 'app-update-component',
-  template: `
-    New Version is Available.
-    <a style="color: #E9380BFF" (click)="toastRef.close({ dismissedByAction: true })">Please Click to Update</a>
-    or <a style="color: #E9380BFF" (click)="toastRef.close({ dismissedByAction: false })">Close</a>
-  `,
-  standalone: true,
-})
-export class UpdateComponent {
-  constructor(@Optional() @Inject(HotToastRef) public toastRef: HotToastRef<string>) {}
+    // Show native browser notification
+    const updateApp = confirm('A new version of the application is available. Would you like to update now?');
+
+    if (updateApp) {
+      this._swUpdate.activateUpdate().then(() => {
+        document.location.reload();
+      });
+    }
+
+    this._isUpdateAlertShown = false;
+  }
 }

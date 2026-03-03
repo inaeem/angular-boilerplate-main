@@ -1,0 +1,354 @@
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <!-- Breadcrumb -->
+    <div class="row mb-3">
+      <div class="col-12">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard" translate>Home</a></li>
+            <li class="breadcrumb-item"><a href="/products" translate>Products</a></li>
+            <li class="breadcrumb-item active" aria-current="page" translate>Add Product</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Page Title -->
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <h2 class="page-title" translate>Add New Product</h2>
+        <div class="text-muted mt-1">
+          <span translate>Step</span> {{ currentStep }} <span translate>of</span> {{ totalSteps }}: {{ getStepTitle(currentStep) }}
+        </div>
+      </div>
+      <div class="col-auto ms-auto">
+        <button type="button" class="btn btn-ghost-secondary" (click)="cancel()">
+          <i class="ti ti-x icon"></i>
+          <span translate>Cancel</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row">
+      <!-- Wizard Steps Sidebar -->
+      <div class="col-md-3 mb-4">
+        <div class="card">
+          <div class="card-body">
+            <h4 class="card-title mb-3" translate>Steps</h4>
+            <div class="steps steps-vertical">
+              @for (step of [1, 2, 3, 4]; track step) {
+                <a
+                  href="#"
+                  class="step-item"
+                  [class.active]="currentStep === step"
+                  [class.text-muted]="currentStep !== step"
+                  (click)="goToStep(step); $event.preventDefault()"
+                >
+                  <div class="h4 m-0">
+                    <i class="ti {{ getStepIcon(step) }} icon"></i>
+                  </div>
+                  <div class="ms-2">
+                    <div class="fw-bold">{{ getStepTitle(step) }}</div>
+                    @if (isStepValid(step)) {
+                      <div class="text-success small">
+                        <i class="ti ti-check icon"></i>
+                        <span translate>Completed</span>
+                      </div>
+                    }
+                  </div>
+                </a>
+              }
+            </div>
+
+            <!-- Progress -->
+            <div class="mt-4">
+              <div class="text-muted mb-2 small" translate>Overall Progress</div>
+              <div class="progress">
+                <div class="progress-bar" [style.width.%]="getProgress()"></div>
+              </div>
+              <div class="text-center mt-2 small">{{ getProgress() }}%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wizard Content -->
+      <div class="col-md-9">
+        <form>
+          <!-- Step 1: Basic Information -->
+          @if (currentStep === 1) {
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title" translate>Basic Information</h3>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label class="form-label required" translate>Product Name</label>
+                  <input type="text" class="form-control" [(ngModel)]="formData.name" name="name" placeholder="Enter product name" required />
+                  <small class="form-hint" translate>A clear and descriptive product name</small>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label required" translate>Category</label>
+                  <select class="form-select" [(ngModel)]="formData.category" name="category" required>
+                    <option value="" translate>Select a category</option>
+                    @for (category of categories; track category) {
+                      <option [value]="category">{{ category }}</option>
+                    }
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label required" translate>Description</label>
+                  <textarea class="form-control" rows="5" [(ngModel)]="formData.description" name="description" placeholder="Describe your product" required></textarea>
+                  <small class="form-hint" translate>Detailed product description to help customers understand what you're selling</small>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label" translate>Status</label>
+                  <select class="form-select" [(ngModel)]="formData.status" name="status">
+                    @for (status of statuses; track status.value) {
+                      <option [value]="status.value">{{ status.label | translate }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Step 2: Pricing & Stock -->
+          @if (currentStep === 2) {
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title" translate>Pricing & Stock</h3>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label required" translate>Price</label>
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      <input type="number" class="form-control" [(ngModel)]="formData.price" name="price" placeholder="0.00" step="0.01" required />
+                    </div>
+                  </div>
+
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label" translate>Compare at Price</label>
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      <input type="number" class="form-control" [(ngModel)]="formData.compareAtPrice" name="compareAtPrice" placeholder="0.00" step="0.01" />
+                    </div>
+                    <small class="form-hint" translate>Original price for showing discounts</small>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label" translate>Cost per Item</label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input type="number" class="form-control" [(ngModel)]="formData.costPerItem" name="costPerItem" placeholder="0.00" step="0.01" />
+                  </div>
+                  <small class="form-hint" translate>Your cost for inventory and profit tracking</small>
+                </div>
+
+                <hr />
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label required" translate>SKU</label>
+                    <input type="text" class="form-control" [(ngModel)]="formData.sku" name="sku" placeholder="PROD-001" required />
+                    <small class="form-hint" translate>Stock Keeping Unit</small>
+                  </div>
+
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label required" translate>Stock Quantity</label>
+                    <input type="number" class="form-control" [(ngModel)]="formData.stock" name="stock" placeholder="0" required />
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label" translate>Low Stock Threshold</label>
+                  <input type="number" class="form-control" [(ngModel)]="formData.lowStockThreshold" name="lowStockThreshold" placeholder="10" />
+                  <small class="form-hint" translate>You'll be notified when stock falls below this number</small>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Step 3: Images & Media -->
+          @if (currentStep === 3) {
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title" translate>Images & Media</h3>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label class="form-label required" translate>Main Product Image</label>
+                  <input type="url" class="form-control" [(ngModel)]="formData.imageUrl" name="imageUrl" placeholder="https://example.com/image.jpg" required />
+                  <small class="form-hint" translate>Enter the URL of your main product image</small>
+                </div>
+
+                @if (formData.imageUrl) {
+                  <div class="mb-3">
+                    <label class="form-label" translate>Image Preview</label>
+                    <div class="card card-sm">
+                      <img [src]="formData.imageUrl" class="card-img-top" alt="Product preview" style="height: 300px; object-fit: cover" />
+                    </div>
+                  </div>
+                }
+
+                <hr />
+
+                <div class="mb-3">
+                  <label class="form-label" translate>Gallery Images</label>
+                  <button type="button" class="btn btn-outline-primary" (click)="addGalleryImage()">
+                    <i class="ti ti-plus icon"></i>
+                    <span translate>Add Gallery Image</span>
+                  </button>
+                  <small class="form-hint d-block mt-2" translate>Add additional images to showcase your product</small>
+                </div>
+
+                @if (formData.galleryImages.length > 0) {
+                  <div class="row row-cards">
+                    @for (image of formData.galleryImages; track $index; let i = $index) {
+                      <div class="col-md-4">
+                        <div class="card card-sm">
+                          <img [src]="image" class="card-img-top" alt="Gallery image" style="height: 150px; object-fit: cover" />
+                          <div class="card-body text-center">
+                            <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeGalleryImage(i)">
+                              <i class="ti ti-trash icon"></i>
+                              <span translate>Remove</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Step 4: Review & Submit -->
+          @if (currentStep === 4) {
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title" translate>Review & Submit</h3>
+              </div>
+              <div class="card-body">
+                <div class="alert alert-info">
+                  <i class="ti ti-info-circle icon"></i>
+                  <span translate>Please review all the information before submitting</span>
+                </div>
+
+                <!-- Basic Information Summary -->
+                <div class="mb-4">
+                  <h4 translate>Basic Information</h4>
+                  <div class="row">
+                    <div class="col-md-3 text-muted" translate>Product Name:</div>
+                    <div class="col-md-9 fw-bold">{{ formData.name }}</div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-md-3 text-muted" translate>Category:</div>
+                    <div class="col-md-9">
+                      <span class="badge bg-blue-lt">{{ formData.category }}</span>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-md-3 text-muted" translate>Description:</div>
+                    <div class="col-md-9">{{ formData.description }}</div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-md-3 text-muted" translate>Status:</div>
+                    <div class="col-md-9">
+                      <span class="badge" [class.bg-success]="formData.status === 'active'" [class.bg-secondary]="formData.status === 'draft'" [class.bg-warning]="formData.status === 'archived'">
+                        {{ formData.status | translate }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <hr />
+
+                <!-- Pricing & Stock Summary -->
+                <div class="mb-4">
+                  <h4 translate>Pricing & Stock</h4>
+                  <div class="row">
+                    <div class="col-md-3 text-muted" translate>Price:</div>
+                    <div class="col-md-9 fw-bold">${{ formData.price?.toFixed(2) }}</div>
+                  </div>
+                  @if (formData.compareAtPrice) {
+                    <div class="row mt-2">
+                      <div class="col-md-3 text-muted" translate>Compare at Price:</div>
+                      <div class="col-md-9 text-muted"><s>${{ formData.compareAtPrice?.toFixed(2) }}</s></div>
+                    </div>
+                  }
+                  <div class="row mt-2">
+                    <div class="col-md-3 text-muted" translate>SKU:</div>
+                    <div class="col-md-9">{{ formData.sku }}</div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-md-3 text-muted" translate>Stock:</div>
+                    <div class="col-md-9">{{ formData.stock }} <span translate>units</span></div>
+                  </div>
+                </div>
+
+                <hr />
+
+                <!-- Images Summary -->
+                <div class="mb-4">
+                  <h4 translate>Images</h4>
+                  <div class="row">
+                    <div class="col-md-3 text-muted" translate>Main Image:</div>
+                    <div class="col-md-9">
+                      <img [src]="formData.imageUrl" alt="Product" style="max-width: 200px; height: auto; border-radius: 4px" />
+                    </div>
+                  </div>
+                  @if (formData.galleryImages.length > 0) {
+                    <div class="row mt-2">
+                      <div class="col-md-3 text-muted" translate>Gallery:</div>
+                      <div class="col-md-9">{{ formData.galleryImages.length }} <span translate>images</span></div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Navigation Buttons -->
+          <div class="card mt-4">
+            <div class="card-body">
+              <div class="row">
+                <div class="col">
+                  @if (currentStep > 1) {
+                    <button type="button" class="btn btn-outline-secondary" (click)="previousStep()">
+                      <i class="ti ti-arrow-left icon"></i>
+                      <span translate>Previous</span>
+                    </button>
+                  }
+                </div>
+                <div class="col-auto">
+                  @if (currentStep < totalSteps) {
+                    <button type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="!canProceed()">
+                      <span translate>Next</span>
+                      <i class="ti ti-arrow-right icon"></i>
+                    </button>
+                  } @else {
+                    <button type="button" class="btn btn-success" (click)="submitProduct()">
+                      <i class="ti ti-check icon"></i>
+                      <span translate>Create Product</span>
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

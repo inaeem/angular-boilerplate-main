@@ -1,12 +1,10 @@
 import { Injectable } from '@angular/core';
-import { OAuthService } from 'angular-oauth2-oidc';
 import { Credentials } from '@core/entities';
 
 const credentialsKey = 'credentials';
 
 /**
  * Provides storage for authentication credentials.
- * Works with OAuth2/OIDC tokens managed by OAuthService.
  */
 @Injectable({
   providedIn: 'root',
@@ -14,7 +12,7 @@ const credentialsKey = 'credentials';
 export class CredentialsService {
   private _credentials: Credentials | null = null;
 
-  constructor(private readonly _oauthService: OAuthService) {
+  constructor() {
     // Load saved credentials from storage
     const savedCredentials = sessionStorage.getItem(credentialsKey) || localStorage.getItem(credentialsKey);
     if (savedCredentials) {
@@ -37,27 +35,16 @@ export class CredentialsService {
 
   /**
    * Checks if the user is authenticated.
-   * Verifies both stored credentials and OAuth2 token validity.
-   * @return True if the user is authenticated with a valid token.
+   * @return True if the user is authenticated.
    */
   isAuthenticated(): boolean {
-    // Check if we have credentials and a valid OAuth2 access token
-    return !!this._credentials && this._oauthService.hasValidAccessToken();
-  }
-
-  /**
-   * Gets the current access token from OAuth2 service.
-   * @return The access token or empty string if not available.
-   */
-  getAccessToken(): string {
-    return this._oauthService.getAccessToken();
+    return !!this._credentials;
   }
 
   /**
    * Sets the user credentials.
    * The credentials may be persisted across sessions by setting the `remember` parameter to true.
    * Otherwise, the credentials are only persisted for the current session.
-   * Note: OAuth2 tokens are managed separately by OAuthService.
    * @param credentials The user credentials.
    * @param remember True to remember credentials across sessions.
    */
@@ -82,21 +69,5 @@ export class CredentialsService {
   private _clearStoredCredentials(): void {
     sessionStorage.removeItem(credentialsKey);
     localStorage.removeItem(credentialsKey);
-  }
-
-  /**
-   * Checks if the access token is expired or about to expire.
-   * @param bufferSeconds Number of seconds before expiration to consider the token expired (default: 60).
-   * @return True if the token is expired or about to expire.
-   */
-  isTokenExpired(bufferSeconds = 60): boolean {
-    const expiresAt = this._oauthService.getAccessTokenExpiration();
-    if (!expiresAt) {
-      return true;
-    }
-
-    const now = Date.now();
-    const expiryTime = expiresAt - bufferSeconds * 1000;
-    return now >= expiryTime;
   }
 }

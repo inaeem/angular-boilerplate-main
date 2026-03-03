@@ -1,0 +1,217 @@
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <!-- Breadcrumb -->
+    <div class="row mb-3">
+      <div class="col-12">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard" translate>Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page" translate>Products</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Page Title and Actions -->
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <h2 class="page-title" translate>Products</h2>
+        <div class="text-muted mt-1">
+          @if (isLoading) {
+            <span class="placeholder col-3"></span>
+          } @else {
+            <span translate>Showing</span> {{ filteredProducts.length }} <span translate>of</span> {{ products.length }} <span translate>products</span>
+          }
+        </div>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a routerLink="/products/add" class="btn btn-primary">
+            <i class="ti ti-plus icon"></i>
+            <span translate>Add Product</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="row mt-3">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="row g-2">
+              <div class="col">
+                <div class="input-icon">
+                  <span class="input-icon-addon">
+                    @if (isSearching) {
+                      <div class="spinner-border spinner-border-sm text-muted" role="status"></div>
+                    } @else {
+                      <i class="ti ti-search icon"></i>
+                    }
+                  </span>
+                  <input type="text" class="form-control" placeholder="Search products..." [(ngModel)]="searchQuery" (input)="searchProducts()" [disabled]="isLoading" />
+                </div>
+              </div>
+              <div class="col-auto">
+                <button type="button" class="btn btn-icon" aria-label="Filter" [disabled]="isLoading">
+                  <i class="ti ti-filter icon"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Products Grid -->
+<div class="page-body">
+  <div class="container-xl">
+    <!-- Loading State with Skeleton Placeholders -->
+    @if (isLoading || isSearching) {
+      <div class="row row-cards">
+        @for (skeleton of skeletonArray; track $index) {
+          <div class="col-sm-6 col-lg-3">
+            <div class="card card-sm placeholder-glow">
+              <!-- Skeleton Image -->
+              <div class="placeholder" style="height: 200px; background-color: #e9ecef"></div>
+
+              <!-- Skeleton Details -->
+              <div class="card-body">
+                <div class="mb-2">
+                  <span class="placeholder col-8"></span>
+                </div>
+
+                <div class="mb-2">
+                  <span class="placeholder col-4"></span>
+                </div>
+
+                <div class="mb-2" style="height: 3rem">
+                  <span class="placeholder col-12"></span>
+                  <span class="placeholder col-10"></span>
+                </div>
+
+                <div class="mb-2">
+                  <span class="placeholder col-6"></span>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <span class="placeholder col-4"></span>
+                  <span class="placeholder col-3"></span>
+                </div>
+
+                <div class="btn-list">
+                  <span class="placeholder col-12 btn"></span>
+                  <div class="d-flex gap-2">
+                    <span class="placeholder col-6 btn"></span>
+                    <span class="placeholder col-6 btn"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (filteredProducts.length === 0) {
+      <div class="empty">
+        <div class="empty-icon">
+          <i class="ti ti-package icon"></i>
+        </div>
+        <p class="empty-title" translate>No products found</p>
+        <p class="empty-subtitle text-muted" translate>Try adjusting your search or filter to find what you're looking for.</p>
+      </div>
+    } @else {
+      <div class="row row-cards">
+        @for (product of filteredProducts; track product.id) {
+          <div class="col-sm-6 col-lg-3">
+            <div class="card card-sm">
+              <!-- Product Image -->
+              <a href="#" class="d-block position-relative" (click)="viewProduct(product); $event.preventDefault()">
+                <img [src]="product.image" class="card-img-top" [alt]="product.name" style="height: 200px; object-fit: cover" />
+                <!-- Favorite Badge -->
+                <button
+                  type="button"
+                  class="btn btn-icon position-absolute top-0 end-0 m-2"
+                  [class.btn-danger]="product.isFavorite"
+                  [class.btn-ghost-light]="!product.isFavorite"
+                  (click)="toggleFavorite(product); $event.preventDefault(); $event.stopPropagation()"
+                  [attr.aria-label]="product.isFavorite ? 'Remove from favorites' : 'Add to favorites'"
+                >
+                  <i class="ti" [class.ti-heart-filled]="product.isFavorite" [class.ti-heart]="!product.isFavorite" style="color: white"></i>
+                </button>
+                <!-- Status Badge -->
+                <span class="badge position-absolute top-0 start-0 m-2" [ngClass]="getStatusBadgeClass(product.status)">
+                  {{ product.status | translate }}
+                </span>
+              </a>
+
+              <!-- Product Details -->
+              <div class="card-body">
+                <div class="d-flex align-items-center mb-2">
+                  <div class="flex-fill">
+                    <h3 class="card-title mb-1">
+                      <a href="#" class="text-reset" (click)="viewProduct(product); $event.preventDefault()">{{ product.name }}</a>
+                    </h3>
+                  </div>
+                </div>
+
+                <!-- Category -->
+                <div class="mb-2">
+                  <span class="badge bg-blue-lt">
+                    <i class="ti ti-category icon"></i>
+                    {{ product.category }}
+                  </span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-muted mb-2" style="font-size: 0.875rem; height: 3rem; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical">
+                  {{ product.description }}
+                </p>
+
+                <!-- Rating -->
+                <div class="mb-2">
+                  <div class="d-flex align-items-center">
+                    @for (star of getStars(product.rating); track $index) {
+                      <i class="ti ti-star-filled icon text-yellow" style="font-size: 0.875rem"></i>
+                    }
+                    <span class="ms-1 text-muted" style="font-size: 0.875rem">{{ product.rating }}</span>
+                  </div>
+                </div>
+
+                <!-- Price and Stock -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div>
+                    <div class="h3 mb-0">${{ product.price.toFixed(2) }}</div>
+                  </div>
+                  <div class="text-end">
+                    <div class="text-muted" style="font-size: 0.75rem" translate>Stock</div>
+                    <div class="fw-bold">{{ product.stock }}</div>
+                  </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="btn-list">
+                  <button type="button" class="btn btn-sm btn-primary w-100 mb-2" (click)="viewProduct(product)">
+                    <i class="ti ti-eye icon"></i>
+                    <span translate>View</span>
+                  </button>
+                  <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary flex-fill" (click)="editProduct(product)">
+                      <i class="ti ti-edit icon"></i>
+                      <span translate>Edit</span>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger flex-fill" (click)="deleteProduct(product)">
+                      <i class="ti ti-trash icon"></i>
+                      <span translate>Delete</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

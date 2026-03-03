@@ -1,36 +1,187 @@
-<section class="main-container">
-  <h2>Users List</h2>
-
-  <div class="user-table-container">
-    <table class="user-table">
-      <thead>
-        <tr>
-          <th>Avatar</th>
-          <th>Full Name</th>
-          <th>Email</th>
-          <th>Phone</th>
-          <th>Location</th>
-        </tr>
-      </thead>
-      <tbody>
-        @if (!isLoading) {
-          @for (user of users; track user.id) {
-            <tr (click)="userClicked()">
-              <td>
-                <img [src]="user.picture.thumbnail" alt="{{ user.name.first }}'s avatar" />
-              </td>
-              <td>{{ user.name.title }} {{ user.name.first }} {{ user.name.last }}</td>
-              <td>{{ user.email }}</td>
-              <td>{{ user.phone }}</td>
-              <td>{{ user.location.city }}, {{ user.location.country }}</td>
-            </tr>
-          }
-        } @else {
-          <tr>
-            <td colspan="5" style="text-align: center">Loading...</td>
-          </tr>
-        }
-      </tbody>
-    </table>
+<!-- Page header -->
+<div class="page-header d-print-none">
+  <div class="row g-2 align-items-center">
+    <div class="col">
+      <h2 class="page-title" translate>Users</h2>
+      <div class="text-muted mt-1" translate>Manage system users</div>
+    </div>
+    <!-- Page title actions -->
+    <div class="col-auto ms-auto d-print-none">
+      <div class="btn-list">
+        <span class="d-none d-sm-inline">
+          <a href="#" class="btn">
+            <i class="ti ti-download icon"></i>
+            <span translate>Export</span>
+          </a>
+        </span>
+        <a href="#" class="btn btn-primary d-none d-sm-inline-block">
+          <i class="ti ti-plus icon"></i>
+          <span translate>Add new user</span>
+        </a>
+        <a href="#" class="btn btn-primary d-sm-none btn-icon" aria-label="Add new user">
+          <i class="ti ti-plus icon"></i>
+        </a>
+      </div>
+    </div>
   </div>
-</section>
+</div>
+
+<!-- Page body -->
+<div class="row row-cards">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title" translate>Users List</h3>
+        <div class="ms-auto">
+          <div class="input-icon">
+            <span class="input-icon-addon">
+              <i class="ti ti-search icon"></i>
+            </span>
+            <input type="text" class="form-control" placeholder="Search users..." />
+          </div>
+        </div>
+      </div>
+      <div class="card-body border-bottom py-3">
+        <div class="d-flex">
+          <div class="text-muted">
+            Show
+            <div class="mx-2 d-inline-block">
+              <select class="form-select form-select-sm">
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+            </div>
+            entries
+          </div>
+          <div class="ms-auto text-muted">
+            Search:
+            <div class="ms-2 d-inline-block">
+              <input type="text" class="form-control form-control-sm" aria-label="Search invoice" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table card-table table-vcenter text-nowrap datatable">
+          <thead>
+            <tr>
+              <th class="w-1">
+                <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select all users" />
+              </th>
+              <th class="w-1" translate>Avatar</th>
+              <th translate>Full Name</th>
+              <th translate>Email</th>
+              <th translate>Phone</th>
+              <th translate>Location</th>
+              <th translate>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (!isLoading) {
+              @for (user of users; track user.id) {
+                <tr>
+                  <td>
+                    <input class="form-check-input m-0 align-middle" type="checkbox" [attr.aria-label]="'Select user ' + user.name.first" />
+                  </td>
+                  <td>
+                    <span class="avatar avatar-sm" [style.background-image]="'url(' + user.picture.thumbnail + ')'"></span>
+                  </td>
+                  <td>
+                    <div class="d-flex py-1 align-items-center">
+                      <div class="flex-fill">
+                        <div class="font-weight-medium">{{ user.name.title }} {{ user.name.first }} {{ user.name.last }}</div>
+                        <div class="text-muted">
+                          <a href="#" class="text-reset">{{ '@' + user.login.username }}</a>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="text-muted">{{ user.email }}</div>
+                  </td>
+                  <td>
+                    <div class="text-muted">{{ user.phone }}</div>
+                  </td>
+                  <td>
+                    <div class="d-flex flex-column">
+                      <div>{{ user.location.city }}</div>
+                      <div class="text-muted">{{ user.location.country }}</div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge bg-success me-1"></span>
+                    <span translate>Active</span>
+                  </td>
+                  <td>
+                    <div class="btn-list flex-nowrap">
+                      <a href="#" class="btn btn-sm btn-ghost-primary" (click)="userClicked()">
+                        <i class="ti ti-eye icon"></i>
+                        <span translate>View</span>
+                      </a>
+                      <div class="dropdown">
+                        <button class="btn btn-sm btn-ghost-secondary dropdown-toggle align-text-top" data-bs-toggle="dropdown">
+                          <span translate>Actions</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end">
+                          <a class="dropdown-item" href="#">
+                            <i class="ti ti-edit icon dropdown-item-icon"></i>
+                            <span translate>Edit</span>
+                          </a>
+                          <a class="dropdown-item" href="#">
+                            <i class="ti ti-lock icon dropdown-item-icon"></i>
+                            <span translate>Change Password</span>
+                          </a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item text-danger" href="#">
+                            <i class="ti ti-trash icon dropdown-item-icon"></i>
+                            <span translate>Delete</span>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              }
+            } @else {
+              <tr>
+                <td colspan="8" class="text-center py-5">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                  <div class="text-muted mt-2" translate>Loading users...</div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer d-flex align-items-center">
+        <p class="m-0 text-muted" translate>
+          Showing <span>1</span> to <span>10</span> of <span>{{ users.length }}</span> entries
+        </p>
+        <ul class="pagination m-0 ms-auto">
+          <li class="page-item disabled">
+            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+              <i class="ti ti-chevron-left icon"></i>
+              <span translate>prev</span>
+            </a>
+          </li>
+          <li class="page-item active"><a class="page-link" href="#">1</a></li>
+          <li class="page-item"><a class="page-link" href="#">2</a></li>
+          <li class="page-item"><a class="page-link" href="#">3</a></li>
+          <li class="page-item"><a class="page-link" href="#">4</a></li>
+          <li class="page-item"><a class="page-link" href="#">5</a></li>
+          <li class="page-item">
+            <a class="page-link" href="#">
+              <span translate>next</span>
+              <i class="ti ti-chevron-right icon"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

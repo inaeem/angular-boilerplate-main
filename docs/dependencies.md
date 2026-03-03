@@ -4,13 +4,13 @@ This app has third-party dependencies (both production and development). These d
 
 ## Highlighted dependencies
 
-- [@ngneat/hot-toast](https://github.com/ngneat/hot-toast): Toast notifications for Angular.
 - [@ngneat/overview](https://github.com/ngneat/overview): A powerful solution for Angular app walkthroughs.
 - [@ngneat/until-destroy](https://github.com/ngneat/until-destroy): Automatic cleanup of Angular subscriptions.
 - [@ngx-translate/core](https://www.npmjs.com/package/@ngx-translate/core): Internationalization (i18n) library for Angular applications.
 - [@ngx-translate/http-loader](https://www.npmjs.com/package/@ngx-translate/http-loader): A library to load translations from HTTP requests.
-- [bootstrap](https://www.npmjs.com/package/bootstrap): Popular front-end framework for responsive design.
-- [sanitize.css](https://github.com/csstools/sanitize.css): A modern CSS reset.
+- [@tabler/core](https://tabler.io): Bootstrap 5 based admin dashboard template with modern UI components.
+- [@tabler/icons](https://tabler.io/icons): A set of 5000+ free MIT-licensed high-quality SVG icons.
+- [@tabler/icons-webfont](https://tabler.io/icons): Webfont version of Tabler icons for easier integration.
 - [socket.io-client](https://www.npmjs.com/package/socket.io-client): Socket.IO client for real-time bidirectional communication.
 
 ## Dev Dependencies

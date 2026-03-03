@@ -1,19 +1,138 @@
-<nav>
-  <p class="title" translate>Angular Boiler Plate V18</p>
-  <app-language-selector></app-language-selector>
-</nav>
+<header class="navbar navbar-expand-md d-print-none">
+  <div class="container-xl">
+    <!-- Mobile menu toggle -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-<!-- Popover menu -->
-<ng-template #menu let-hide>
-  <!-- This menu-content is generic class can be override with custom style as well, adjust width value directly as per need -->
-  <div class="popper-menu-content" style="width: 150px">
-    <ul>
-      <li (click)="hide()">
-        <label translate>Profile</label>
-      </li>
-      <li (click)="hide()" routerLink="/logout">
-        <label translate>Logout</label>
-      </li>
-    </ul>
+    <!-- Logo -->
+    <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
+      <a href=".">
+        <img src="images/placeholder.png" width="110" height="32" alt="Angular Boilerplate" class="navbar-brand-image" />
+      </a>
+    </h1>
+
+    <!-- Navigation Menu -->
+    <div class="collapse navbar-collapse" id="navbar-menu">
+      <div class="d-flex flex-column flex-md-row flex-fill align-items-stretch align-items-md-center">
+        <ul class="navbar-nav">
+          @for (item of menuItems; track item; let i = $index) {
+            @if (shellService.allowedAccess(item)) {
+              @if (!item.divider) {
+                @if (item.subItems && item.subItems.length) {
+                  <!-- Menu item with dropdown -->
+                  <li class="nav-item dropdown" [class.active]="item.active">
+                    <a
+                      class="nav-link dropdown-toggle"
+                      href="#navbar-{{ item.title }}"
+                      data-bs-toggle="dropdown"
+                      data-bs-auto-close="outside"
+                      role="button"
+                      [attr.aria-expanded]="extendedItem === i"
+                      [class.show]="extendedItem === i"
+                      (click)="activateMenuItem(i)"
+                    >
+                      @if (item.icon) {
+                        <i class="ti ti-{{ item.icon }} icon"></i>
+                      }
+                      <span class="nav-link-title">{{ item.title | translate }}</span>
+                    </a>
+                    <div class="dropdown-menu" [class.show]="extendedItem === i" [attr.id]="'navbar-' + item.title">
+                      @for (subItem of item.subItems; track subItem) {
+                        @if (shellService.allowedAccess(subItem)) {
+                          <a class="dropdown-item" [routerLink]="subItem.href || undefined" routerLinkActive="active" (click)="activateSubItem(i, subItem)" [class.disabled]="subItem.disabled">
+                            @if (subItem.icon) {
+                              <i class="ti ti-{{ subItem.icon }} icon dropdown-item-icon"></i>
+                            }
+                            {{ subItem.title | translate }}
+                          </a>
+                        }
+                      }
+                    </div>
+                  </li>
+                } @else {
+                  <!-- Regular menu item -->
+                  <li class="nav-item" [class.active]="item.active">
+                    <a class="nav-link" [routerLink]="item.href || undefined" (click)="activateMenuItem(i)" [class.disabled]="item.disabled">
+                      @if (item.icon) {
+                        <i class="ti ti-{{ item.icon }} icon"></i>
+                      }
+                      <span class="nav-link-title">{{ item.title | translate }}</span>
+                    </a>
+                  </li>
+                }
+              }
+            }
+          }
+        </ul>
+      </div>
+    </div>
+
+    <!-- Right side items: Language, Notifications, User Menu -->
+    <div class="navbar-nav flex-row order-md-last">
+      <!-- Language Selector -->
+      <div class="nav-item me-3">
+        <app-language-selector></app-language-selector>
+      </div>
+
+      <!-- Notifications -->
+      <div class="nav-item dropdown d-none d-md-flex me-3">
+        <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" tabindex="-1" aria-label="Show notifications">
+          <i class="ti ti-bell icon"></i>
+          <span class="badge bg-red"></span>
+        </a>
+        <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title" translate>Last updates</h3>
+            </div>
+            <div class="list-group list-group-flush list-group-hoverable">
+              <div class="list-group-item">
+                <div class="row align-items-center">
+                  <div class="col-auto">
+                    <span class="status-dot status-dot-animated bg-red d-block"></span>
+                  </div>
+                  <div class="col text-truncate">
+                    <a href="#" class="text-body d-block" translate>Example notification 1</a>
+                    <div class="d-block text-muted text-truncate mt-n1">Change deprecated html tags to text decoration classes (#29604)</div>
+                  </div>
+                  <div class="col-auto">
+                    <a href="#" class="list-group-item-actions">
+                      <i class="ti ti-star icon text-muted"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Menu -->
+      <div class="nav-item dropdown">
+        <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
+          <span class="avatar avatar-sm" style="background-image: url(./static/avatars/000m.jpg)"></span>
+          <div class="d-none d-xl-block ps-2">
+            <div>John Doe</div>
+            <div class="mt-1 small text-muted">Admin</div>
+          </div>
+        </a>
+        <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+          <a href="#" class="dropdown-item">
+            <i class="ti ti-user icon dropdown-item-icon"></i>
+            <span translate>Profile</span>
+          </a>
+          <a href="#" class="dropdown-item">
+            <i class="ti ti-settings icon dropdown-item-icon"></i>
+            <span translate>Settings</span>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a routerLink="/logout" class="dropdown-item">
+            <i class="ti ti-logout icon dropdown-item-icon"></i>
+            <span translate>Logout</span>
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
-</ng-template>
+</header>

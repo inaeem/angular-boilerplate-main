@@ -1,70 +1,79 @@
-<nav [class.pb]="navExpanded" [class.squeeze]="!navExpanded">
-  <span (click)="toggleSidebar(!navExpanded)" [ngClass]="{ open: navExpanded }" class="toggle-icon">
-    <!-- TODO: You can put any icon here, below span is just temporary for demo purpose  -->
-    <span style="color: var(--gray-400)"><</span>
-  </span>
+<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu" aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
+  <span class="navbar-toggler-icon"></span>
+</button>
 
-  <div class="logo-container" routerLink="/">
-    <img alt="Logo" class="logo" src="images/placeholder.png" />
-    <h4>Brand Title</h4>
-  </div>
+<h1 class="navbar-brand navbar-brand-autodark">
+  <a href=".">
+    <img src="images/placeholder.png" width="110" height="32" alt="Brand" class="navbar-brand-image" />
+  </a>
+</h1>
 
-  <div class="navbar-menu-items" dir="auto">
+<div class="collapse navbar-collapse" id="sidebar-menu">
+  <ul class="navbar-nav pt-lg-3">
     @for (item of sidebarItems; track item; let i = $index) {
       @if (shellService.allowedAccess(item)) {
-        <div class="menu">
-          @if (!item.divider) {
-            <a (click)="activateSidebarItem(i)" [class.active]="item.active" [ngClass]="{ disabled: item.disabled }" class="menu-item" id="menu-item-{{ i }}">
-              <div class="item">
-                @if (item.icon) {
-                  <!-- TODO This below i tag is temporary for demo purposes replace with proper icon passed in menu item -->
-                  @if (item.active) {
-                    <i style="color: var(--gray-400)">^</i>
+        @if (!item.divider) {
+          @if (item.subItems && item.subItems.length) {
+            <!-- Menu item with dropdown -->
+            <li class="nav-item dropdown" [class.active]="item.active">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#navbar-{{ item.title }}"
+                data-bs-toggle="dropdown"
+                data-bs-auto-close="false"
+                role="button"
+                [attr.aria-expanded]="sidebarExtendedItem === i"
+                [class.show]="sidebarExtendedItem === i"
+                (click)="activateSidebarItem(i)"
+              >
+                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                  @if (item.icon) {
+                    <i class="ti ti-{{ item.icon }} icon"></i>
                   } @else {
-                    <i style="color: var(--sidebar-icon-color)">^</i>
-                  }
-                }
-                <span>{{ item.title | translate }}</span>
-              </div>
-              @if (item.subItems && item.subItems.length) {
-                <span [ngClass]="{ open: sidebarExtendedItem === i }" class="submenu-icon">
-                  <!-- TODO This below i tag is temporary for demo purposes, use any up down arrow icon -->
-                  @if (item.subItems && item.subItems.length && item.active) {
-                    <!-- Active Icon -->
-                    <i style="color: var(--gray-400)">^</i>
-                  } @else if (item.subItems && item.subItems.length && !item.active) {
-                    <!-- Inactive Icon -->
-                    <i style="color: var(--sidebar-icon-color)">^</i>
+                    <i class="ti ti-folder icon"></i>
                   }
                 </span>
-              }
-            </a>
-            @if (item.subItems && item.subItems.length) {
-              <ul [style.display]="sidebarExtendedItem === i ? 'block' : 'none'" class="sub-menu-items">
-                @for (subItem of item.subItems; track subItem) {
-                  @if (shellService.allowedAccess(subItem)) {
-                    <li [class.disabled]="subItem.disabled">
-                      <a (click)="activateSidebarSubItem(i, subItem)" [ngClass]="{ disabled: subItem.disabled }" [routerLink]="subItem.href || undefined" routerLinkActive="active">
-                        <!-- TODO This below i tag is temporary for demo purposes replace with proper icon passed in submenu item -->
-                        @if (item.subItems && item.subItems.length && item.active) {
-                          <!-- Active Icon -->
-                          <i style="color: var(--gray-400)">^</i>
-                        } @else if (item.subItems && item.subItems.length && !item.active) {
-                          <!-- Inactive Icon -->
-                          <i style="color: var(--sidebar-icon-color)">^</i>
-                        }
-                        <span>{{ subItem.title | translate }}</span>
-                      </a>
-                    </li>
-                  }
-                }
-              </ul>
-            }
+                <span class="nav-link-title">{{ item.title | translate }}</span>
+              </a>
+              <div class="dropdown-menu" [class.show]="sidebarExtendedItem === i" [attr.id]="'navbar-' + item.title">
+                <div class="dropdown-menu-columns">
+                  <div class="dropdown-menu-column">
+                    @for (subItem of item.subItems; track subItem) {
+                      @if (shellService.allowedAccess(subItem)) {
+                        <a class="dropdown-item" [routerLink]="subItem.href || undefined" routerLinkActive="active" (click)="activateSidebarSubItem(i, subItem)" [class.disabled]="subItem.disabled">
+                          @if (subItem.icon) {
+                            <i class="ti ti-{{ subItem.icon }} icon dropdown-item-icon"></i>
+                          }
+                          {{ subItem.title | translate }}
+                        </a>
+                      }
+                    }
+                  </div>
+                </div>
+              </div>
+            </li>
           } @else {
-            <span class="divider"></span>
+            <!-- Regular menu item -->
+            <li class="nav-item" [class.active]="item.active">
+              <a class="nav-link" [routerLink]="item.href || undefined" (click)="activateSidebarItem(i)" [class.disabled]="item.disabled">
+                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                  @if (item.icon) {
+                    <i class="ti ti-{{ item.icon }} icon"></i>
+                  } @else {
+                    <i class="ti ti-point icon"></i>
+                  }
+                </span>
+                <span class="nav-link-title">{{ item.title | translate }}</span>
+              </a>
+            </li>
           }
-        </div>
+        } @else {
+          <!-- Divider -->
+          <li class="nav-item">
+            <hr class="navbar-divider my-3" />
+          </li>
+        }
       }
     }
-  </div>
-</nav>
+  </ul>
+</div>

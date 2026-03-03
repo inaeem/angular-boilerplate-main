@@ -1,7 +1,6 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { UseRandomUser } from '@core/usecases';
 import { RandomUserEntity } from '@core/entities';
-import { HotToastService } from '@ngxpert/hot-toast';
 
 @Component({
   selector: 'app-list',
@@ -14,7 +13,6 @@ export class ListComponent implements OnInit {
   isLoading = true;
 
   private readonly _useRandomUser = new UseRandomUser();
-  private readonly _toast = inject(HotToastService);
 
   ngOnInit() {
     this._useRandomUser.getAllUsers().subscribe({
@@ -29,6 +27,8 @@ export class ListComponent implements OnInit {
   }
 
   userClicked() {
-    this._toast.show('User clicked');
+    console.log('User clicked');
+    // You can implement Bootstrap toast notifications here if needed
+    // Example: Show a Bootstrap toast using native Bootstrap JS
   }
 }
