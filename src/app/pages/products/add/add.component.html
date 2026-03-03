@@ -7,7 +7,7 @@
           <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/dashboard" translate>Home</a></li>
             <li class="breadcrumb-item"><a href="/products" translate>Products</a></li>
-            <li class="breadcrumb-item active" aria-current="page" translate>Add Product</li>
+            <li class="breadcrumb-item active" aria-current="page">{{ isEditMode ? ('Edit Product' | translate) : ('Add Product' | translate) }}</li>
           </ol>
         </nav>
       </div>
@@ -16,7 +16,7 @@
     <!-- Page Title -->
     <div class="row g-2 align-items-center">
       <div class="col">
-        <h2 class="page-title" translate>Add New Product</h2>
+        <h2 class="page-title">{{ isEditMode ? ('Edit Product' | translate) : ('Add New Product' | translate) }}</h2>
         <div class="text-muted mt-1">
           <span translate>Step</span> {{ currentStep }} <span translate>of</span> {{ totalSteps }}: {{ getStepTitle(currentStep) }}
         </div>
@@ -40,7 +40,7 @@
           <div class="card-body">
             <h4 class="card-title mb-3" translate>Steps</h4>
             <div class="steps steps-vertical">
-              @for (step of [1, 2, 3, 4]; track step) {
+              @for (step of [1, 2, 3, 4, 5]; track step) {
                 <a
                   href="#"
                   class="step-item"
@@ -86,25 +86,70 @@
                 <h3 class="card-title" translate>Basic Information</h3>
               </div>
               <div class="card-body">
+                @if (stepAttempted[1] && !isStepValid(1)) {
+                  <div class="alert alert-warning alert-dismissible" role="alert">
+                    <div class="d-flex">
+                      <div>
+                        <i class="ti ti-alert-triangle icon alert-icon"></i>
+                      </div>
+                      <div>
+                        <h4 class="alert-title" translate>Validation Error</h4>
+                        <div class="text-muted">
+                          <ul class="mb-0">
+                            @for (error of getStepErrors(1); track error) {
+                              <li>{{ error }}</li>
+                            }
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                }
+
                 <div class="mb-3">
                   <label class="form-label required" translate>Product Name</label>
-                  <input type="text" class="form-control" [(ngModel)]="formData.name" name="name" placeholder="Enter product name" required />
+                  <input
+                    type="text"
+                    class="form-control"
+                    [class.is-invalid]="hasFieldError('name')"
+                    [(ngModel)]="formData.name"
+                    name="name"
+                    placeholder="Enter product name"
+                    required
+                  />
+                  @if (hasFieldError('name')) {
+                    <div class="invalid-feedback">Product name must be at least 3 characters</div>
+                  }
                   <small class="form-hint" translate>A clear and descriptive product name</small>
                 </div>
 
                 <div class="mb-3">
                   <label class="form-label required" translate>Category</label>
-                  <select class="form-select" [(ngModel)]="formData.category" name="category" required>
+                  <select class="form-select" [class.is-invalid]="hasFieldError('category')" [(ngModel)]="formData.category" name="category" required>
                     <option value="" translate>Select a category</option>
                     @for (category of categories; track category) {
                       <option [value]="category">{{ category }}</option>
                     }
                   </select>
+                  @if (hasFieldError('category')) {
+                    <div class="invalid-feedback">Category is required</div>
+                  }
                 </div>
 
                 <div class="mb-3">
                   <label class="form-label required" translate>Description</label>
-                  <textarea class="form-control" rows="5" [(ngModel)]="formData.description" name="description" placeholder="Describe your product" required></textarea>
+                  <textarea
+                    class="form-control"
+                    [class.is-invalid]="hasFieldError('description')"
+                    rows="5"
+                    [(ngModel)]="formData.description"
+                    name="description"
+                    placeholder="Describe your product"
+                    required
+                  ></textarea>
+                  @if (hasFieldError('description')) {
+                    <div class="invalid-feedback">Description must be at least 10 characters</div>
+                  }
                   <small class="form-hint" translate>Detailed product description to help customers understand what you're selling</small>
                 </div>
 
@@ -127,13 +172,46 @@
                 <h3 class="card-title" translate>Pricing & Stock</h3>
               </div>
               <div class="card-body">
+                @if (stepAttempted[2] && !isStepValid(2)) {
+                  <div class="alert alert-warning alert-dismissible" role="alert">
+                    <div class="d-flex">
+                      <div>
+                        <i class="ti ti-alert-triangle icon alert-icon"></i>
+                      </div>
+                      <div>
+                        <h4 class="alert-title" translate>Validation Error</h4>
+                        <div class="text-muted">
+                          <ul class="mb-0">
+                            @for (error of getStepErrors(2); track error) {
+                              <li>{{ error }}</li>
+                            }
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                }
+
                 <div class="row">
                   <div class="col-md-6 mb-3">
                     <label class="form-label required" translate>Price</label>
-                    <div class="input-group">
+                    <div class="input-group" [class.is-invalid]="hasFieldError('price')">
                       <span class="input-group-text">$</span>
-                      <input type="number" class="form-control" [(ngModel)]="formData.price" name="price" placeholder="0.00" step="0.01" required />
+                      <input
+                        type="number"
+                        class="form-control"
+                        [class.is-invalid]="hasFieldError('price')"
+                        [(ngModel)]="formData.price"
+                        name="price"
+                        placeholder="0.00"
+                        step="0.01"
+                        min="0.01"
+                        required
+                      />
                     </div>
+                    @if (hasFieldError('price')) {
+                      <div class="invalid-feedback d-block">Price must be greater than 0</div>
+                    }
                   </div>
 
                   <div class="col-md-6 mb-3">
@@ -160,13 +238,36 @@
                 <div class="row">
                   <div class="col-md-6 mb-3">
                     <label class="form-label required" translate>SKU</label>
-                    <input type="text" class="form-control" [(ngModel)]="formData.sku" name="sku" placeholder="PROD-001" required />
+                    <input
+                      type="text"
+                      class="form-control"
+                      [class.is-invalid]="hasFieldError('sku')"
+                      [(ngModel)]="formData.sku"
+                      name="sku"
+                      placeholder="PROD-001"
+                      required
+                    />
+                    @if (hasFieldError('sku')) {
+                      <div class="invalid-feedback">SKU must be at least 3 characters</div>
+                    }
                     <small class="form-hint" translate>Stock Keeping Unit</small>
                   </div>
 
                   <div class="col-md-6 mb-3">
                     <label class="form-label required" translate>Stock Quantity</label>
-                    <input type="number" class="form-control" [(ngModel)]="formData.stock" name="stock" placeholder="0" required />
+                    <input
+                      type="number"
+                      class="form-control"
+                      [class.is-invalid]="hasFieldError('stock')"
+                      [(ngModel)]="formData.stock"
+                      name="stock"
+                      placeholder="0"
+                      min="0"
+                      required
+                    />
+                    @if (hasFieldError('stock')) {
+                      <div class="invalid-feedback">Stock quantity must be 0 or greater</div>
+                    }
                   </div>
                 </div>
 
@@ -186,9 +287,40 @@
                 <h3 class="card-title" translate>Images & Media</h3>
               </div>
               <div class="card-body">
+                @if (stepAttempted[3] && !isStepValid(3)) {
+                  <div class="alert alert-warning alert-dismissible" role="alert">
+                    <div class="d-flex">
+                      <div>
+                        <i class="ti ti-alert-triangle icon alert-icon"></i>
+                      </div>
+                      <div>
+                        <h4 class="alert-title" translate>Validation Error</h4>
+                        <div class="text-muted">
+                          <ul class="mb-0">
+                            @for (error of getStepErrors(3); track error) {
+                              <li>{{ error }}</li>
+                            }
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                }
+
                 <div class="mb-3">
                   <label class="form-label required" translate>Main Product Image</label>
-                  <input type="url" class="form-control" [(ngModel)]="formData.imageUrl" name="imageUrl" placeholder="https://example.com/image.jpg" required />
+                  <input
+                    type="url"
+                    class="form-control"
+                    [class.is-invalid]="hasFieldError('imageUrl')"
+                    [(ngModel)]="formData.imageUrl"
+                    name="imageUrl"
+                    placeholder="https://example.com/image.jpg"
+                    required
+                  />
+                  @if (hasFieldError('imageUrl')) {
+                    <div class="invalid-feedback">Please enter a valid image URL (http:// or https://)</div>
+                  }
                   <small class="form-hint" translate>Enter the URL of your main product image</small>
                 </div>
 
@@ -233,13 +365,159 @@
             </div>
           }
 
-          <!-- Step 4: Review & Submit -->
+          <!-- Step 4: Product Variants -->
           @if (currentStep === 4) {
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title" translate>Product Variants</h3>
+                <div class="card-actions">
+                  <button type="button" class="btn btn-primary" (click)="openAddVariantModal()">
+                    <i class="ti ti-plus icon"></i>
+                    <span translate>Add Variant</span>
+                  </button>
+                </div>
+              </div>
+              <div class="card-body">
+                @if (stepAttempted[4] && !isStepValid(4)) {
+                  <div class="alert alert-danger alert-dismissible" role="alert">
+                    <div class="d-flex">
+                      <div>
+                        <i class="ti ti-alert-circle icon alert-icon"></i>
+                      </div>
+                      <div>
+                        <h4 class="alert-title" translate>Variant Validation Errors</h4>
+                        <div class="text-muted">
+                          <ul class="mb-0">
+                            @for (error of getStepErrors(4); track error) {
+                              <li>{{ error }}</li>
+                            }
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                }
+
+                <p class="text-muted mb-3" translate>
+                  Add variants if your product comes in different options like size, color, or material.
+                </p>
+
+                @if (formData.variants.length === 0) {
+                  <div class="empty">
+                    <div class="empty-icon">
+                      <i class="ti ti-versions icon"></i>
+                    </div>
+                    <p class="empty-title" translate>No variants added</p>
+                    <p class="empty-subtitle text-muted" translate>
+                      Click "Add Variant" to create product variations
+                    </p>
+                    <div class="empty-action">
+                      <button type="button" class="btn btn-primary" (click)="openAddVariantModal()">
+                        <i class="ti ti-plus icon"></i>
+                        <span translate>Add Your First Variant</span>
+                      </button>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="table-responsive">
+                    <table class="table table-vcenter card-table">
+                      <thead>
+                        <tr>
+                          <th translate>Name</th>
+                          <th translate>SKU</th>
+                          <th translate>Price</th>
+                          <th translate>Stock</th>
+                          <th translate>Attributes</th>
+                          <th class="w-1" translate>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (variant of formData.variants; track variant.id) {
+                          <tr>
+                            <td>
+                              <div class="fw-bold">{{ variant.name }}</div>
+                            </td>
+                            <td>
+                              <span class="text-muted">{{ variant.sku }}</span>
+                            </td>
+                            <td>
+                              <span class="fw-bold">${{ variant.price?.toFixed(2) || '0.00' }}</span>
+                            </td>
+                            <td>
+                              @if (variant.stock !== null && variant.stock !== undefined) {
+                                <span class="badge" [class.bg-success]="variant.stock > 10" [class.bg-warning]="variant.stock > 0 && variant.stock <= 10" [class.bg-danger]="variant.stock === 0">
+                                  {{ variant.stock }} units
+                                </span>
+                              } @else {
+                                <span class="text-muted">-</span>
+                              }
+                            </td>
+                            <td>
+                              @if (getVariantAttributeKeys(variant).length === 0) {
+                                <span class="text-muted">No attributes</span>
+                              } @else {
+                                <div class="d-flex gap-1 flex-wrap">
+                                  @for (key of getVariantAttributeKeys(variant); track key) {
+                                    <span class="badge bg-blue-lt">
+                                      {{ key }}: {{ variant.attributes[key] }}
+                                    </span>
+                                  }
+                                </div>
+                              }
+                            </td>
+                            <td>
+                              <div class="btn-list">
+                                <button type="button" class="btn btn-sm btn-ghost-secondary" (click)="openEditVariantModal(variant)" title="Edit">
+                                  <i class="ti ti-pencil icon"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-ghost-danger" (click)="deleteVariant(variant)" title="Delete">
+                                  <i class="ti ti-trash icon"></i>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Step 5: Review & Submit -->
+          @if (currentStep === 5) {
             <div class="card">
               <div class="card-header">
                 <h3 class="card-title" translate>Review & Submit</h3>
               </div>
               <div class="card-body">
+                @if (!isStepValid(5)) {
+                  <div class="alert alert-danger alert-dismissible" role="alert">
+                    <div class="d-flex">
+                      <div>
+                        <i class="ti ti-alert-circle icon alert-icon"></i>
+                      </div>
+                      <div>
+                        <h4 class="alert-title" translate>Cannot Submit - Validation Errors</h4>
+                        <div class="text-muted">
+                          <p>Please go back and fix the following issues:</p>
+                          <ul class="mb-0">
+                            @for (error of getStepErrors(5); track error) {
+                              <li>{{ error }}</li>
+                            }
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="alert alert-success">
+                    <i class="ti ti-check icon"></i>
+                    <span translate>All validations passed! Ready to submit.</span>
+                  </div>
+                }
+
                 <div class="alert alert-info">
                   <i class="ti ti-info-circle icon"></i>
                   <span translate>Please review all the information before submitting</span>
@@ -315,6 +593,62 @@
                     </div>
                   }
                 </div>
+
+                <hr />
+
+                <!-- Variants Summary -->
+                <div class="mb-4">
+                  <h4 translate>Product Variants</h4>
+                  @if (formData.variants.length === 0) {
+                    <div class="row">
+                      <div class="col-md-3 text-muted" translate>Variants:</div>
+                      <div class="col-md-9 text-muted" translate>No variants added</div>
+                    </div>
+                  } @else {
+                    <div class="row">
+                      <div class="col-md-3 text-muted" translate>Total Variants:</div>
+                      <div class="col-md-9 fw-bold">{{ formData.variants.length }}</div>
+                    </div>
+                    <div class="row mt-3">
+                      <div class="col-12">
+                        <div class="table-responsive">
+                          <table class="table table-sm table-bordered">
+                            <thead>
+                              <tr>
+                                <th translate>Name</th>
+                                <th translate>SKU</th>
+                                <th translate>Price</th>
+                                <th translate>Stock</th>
+                                <th translate>Attributes</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              @for (variant of formData.variants; track variant.id) {
+                                <tr>
+                                  <td>{{ variant.name }}</td>
+                                  <td>{{ variant.sku }}</td>
+                                  <td>${{ variant.price?.toFixed(2) || '0.00' }}</td>
+                                  <td>{{ variant.stock || 0 }}</td>
+                                  <td>
+                                    @if (getVariantAttributeKeys(variant).length === 0) {
+                                      <span class="text-muted">-</span>
+                                    } @else {
+                                      @for (key of getVariantAttributeKeys(variant); track key) {
+                                        <span class="badge bg-blue-lt me-1">
+                                          {{ key }}: {{ variant.attributes[key] }}
+                                        </span>
+                                      }
+                                    }
+                                  </td>
+                                </tr>
+                              }
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
               </div>
             </div>
           }
@@ -338,10 +672,16 @@
                       <i class="ti ti-arrow-right icon"></i>
                     </button>
                   } @else {
-                    <button type="button" class="btn btn-success" (click)="submitProduct()">
+                    <button type="button" class="btn btn-success" (click)="submitProduct()" [disabled]="!isStepValid(5)">
                       <i class="ti ti-check icon"></i>
-                      <span translate>Create Product</span>
+                      <span>{{ isEditMode ? ('Update Product' | translate) : ('Create Product' | translate) }}</span>
                     </button>
+                    @if (!isStepValid(5)) {
+                      <small class="text-danger ms-2">
+                        <i class="ti ti-alert-circle icon"></i>
+                        <span translate>Please fix validation errors</span>
+                      </small>
+                    }
                   }
                 </div>
               </div>
@@ -352,3 +692,104 @@
     </div>
   </div>
 </div>
+
+<!-- Variant Add/Edit Modal -->
+@if (showVariantModal) {
+  <div class="modal modal-blur fade show" style="display: block" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            {{ editingVariant ? ('Edit Variant' | translate) : ('Add Variant' | translate) }}
+          </h5>
+          <button type="button" class="btn-close" (click)="closeVariantModal()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label required" translate>Variant Name</label>
+              <input type="text" class="form-control" [(ngModel)]="variantForm.name" name="variantName" placeholder="e.g., Red - Large" required />
+              <small class="form-hint" translate>Descriptive name for this variant</small>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label required" translate>SKU</label>
+              <input type="text" class="form-control" [(ngModel)]="variantForm.sku" name="variantSku" placeholder="e.g., PROD-001-RED-L" required />
+              <small class="form-hint" translate>Unique identifier for this variant</small>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label" translate>Price</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="number" class="form-control" [(ngModel)]="variantForm.price" name="variantPrice" placeholder="0.00" step="0.01" />
+              </div>
+              <small class="form-hint" translate>Leave empty to use base product price</small>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label" translate>Stock Quantity</label>
+              <input type="number" class="form-control" [(ngModel)]="variantForm.stock" name="variantStock" placeholder="0" />
+            </div>
+          </div>
+
+          <hr />
+
+          <div class="mb-3">
+            <label class="form-label" translate>Variant Attributes</label>
+            <p class="text-muted small" translate>Add attributes like color, size, material, etc.</p>
+
+            @if (getAttributeKeys().length > 0) {
+              <div class="mb-3">
+                <div class="list-group">
+                  @for (key of getAttributeKeys(); track key) {
+                    <div class="list-group-item">
+                      <div class="row align-items-center">
+                        <div class="col">
+                          <strong>{{ key }}:</strong> {{ variantForm.attributes[key] }}
+                        </div>
+                        <div class="col-auto">
+                          <button type="button" class="btn btn-sm btn-ghost-danger" (click)="removeAttribute(key)">
+                            <i class="ti ti-x icon"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            <div class="row">
+              <div class="col-md-5">
+                <input type="text" class="form-control" #attrKey placeholder="Attribute name (e.g., Color)" />
+              </div>
+              <div class="col-md-5">
+                <input type="text" class="form-control" #attrValue placeholder="Value (e.g., Red)" />
+              </div>
+              <div class="col-md-2">
+                <button
+                  type="button"
+                  class="btn btn-primary w-100"
+                  (click)="addAttribute(attrKey.value, attrValue.value); attrKey.value = ''; attrValue.value = ''"
+                >
+                  <i class="ti ti-plus icon"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-link link-secondary" (click)="closeVariantModal()">
+            <span translate>Cancel</span>
+          </button>
+          <button type="button" class="btn btn-primary" (click)="saveVariant()">
+            <i class="ti ti-check icon"></i>
+            <span>{{ editingVariant ? ('Update Variant' | translate) : ('Add Variant' | translate) }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show" (click)="closeVariantModal()"></div>
+}

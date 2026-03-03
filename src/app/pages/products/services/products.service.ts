@@ -12,6 +12,7 @@ export interface Product {
   image: string;
   isFavorite: boolean;
   status: 'in-stock' | 'low-stock' | 'out-of-stock';
+  deprecated: boolean;
 }
 
 @Injectable({
@@ -30,6 +31,7 @@ export class ProductsService {
       image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop',
       isFavorite: false,
       status: 'in-stock',
+      deprecated: false,
     },
     {
       id: 2,
@@ -42,6 +44,7 @@ export class ProductsService {
       image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=300&fit=crop',
       isFavorite: true,
       status: 'low-stock',
+      deprecated: false,
     },
     {
       id: 3,
@@ -54,10 +57,11 @@ export class ProductsService {
       image: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=300&fit=crop',
       isFavorite: false,
       status: 'in-stock',
+      deprecated: false,
     },
     {
       id: 4,
-      name: 'USB-C Hub Adapter',
+      name: 'USB-C Hub Adapter (Old Model)',
       description: '7-in-1 USB-C hub with HDMI, USB 3.0, SD card reader, and 100W power delivery.',
       price: 49.99,
       category: 'Accessories',
@@ -66,6 +70,7 @@ export class ProductsService {
       image: 'https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=300&fit=crop',
       isFavorite: false,
       status: 'out-of-stock',
+      deprecated: true,
     },
     {
       id: 5,
@@ -78,6 +83,7 @@ export class ProductsService {
       image: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=400&h=300&fit=crop',
       isFavorite: true,
       status: 'in-stock',
+      deprecated: false,
     },
     {
       id: 6,
@@ -90,6 +96,7 @@ export class ProductsService {
       image: 'https://images.unsplash.com/photo-1527814050087-3793815479db?w=400&h=300&fit=crop',
       isFavorite: false,
       status: 'in-stock',
+      deprecated: false,
     },
     {
       id: 7,
@@ -102,10 +109,11 @@ export class ProductsService {
       image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400&h=300&fit=crop',
       isFavorite: false,
       status: 'in-stock',
+      deprecated: false,
     },
     {
       id: 8,
-      name: 'Webcam HD 1080p',
+      name: 'Webcam HD 1080p (Discontinued)',
       description: 'Full HD webcam with auto-focus, noise reduction, and built-in microphone.',
       price: 79.99,
       category: 'Electronics',
@@ -114,6 +122,7 @@ export class ProductsService {
       image: 'https://images.unsplash.com/photo-1593640495390-c1c3dfe84c78?w=400&h=300&fit=crop',
       isFavorite: false,
       status: 'low-stock',
+      deprecated: true,
     },
     {
       id: 9,
@@ -126,6 +135,7 @@ export class ProductsService {
       image: 'https://images.unsplash.com/photo-1527814050087-3793815479db?w=400&h=300&fit=crop',
       isFavorite: false,
       status: 'in-stock',
+      deprecated: false,
     },
     {
       id: 10,
@@ -138,10 +148,11 @@ export class ProductsService {
       image: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=400&h=300&fit=crop',
       isFavorite: true,
       status: 'in-stock',
+      deprecated: false,
     },
     {
       id: 11,
-      name: 'Desk Organizer Set',
+      name: 'Desk Organizer Set (Legacy)',
       description: 'Premium desk organizer with pen holder, document tray, and cable management.',
       price: 34.99,
       category: 'Accessories',
@@ -150,6 +161,7 @@ export class ProductsService {
       image: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400&h=300&fit=crop',
       isFavorite: false,
       status: 'in-stock',
+      deprecated: true,
     },
     {
       id: 12,
@@ -162,6 +174,7 @@ export class ProductsService {
       image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=400&h=300&fit=crop',
       isFavorite: false,
       status: 'in-stock',
+      deprecated: false,
     },
   ];
 

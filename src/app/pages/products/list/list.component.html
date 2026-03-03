@@ -25,7 +25,15 @@
         </div>
       </div>
       <div class="col-auto ms-auto d-print-none">
-        <div class="btn-list">
+        <div class="d-flex gap-2 align-items-center">
+          <!-- Search Input -->
+          <div class="input-icon" style="min-width: 300px">
+            <span class="input-icon-addon">
+              <i class="ti ti-search icon"></i>
+            </span>
+            <input type="text" class="form-control" placeholder="Search products..." [(ngModel)]="searchQuery" (input)="searchProducts()" [disabled]="isLoading || hasError" />
+          </div>
+          <!-- Add Product Button -->
           <a routerLink="/products/add" class="btn btn-primary">
             <i class="ti ti-plus icon"></i>
             <span translate>Add Product</span>
@@ -34,32 +42,38 @@
       </div>
     </div>
 
-    <!-- Search Bar -->
+    <!-- Tab Navigation -->
     <div class="row mt-3">
       <div class="col-12">
-        <div class="card">
-          <div class="card-body">
-            <div class="row g-2">
-              <div class="col">
-                <div class="input-icon">
-                  <span class="input-icon-addon">
-                    @if (isSearching) {
-                      <div class="spinner-border spinner-border-sm text-muted" role="status"></div>
-                    } @else {
-                      <i class="ti ti-search icon"></i>
-                    }
-                  </span>
-                  <input type="text" class="form-control" placeholder="Search products..." [(ngModel)]="searchQuery" (input)="searchProducts()" [disabled]="isLoading" />
-                </div>
-              </div>
-              <div class="col-auto">
-                <button type="button" class="btn btn-icon" aria-label="Filter" [disabled]="isLoading">
-                  <i class="ti ti-filter icon"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ul class="nav nav-tabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" [class.active]="activeTab === 'all'" href="#" (click)="switchTab('all'); $event.preventDefault()" role="tab">
+              <i class="ti ti-list icon me-2"></i>
+              <span translate>All Products</span>
+              @if (!isLoading) {
+                <span class="badge bg-secondary ms-2">{{ getTabCount('all') }}</span>
+              }
+            </a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" [class.active]="activeTab === 'favorites'" href="#" (click)="switchTab('favorites'); $event.preventDefault()" role="tab">
+              <i class="ti ti-heart icon me-2"></i>
+              <span translate>Favorites</span>
+              @if (!isLoading) {
+                <span class="badge bg-red ms-2">{{ getTabCount('favorites') }}</span>
+              }
+            </a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" [class.active]="activeTab === 'deprecated'" href="#" (click)="switchTab('deprecated'); $event.preventDefault()" role="tab">
+              <i class="ti ti-archive icon me-2"></i>
+              <span translate>Deprecated</span>
+              @if (!isLoading) {
+                <span class="badge bg-warning ms-2">{{ getTabCount('deprecated') }}</span>
+              }
+            </a>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
@@ -68,8 +82,23 @@
 <!-- Products Grid -->
 <div class="page-body">
   <div class="container-xl">
-    <!-- Loading State with Skeleton Placeholders -->
-    @if (isLoading || isSearching) {
+    <!-- Error State -->
+    @if (hasError) {
+      <div class="empty">
+        <div class="empty-icon text-danger">
+          <i class="ti ti-alert-triangle icon" style="font-size: 4rem"></i>
+        </div>
+        <p class="empty-title" translate>Failed to Load Products</p>
+        <p class="empty-subtitle text-muted">{{ errorMessage }}</p>
+        <div class="empty-action">
+          <button type="button" class="btn btn-primary" (click)="retryLoading()">
+            <i class="ti ti-reload icon"></i>
+            <span translate>Retry</span>
+          </button>
+        </div>
+      </div>
+    } @else if (isLoading || isSearching) {
+      <!-- Loading State with Skeleton Placeholders -->
       <div class="row row-cards">
         @for (skeleton of skeletonArray; track $index) {
           <div class="col-sm-6 col-lg-3">
@@ -215,3 +244,137 @@
     }
   </div>
 </div>
+
+<!-- View Product Modal -->
+@if (showViewModal && selectedProduct) {
+  <div class="modal modal-blur fade show" style="display: block" tabindex="-1" role="dialog" (click)="closeViewModal()">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" translate>Product Details</h5>
+          <button type="button" class="btn-close" (click)="closeViewModal()" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <!-- Product Image -->
+            <div class="col-md-5">
+              <img [src]="selectedProduct.image" [alt]="selectedProduct.name" class="img-fluid rounded" />
+              @if (selectedProduct.deprecated) {
+                <div class="alert alert-warning mt-3">
+                  <i class="ti ti-alert-triangle icon"></i>
+                  <span translate>This product has been deprecated</span>
+                </div>
+              }
+            </div>
+
+            <!-- Product Information -->
+            <div class="col-md-7">
+              <div class="mb-3">
+                <h3>{{ selectedProduct.name }}</h3>
+                @if (selectedProduct.isFavorite) {
+                  <span class="badge bg-red-lt">
+                    <i class="ti ti-heart-filled icon"></i>
+                    <span translate>Favorite</span>
+                  </span>
+                }
+                <span class="badge ms-2" [ngClass]="getStatusBadgeClass(selectedProduct.status)">
+                  {{ selectedProduct.status | translate }}
+                </span>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold" translate>Description</label>
+                <p class="text-muted">{{ selectedProduct.description }}</p>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-6">
+                  <label class="form-label fw-bold" translate>Price</label>
+                  <div class="h2 text-primary">${{ selectedProduct.price.toFixed(2) }}</div>
+                </div>
+                <div class="col-6">
+                  <label class="form-label fw-bold" translate>Stock</label>
+                  <div class="h2">{{ selectedProduct.stock }} <span translate>units</span></div>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-6">
+                  <label class="form-label fw-bold" translate>Category</label>
+                  <div>
+                    <span class="badge bg-blue-lt">
+                      <i class="ti ti-category icon"></i>
+                      {{ selectedProduct.category }}
+                    </span>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <label class="form-label fw-bold" translate>Rating</label>
+                  <div class="d-flex align-items-center">
+                    @for (star of getStars(selectedProduct.rating); track $index) {
+                      <i class="ti ti-star-filled icon text-yellow"></i>
+                    }
+                    <span class="ms-2">{{ selectedProduct.rating }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold" translate>Product ID</label>
+                <div class="text-muted">#{{ selectedProduct.id }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost-secondary" (click)="closeViewModal()" translate>Close</button>
+          <button type="button" class="btn btn-primary" (click)="editProduct(selectedProduct); closeViewModal()">
+            <i class="ti ti-edit icon"></i>
+            <span translate>Edit Product</span>
+          </button>
+          <button type="button" class="btn btn-danger" (click)="deleteProduct(selectedProduct); closeViewModal()">
+            <i class="ti ti-trash icon"></i>
+            <span translate>Delete Product</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show"></div>
+}
+
+<!-- Delete Confirmation Modal -->
+@if (showDeleteModal && productToDelete) {
+  <div class="modal modal-blur fade show" style="display: block" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-status bg-danger"></div>
+        <div class="modal-body text-center py-4">
+          <i class="ti ti-alert-triangle icon mb-2 text-danger" style="font-size: 3rem"></i>
+          <h3 translate>Confirm Deletion</h3>
+          <div class="text-muted">
+            <span translate>Are you sure you want to delete</span> <strong>"{{ productToDelete.name }}"</strong>?
+            <br />
+            <span translate>This action cannot be undone.</span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="w-100">
+            <div class="row">
+              <div class="col">
+                <button type="button" class="btn w-100" (click)="closeDeleteModal()" translate>Cancel</button>
+              </div>
+              <div class="col">
+                <button type="button" class="btn btn-danger w-100" (click)="confirmDelete()">
+                  <i class="ti ti-trash icon"></i>
+                  <span translate>Delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show"></div>
+}
