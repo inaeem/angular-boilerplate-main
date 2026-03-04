@@ -37,15 +37,17 @@ Configuration is managed in `src/environments/environment.ts` (development) and 
 **Development (Mock Data):**
 ```typescript
 // src/environments/environment.ts
-useMockData: true
+useMockData: true  // Uses mock DTOs, always maps through ProductMapper
 ```
 
 **Production (Real API):**
 ```typescript
 // src/environments/environment.prod.ts
-useMockData: false
+useMockData: false  // Uses real API DTOs, always maps through ProductMapper
 apiBaseUrl: 'https://api.yourapp.com/api'
 ```
+
+**Important:** Both mock and real API **always use the ProductMapper**. The API always returns DTOs (snake_case), and mock data simulates this behavior exactly.
 
 ## API Endpoints
 
@@ -167,42 +169,39 @@ When `useMockData: true`:
 - ✅ Search functionality with filtering
 - ✅ Favorite toggle support
 - ✅ No backend server required
-- ✅ **Smart DTO handling** - Returns API DTOs when `useApiMapper: true`
+- ✅ **ALWAYS returns API DTOs** - Simulates real API exactly
 
 ### Mock Data Behavior
 
-The service maintains **two separate mock datasets**:
+The service maintains **one mock dataset in DTO format**:
 
-1. **`mockProductDtos`** - API DTO format (snake_case)
-   - Used when `useApiMapper: true`
-   - Ensures mapper is exercised even with mock data
-   - Simulates real API behavior
+**`mockProductDtos`** - API DTO format (snake_case)
+- Used for all mock operations
+- ALWAYS passes through ProductMapper
+- Simulates real API behavior exactly
 
-2. **`mockProducts`** - Product entity format (camelCase)
-   - Used when `useApiMapper: false`
-   - No mapping overhead
-   - Direct entity format
+**Data Flow:**
 
-**Why This Matters:**
-
-When `useApiMapper: true`, mock data flows through the mapper **just like real API data**:
+Both mock and real API follow the **same path**:
 
 ```
-Mock DTO → Mapper → Product Entity → Component
+Mock API:  DTO → ProductMapper → Product Entity → Component
+Real API:  DTO → ProductMapper → Product Entity → Component
 ```
 
 This ensures:
-- ✅ Mapper is tested with mock data
-- ✅ No behavioral differences between mock and API modes
-- ✅ Consistent transformation logic
+- ✅ Mock data behaves identically to real API
+- ✅ Mapper is ALWAYS tested during development
+- ✅ No surprises when switching to production
+- ✅ Consistent transformation logic across all modes
 - ✅ Early detection of mapping issues
 
 **Benefits:**
-- Rapid prototyping
-- Offline development
-- Automated testing with mapper
-- Demo presentations
-- Mapper validation without backend
+- Rapid prototyping with realistic API simulation
+- Offline development with full mapping validation
+- Automated testing of mapper transformations
+- Demo presentations without backend
+- Confidence that mock → production works seamlessly
 
 ## Integration with Backend API
 
