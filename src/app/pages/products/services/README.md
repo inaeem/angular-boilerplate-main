@@ -167,12 +167,42 @@ When `useMockData: true`:
 - ✅ Search functionality with filtering
 - ✅ Favorite toggle support
 - ✅ No backend server required
+- ✅ **Smart DTO handling** - Returns API DTOs when `useApiMapper: true`
+
+### Mock Data Behavior
+
+The service maintains **two separate mock datasets**:
+
+1. **`mockProductDtos`** - API DTO format (snake_case)
+   - Used when `useApiMapper: true`
+   - Ensures mapper is exercised even with mock data
+   - Simulates real API behavior
+
+2. **`mockProducts`** - Product entity format (camelCase)
+   - Used when `useApiMapper: false`
+   - No mapping overhead
+   - Direct entity format
+
+**Why This Matters:**
+
+When `useApiMapper: true`, mock data flows through the mapper **just like real API data**:
+
+```
+Mock DTO → Mapper → Product Entity → Component
+```
+
+This ensures:
+- ✅ Mapper is tested with mock data
+- ✅ No behavioral differences between mock and API modes
+- ✅ Consistent transformation logic
+- ✅ Early detection of mapping issues
 
 **Benefits:**
 - Rapid prototyping
 - Offline development
-- Automated testing
+- Automated testing with mapper
 - Demo presentations
+- Mapper validation without backend
 
 ## Integration with Backend API
 
