@@ -5,9 +5,9 @@
       <div class="col-12">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/dashboard" translate>Home</a></li>
-            <li class="breadcrumb-item"><a href="/products" translate>Products</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ isEditMode ? ('Edit Product' | translate) : ('Add Product' | translate) }}</li>
+            <li class="breadcrumb-item"><a href="/dashboard">Home</a></li>
+            <li class="breadcrumb-item"><a href="/products">Providers</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ isEditMode ? 'Edit Provider' : 'Register Provider' }}</li>
           </ol>
         </nav>
       </div>
@@ -16,15 +16,15 @@
     <!-- Page Title -->
     <div class="row g-2 align-items-center">
       <div class="col">
-        <h2 class="page-title">{{ isEditMode ? ('Edit Product' | translate) : ('Add New Product' | translate) }}</h2>
+        <h2 class="page-title">{{ isEditMode ? 'Edit Provider' : 'Register New Provider' }}</h2>
         <div class="text-muted mt-1">
-          <span translate>Step</span> {{ currentStep }} <span translate>of</span> {{ totalSteps }}: {{ getStepTitle(currentStep) }}
+          Step {{ currentStep }} of {{ totalSteps }}: {{ getStepTitle(currentStep) }}
         </div>
       </div>
       <div class="col-auto ms-auto">
         <button type="button" class="btn btn-ghost-secondary" (click)="cancel()">
           <i class="ti ti-x icon"></i>
-          <span translate>Cancel</span>
+          Cancel
         </button>
       </div>
     </div>
@@ -38,9 +38,9 @@
       <div class="col-md-3 mb-4">
         <div class="card">
           <div class="card-body">
-            <h4 class="card-title mb-3" translate>Steps</h4>
+            <h4 class="card-title mb-3">Steps</h4>
             <div class="steps steps-vertical">
-              @for (step of [1, 2, 3, 4, 5]; track step) {
+              @for (step of [1, 2, 3, 4]; track step) {
                 <a
                   href="#"
                   class="step-item"
@@ -48,748 +48,674 @@
                   [class.text-muted]="currentStep !== step"
                   (click)="goToStep(step); $event.preventDefault()"
                 >
-                  <div class="h4 m-0">
-                    <i class="ti {{ getStepIcon(step) }} icon"></i>
-                  </div>
-                  <div class="ms-2">
-                    <div class="fw-bold">{{ getStepTitle(step) }}</div>
-                    @if (isStepValid(step)) {
-                      <div class="text-success small">
-                        <i class="ti ti-check icon"></i>
-                        <span translate>Completed</span>
-                      </div>
-                    }
-                  </div>
+                  <span class="step-counter">
+                    <i class="ti {{ getStepIcon(step) }}"></i>
+                  </span>
+                  <span class="step-title">{{ getStepTitle(step) }}</span>
                 </a>
               }
             </div>
 
-            <!-- Progress -->
+            <!-- Progress Bar -->
             <div class="mt-4">
-              <div class="text-muted mb-2 small" translate>Overall Progress</div>
-              <div class="progress">
-                <div class="progress-bar" [style.width.%]="getProgress()"></div>
+              <div class="mb-1 small text-muted">Overall Progress</div>
+              <div class="progress progress-sm">
+                <div
+                  class="progress-bar bg-primary"
+                  [style.width.%]="getProgress()"
+                  role="progressbar"
+                  [attr.aria-valuenow]="getProgress()"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                >
+                  {{ getProgress() | number: '1.0-0' }}%
+                </div>
               </div>
-              <div class="text-center mt-2 small">{{ getProgress() }}%</div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Wizard Content -->
+      <!-- Main Form Content -->
       <div class="col-md-9">
-        <form>
-          <!-- Step 1: Basic Information -->
-          @if (currentStep === 1) {
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title" translate>Basic Information</h3>
-              </div>
-              <div class="card-body">
-                @if (stepAttempted[1] && !isStepValid(1)) {
-                  <div class="alert alert-warning alert-dismissible" role="alert">
-                    <div class="d-flex">
-                      <div>
-                        <i class="ti ti-alert-triangle icon alert-icon"></i>
-                      </div>
-                      <div>
-                        <h4 class="alert-title" translate>Validation Error</h4>
-                        <div class="text-muted">
-                          <ul class="mb-0">
-                            @for (error of getStepErrors(1); track error) {
-                              <li>{{ error }}</li>
-                            }
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                }
+        <div class="card">
+          <div class="card-body">
+            <!-- Step 1: Application Information -->
+            @if (currentStep === 1) {
+              <h3 class="card-title mb-4">
+                <i class="ti ti-briefcase me-2"></i>
+                Application Information
+              </h3>
 
-                <div class="mb-3">
-                  <label class="form-label required" translate>Product Name</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    [class.is-invalid]="hasFieldError('name')"
-                    [(ngModel)]="formData.name"
-                    name="name"
-                    placeholder="Enter product name"
-                    required
-                  />
-                  @if (hasFieldError('name')) {
-                    <div class="invalid-feedback">Product name must be at least 3 characters</div>
-                  }
-                  <small class="form-hint" translate>A clear and descriptive product name</small>
-                </div>
-
-                <div class="mb-3">
-                  <label class="form-label required" translate>Category</label>
-                  <select class="form-select" [class.is-invalid]="hasFieldError('category')" [(ngModel)]="formData.category" name="category" required>
-                    <option value="" translate>Select a category</option>
-                    @for (category of categories; track category) {
-                      <option [value]="category">{{ category }}</option>
-                    }
-                  </select>
-                  @if (hasFieldError('category')) {
-                    <div class="invalid-feedback">Category is required</div>
-                  }
-                </div>
-
-                <div class="mb-3">
-                  <label class="form-label required" translate>Description</label>
-                  <textarea
-                    class="form-control"
-                    [class.is-invalid]="hasFieldError('description')"
-                    rows="5"
-                    [(ngModel)]="formData.description"
-                    name="description"
-                    placeholder="Describe your product"
-                    required
-                  ></textarea>
-                  @if (hasFieldError('description')) {
-                    <div class="invalid-feedback">Description must be at least 10 characters</div>
-                  }
-                  <small class="form-hint" translate>Detailed product description to help customers understand what you're selling</small>
-                </div>
-
-                <div class="mb-3">
-                  <label class="form-label" translate>Status</label>
-                  <select class="form-select" [(ngModel)]="formData.status" name="status">
-                    @for (status of statuses; track status.value) {
-                      <option [value]="status.value">{{ status.label | translate }}</option>
-                    }
-                  </select>
-                </div>
-              </div>
-            </div>
-          }
-
-          <!-- Step 2: Pricing & Stock -->
-          @if (currentStep === 2) {
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title" translate>Pricing & Stock</h3>
-              </div>
-              <div class="card-body">
-                @if (stepAttempted[2] && !isStepValid(2)) {
-                  <div class="alert alert-warning alert-dismissible" role="alert">
-                    <div class="d-flex">
-                      <div>
-                        <i class="ti ti-alert-triangle icon alert-icon"></i>
-                      </div>
-                      <div>
-                        <h4 class="alert-title" translate>Validation Error</h4>
-                        <div class="text-muted">
-                          <ul class="mb-0">
-                            @for (error of getStepErrors(2); track error) {
-                              <li>{{ error }}</li>
-                            }
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                }
-
-                <div class="row">
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label required" translate>Price</label>
-                    <div class="input-group" [class.is-invalid]="hasFieldError('price')">
-                      <span class="input-group-text">$</span>
-                      <input
-                        type="number"
-                        class="form-control"
-                        [class.is-invalid]="hasFieldError('price')"
-                        [(ngModel)]="formData.price"
-                        name="price"
-                        placeholder="0.00"
-                        step="0.01"
-                        min="0.01"
-                        required
-                      />
-                    </div>
-                    @if (hasFieldError('price')) {
-                      <div class="invalid-feedback d-block">Price must be greater than 0</div>
-                    }
-                  </div>
-
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label" translate>Compare at Price</label>
-                    <div class="input-group">
-                      <span class="input-group-text">$</span>
-                      <input type="number" class="form-control" [(ngModel)]="formData.compareAtPrice" name="compareAtPrice" placeholder="0.00" step="0.01" />
-                    </div>
-                    <small class="form-hint" translate>Original price for showing discounts</small>
-                  </div>
-                </div>
-
-                <div class="mb-3">
-                  <label class="form-label" translate>Cost per Item</label>
-                  <div class="input-group">
-                    <span class="input-group-text">$</span>
-                    <input type="number" class="form-control" [(ngModel)]="formData.costPerItem" name="costPerItem" placeholder="0.00" step="0.01" />
-                  </div>
-                  <small class="form-hint" translate>Your cost for inventory and profit tracking</small>
-                </div>
-
-                <hr />
-
-                <div class="row">
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label required" translate>SKU</label>
+              <form>
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label class="form-label required">Application Name</label>
                     <input
                       type="text"
                       class="form-control"
-                      [class.is-invalid]="hasFieldError('sku')"
-                      [(ngModel)]="formData.sku"
-                      name="sku"
-                      placeholder="PROD-001"
-                      required
+                      [(ngModel)]="formData.applicationName"
+                      name="applicationName"
+                      placeholder="Enter application name"
+                      [class.is-invalid]="hasFieldError('applicationName')"
                     />
-                    @if (hasFieldError('sku')) {
-                      <div class="invalid-feedback">SKU must be at least 3 characters</div>
+                    @if (hasFieldError('applicationName')) {
+                      <div class="invalid-feedback">Application name must be at least 3 characters</div>
                     }
-                    <small class="form-hint" translate>Stock Keeping Unit</small>
                   </div>
 
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label required" translate>Stock Quantity</label>
+                  <div class="col-md-6">
+                    <label class="form-label required">Contact Person Name</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      [(ngModel)]="formData.contactPersonName"
+                      name="contactPersonName"
+                      placeholder="Enter contact person name"
+                      [class.is-invalid]="hasFieldError('contactPersonName')"
+                    />
+                    @if (hasFieldError('contactPersonName')) {
+                      <div class="invalid-feedback">Contact person name is required</div>
+                    }
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label required">Application Description</label>
+                  <textarea
+                    class="form-control"
+                    rows="3"
+                    [(ngModel)]="formData.applicationDescription"
+                    name="applicationDescription"
+                    placeholder="Describe your application (minimum 10 characters)"
+                    [class.is-invalid]="hasFieldError('applicationDescription')"
+                  ></textarea>
+                  @if (hasFieldError('applicationDescription')) {
+                    <div class="invalid-feedback">Application description must be at least 10 characters</div>
+                  }
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label class="form-label required">Business URL</label>
+                    <input
+                      type="url"
+                      class="form-control"
+                      [(ngModel)]="formData.businessUrl"
+                      name="businessUrl"
+                      placeholder="https://example.com"
+                      [class.is-invalid]="hasFieldError('businessUrl')"
+                    />
+                    @if (hasFieldError('businessUrl')) {
+                      <div class="invalid-feedback">Please enter a valid business URL</div>
+                    }
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label required">Designation</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      [(ngModel)]="formData.designation"
+                      name="designation"
+                      placeholder="e.g., Technical Lead, CTO"
+                      [class.is-invalid]="hasFieldError('designation')"
+                    />
+                    @if (hasFieldError('designation')) {
+                      <div class="invalid-feedback">Designation is required</div>
+                    }
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label required">Registered Business Address</label>
+                  <textarea
+                    class="form-control"
+                    rows="2"
+                    [(ngModel)]="formData.registeredBusinessAddress"
+                    name="registeredBusinessAddress"
+                    placeholder="Enter complete business address"
+                    [class.is-invalid]="hasFieldError('registeredBusinessAddress')"
+                  ></textarea>
+                  @if (hasFieldError('registeredBusinessAddress')) {
+                    <div class="invalid-feedback">Registered business address is required</div>
+                  }
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label class="form-label required">Official Email Address</label>
+                    <input
+                      type="email"
+                      class="form-control"
+                      [(ngModel)]="formData.officialEmail"
+                      name="officialEmail"
+                      placeholder="contact@example.com"
+                      [class.is-invalid]="hasFieldError('officialEmail')"
+                    />
+                    @if (hasFieldError('officialEmail')) {
+                      <div class="invalid-feedback">Please enter a valid email address</div>
+                    }
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label required">Select Plan</label>
+                    <select
+                      class="form-select"
+                      [(ngModel)]="formData.selectedPlan"
+                      name="selectedPlan"
+                      [class.is-invalid]="hasFieldError('selectedPlan')"
+                    >
+                      <option value="">-- Select a plan --</option>
+                      @for (plan of plans; track plan.value) {
+                        <option [value]="plan.value">{{ plan.label }}</option>
+                      }
+                    </select>
+                    @if (hasFieldError('selectedPlan')) {
+                      <div class="invalid-feedback">Plan selection is required</div>
+                    }
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label required">Upload Logo</label>
+                  <input
+                    type="file"
+                    class="form-control"
+                    accept="image/*"
+                    (change)="onLogoFileSelected($event)"
+                    [class.is-invalid]="hasFieldError('logo')"
+                    #logoInput
+                  />
+                  @if (hasFieldError('logo')) {
+                    <div class="invalid-feedback d-block">Logo file is required</div>
+                  }
+                  <small class="form-hint">Accepted formats: PNG, JPG, GIF. Max size: 5MB</small>
+
+                  @if (formData.logo) {
+                    <div class="mt-3 border rounded p-3 bg-light">
+                      <div class="d-flex justify-content-between align-items-start mb-2">
+                        <label class="form-label mb-0">Logo Preview:</label>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-ghost-danger"
+                          (click)="removeLogo(); logoInput.value = ''"
+                        >
+                          <i class="ti ti-trash"></i>
+                          Remove
+                        </button>
+                      </div>
+                      <div class="text-center">
+                        <img
+                          [src]="formData.logo.dataUrl"
+                          [alt]="formData.logo.name"
+                          class="img-thumbnail"
+                          style="max-width: 300px; max-height: 200px;"
+                        />
+                        <div class="mt-2 small text-muted">
+                          <i class="ti ti-file"></i>
+                          {{ formData.logo.name }} ({{ formatFileSize(formData.logo.size) }})
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </form>
+            }
+
+            <!-- Step 2: Personal Information -->
+            @if (currentStep === 2) {
+              <h3 class="card-title mb-4">
+                <i class="ti ti-user me-2"></i>
+                Personal Information
+              </h3>
+
+              <form>
+                <div class="mb-3">
+                  <label class="form-label required">License Number</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="formData.licenseNumber"
+                    name="licenseNumber"
+                    placeholder="Enter license number (minimum 5 characters)"
+                    [class.is-invalid]="hasFieldError('licenseNumber')"
+                  />
+                  @if (hasFieldError('licenseNumber')) {
+                    <div class="invalid-feedback">License number must be at least 5 characters</div>
+                  }
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label class="form-label required">Date of Birth</label>
+                    <input
+                      type="date"
+                      class="form-control"
+                      [(ngModel)]="formData.dateOfBirth"
+                      name="dateOfBirth"
+                      (change)="calculateAge()"
+                      [class.is-invalid]="hasFieldError('dateOfBirth')"
+                    />
+                    @if (hasFieldError('dateOfBirth')) {
+                      <div class="invalid-feedback">Date of birth is required</div>
+                    }
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label required">Age</label>
                     <input
                       type="number"
                       class="form-control"
-                      [class.is-invalid]="hasFieldError('stock')"
-                      [(ngModel)]="formData.stock"
-                      name="stock"
-                      placeholder="0"
-                      min="0"
-                      required
+                      [value]="formData.age"
+                      name="age"
+                      readonly
+                      placeholder="Auto-calculated from date of birth"
+                      [class.is-invalid]="hasFieldError('age')"
                     />
-                    @if (hasFieldError('stock')) {
-                      <div class="invalid-feedback">Stock quantity must be 0 or greater</div>
+                    @if (hasFieldError('age')) {
+                      <div class="invalid-feedback">You must be at least 18 years old</div>
+                    }
+                    @if (formData.age !== null && formData.age >= 18) {
+                      <div class="text-success small mt-1">
+                        <i class="ti ti-check"></i>
+                        Age verified: {{ formData.age }} years
+                      </div>
                     }
                   </div>
                 </div>
+              </form>
+            }
 
+            <!-- Step 3: Authorization and Scopes -->
+            @if (currentStep === 3) {
+              <h3 class="card-title mb-4">
+                <i class="ti ti-lock me-2"></i>
+                Authorization and Scopes
+              </h3>
+
+              <form>
                 <div class="mb-3">
-                  <label class="form-label" translate>Low Stock Threshold</label>
-                  <input type="number" class="form-control" [(ngModel)]="formData.lowStockThreshold" name="lowStockThreshold" placeholder="10" />
-                  <small class="form-hint" translate>You'll be notified when stock falls below this number</small>
-                </div>
-              </div>
-            </div>
-          }
-
-          <!-- Step 3: Images & Media -->
-          @if (currentStep === 3) {
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title" translate>Images & Media</h3>
-              </div>
-              <div class="card-body">
-                @if (stepAttempted[3] && !isStepValid(3)) {
-                  <div class="alert alert-warning alert-dismissible" role="alert">
-                    <div class="d-flex">
-                      <div>
-                        <i class="ti ti-alert-triangle icon alert-icon"></i>
+                  <label class="form-label required">Allowed Grant Type</label>
+                  <div>
+                    @for (grant of grantTypes; track grant.value) {
+                      <div class="form-check">
+                        <input
+                          class="form-check-input"
+                          type="radio"
+                          [id]="'grant-' + grant.value"
+                          [value]="grant.value"
+                          [(ngModel)]="formData.allowedGrant"
+                          name="allowedGrant"
+                        />
+                        <label class="form-check-label" [for]="'grant-' + grant.value">
+                          {{ grant.label }}
+                        </label>
                       </div>
-                      <div>
-                        <h4 class="alert-title" translate>Validation Error</h4>
-                        <div class="text-muted">
-                          <ul class="mb-0">
-                            @for (error of getStepErrors(3); track error) {
-                              <li>{{ error }}</li>
-                            }
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
+                    }
                   </div>
-                }
-
-                <div class="mb-3">
-                  <label class="form-label required" translate>Main Product Image</label>
-                  <input
-                    type="url"
-                    class="form-control"
-                    [class.is-invalid]="hasFieldError('imageUrl')"
-                    [(ngModel)]="formData.imageUrl"
-                    name="imageUrl"
-                    placeholder="https://example.com/image.jpg"
-                    required
-                  />
-                  @if (hasFieldError('imageUrl')) {
-                    <div class="invalid-feedback">Please enter a valid image URL (http:// or https://)</div>
+                  @if (hasFieldError('allowedGrant')) {
+                    <div class="text-danger small mt-1">Grant type selection is required</div>
                   }
-                  <small class="form-hint" translate>Enter the URL of your main product image</small>
                 </div>
-
-                @if (formData.imageUrl) {
-                  <div class="mb-3">
-                    <label class="form-label" translate>Image Preview</label>
-                    <div class="card card-sm">
-                      <img [src]="formData.imageUrl" class="card-img-top" alt="Product preview" style="height: 300px; object-fit: cover" />
-                    </div>
-                  </div>
-                }
-
-                <hr />
 
                 <div class="mb-3">
-                  <label class="form-label" translate>Gallery Images</label>
-                  <button type="button" class="btn btn-outline-primary" (click)="addGalleryImage()">
-                    <i class="ti ti-plus icon"></i>
-                    <span translate>Add Gallery Image</span>
-                  </button>
-                  <small class="form-hint d-block mt-2" translate>Add additional images to showcase your product</small>
-                </div>
+                  <label class="form-label required">Redirect URLs</label>
+                  <div class="input-group mb-2">
+                    <input
+                      type="url"
+                      class="form-control"
+                      [(ngModel)]="tempRedirectUrl"
+                      name="tempRedirectUrl"
+                      placeholder="https://example.com/callback"
+                      (keyup.enter)="addRedirectUrl()"
+                    />
+                    <button type="button" class="btn btn-primary" (click)="addRedirectUrl()">
+                      <i class="ti ti-plus"></i>
+                      Add URL
+                    </button>
+                  </div>
 
-                @if (formData.galleryImages.length > 0) {
-                  <div class="row row-cards">
-                    @for (image of formData.galleryImages; track $index; let i = $index) {
-                      <div class="col-md-4">
-                        <div class="card card-sm">
-                          <img [src]="image" class="card-img-top" alt="Gallery image" style="height: 150px; object-fit: cover" />
-                          <div class="card-body text-center">
-                            <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeGalleryImage(i)">
-                              <i class="ti ti-trash icon"></i>
-                              <span translate>Remove</span>
-                            </button>
+                  @if (formData.redirectUrls.length === 0) {
+                    <div class="alert alert-warning">
+                      <i class="ti ti-alert-triangle"></i>
+                      Please add at least one redirect URL
+                    </div>
+                  }
+
+                  @if (formData.redirectUrls.length > 0) {
+                    <div class="list-group">
+                      @for (url of formData.redirectUrls; track url; let i = $index) {
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                          <span class="text-break">{{ url }}</span>
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-ghost-danger"
+                            (click)="removeRedirectUrl(i)"
+                          >
+                            <i class="ti ti-trash"></i>
+                          </button>
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              </form>
+            }
+
+            <!-- Step 4: Preview and Submit -->
+            @if (currentStep === 4) {
+              <h3 class="card-title mb-4">
+                <i class="ti ti-check me-2"></i>
+                Preview and Submit
+              </h3>
+
+              <!-- Application Summary -->
+              <div class="card mb-3">
+                <div class="card-header">
+                  <h4 class="card-title">Application Summary</h4>
+                </div>
+                <div class="card-body">
+                  <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Application Name:</div>
+                    <div class="col-md-8">{{ formData.applicationName }}</div>
+                  </div>
+                  <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Description:</div>
+                    <div class="col-md-8">{{ formData.applicationDescription }}</div>
+                  </div>
+                  <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Business URL:</div>
+                    <div class="col-md-8">
+                      <a [href]="formData.businessUrl" target="_blank">{{ formData.businessUrl }}</a>
+                    </div>
+                  </div>
+                  <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Business Address:</div>
+                    <div class="col-md-8">{{ formData.registeredBusinessAddress }}</div>
+                  </div>
+                  <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Contact Person:</div>
+                    <div class="col-md-8">{{ formData.contactPersonName }} ({{ formData.designation }})</div>
+                  </div>
+                  <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Official Email:</div>
+                    <div class="col-md-8">{{ formData.officialEmail }}</div>
+                  </div>
+                  <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Selected Plan:</div>
+                    <div class="col-md-8">
+                      @for (plan of plans; track plan.value) {
+                        @if (plan.value === formData.selectedPlan) {
+                          <span class="badge bg-primary">{{ plan.label }}</span>
+                        }
+                      }
+                    </div>
+                  </div>
+                  <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Logo:</div>
+                    <div class="col-md-8">
+                      @if (formData.logo) {
+                        <div>
+                          <img
+                            [src]="formData.logo.dataUrl"
+                            [alt]="formData.logo.name"
+                            class="img-thumbnail"
+                            style="max-width: 150px; max-height: 75px;"
+                          />
+                          <div class="small text-muted mt-1">
+                            {{ formData.logo.name }} ({{ formatFileSize(formData.logo.size) }})
                           </div>
                         </div>
-                      </div>
-                    }
+                      }
+                    </div>
                   </div>
-                }
-              </div>
-            </div>
-          }
-
-          <!-- Step 4: Product Variants -->
-          @if (currentStep === 4) {
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title" translate>Product Variants</h3>
-                <div class="card-actions">
-                  <button type="button" class="btn btn-primary" (click)="openAddVariantModal()">
-                    <i class="ti ti-plus icon"></i>
-                    <span translate>Add Variant</span>
-                  </button>
                 </div>
               </div>
-              <div class="card-body">
-                @if (stepAttempted[4] && !isStepValid(4)) {
-                  <div class="alert alert-danger alert-dismissible" role="alert">
-                    <div class="d-flex">
-                      <div>
-                        <i class="ti ti-alert-circle icon alert-icon"></i>
-                      </div>
-                      <div>
-                        <h4 class="alert-title" translate>Variant Validation Errors</h4>
-                        <div class="text-muted">
-                          <ul class="mb-0">
-                            @for (error of getStepErrors(4); track error) {
-                              <li>{{ error }}</li>
-                            }
-                          </ul>
-                        </div>
-                      </div>
+
+              <!-- Personal Information Summary -->
+              <div class="card mb-3">
+                <div class="card-header">
+                  <h4 class="card-title">Personal Information</h4>
+                </div>
+                <div class="card-body">
+                  <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">License Number:</div>
+                    <div class="col-md-8">{{ formData.licenseNumber }}</div>
+                  </div>
+                  <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Date of Birth:</div>
+                    <div class="col-md-8">{{ formData.dateOfBirth }}</div>
+                  </div>
+                  <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Age:</div>
+                    <div class="col-md-8">{{ formData.age }} years</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Authorization Summary -->
+              <div class="card mb-3">
+                <div class="card-header">
+                  <h4 class="card-title">Authorization and Scopes</h4>
+                </div>
+                <div class="card-body">
+                  <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Grant Type:</div>
+                    <div class="col-md-8">
+                      @for (grant of grantTypes; track grant.value) {
+                        @if (grant.value === formData.allowedGrant) {
+                          <span class="badge bg-info">{{ grant.label }}</span>
+                        }
+                      }
                     </div>
                   </div>
-                }
-
-                <p class="text-muted mb-3" translate>
-                  Add variants if your product comes in different options like size, color, or material.
-                </p>
-
-                @if (formData.variants.length === 0) {
-                  <div class="empty">
-                    <div class="empty-icon">
-                      <i class="ti ti-versions icon"></i>
-                    </div>
-                    <p class="empty-title" translate>No variants added</p>
-                    <p class="empty-subtitle text-muted" translate>
-                      Click "Add Variant" to create product variations
-                    </p>
-                    <div class="empty-action">
-                      <button type="button" class="btn btn-primary" (click)="openAddVariantModal()">
-                        <i class="ti ti-plus icon"></i>
-                        <span translate>Add Your First Variant</span>
-                      </button>
+                  <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Redirect URLs:</div>
+                    <div class="col-md-8">
+                      <ul class="list-unstyled mb-0">
+                        @for (url of formData.redirectUrls; track url) {
+                          <li>
+                            <i class="ti ti-link"></i>
+                            {{ url }}
+                          </li>
+                        }
+                      </ul>
                     </div>
                   </div>
-                } @else {
-                  <div class="table-responsive">
-                    <table class="table table-vcenter card-table">
-                      <thead>
-                        <tr>
-                          <th translate>Name</th>
-                          <th translate>SKU</th>
-                          <th translate>Price</th>
-                          <th translate>Stock</th>
-                          <th translate>Attributes</th>
-                          <th class="w-1" translate>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        @for (variant of formData.variants; track variant.id) {
-                          <tr>
-                            <td>
-                              <div class="fw-bold">{{ variant.name }}</div>
-                            </td>
-                            <td>
-                              <span class="text-muted">{{ variant.sku }}</span>
-                            </td>
-                            <td>
-                              <span class="fw-bold">${{ variant.price?.toFixed(2) || '0.00' }}</span>
-                            </td>
-                            <td>
-                              @if (variant.stock !== null && variant.stock !== undefined) {
-                                <span class="badge" [class.bg-success]="variant.stock > 10" [class.bg-warning]="variant.stock > 0 && variant.stock <= 10" [class.bg-danger]="variant.stock === 0">
-                                  {{ variant.stock }} units
-                                </span>
+                </div>
+              </div>
+
+              <!-- Additional Files Summary (if any uploaded) -->
+              @if (formData.additionalFiles.length > 0) {
+                <div class="card mb-3">
+                  <div class="card-header">
+                    <h4 class="card-title">Additional Files ({{ formData.additionalFiles.length }})</h4>
+                  </div>
+                  <div class="card-body">
+                    <div class="list-group">
+                      @for (file of formData.additionalFiles; track file.name; let i = $index) {
+                        <div class="list-group-item">
+                          <div class="row align-items-center">
+                            <div class="col-auto">
+                              @if (file.type.startsWith('image/')) {
+                                <img
+                                  [src]="file.dataUrl"
+                                  [alt]="file.name"
+                                  class="rounded"
+                                  style="width: 50px; height: 50px; object-fit: cover;"
+                                />
                               } @else {
-                                <span class="text-muted">-</span>
-                              }
-                            </td>
-                            <td>
-                              @if (getVariantAttributeKeys(variant).length === 0) {
-                                <span class="text-muted">No attributes</span>
-                              } @else {
-                                <div class="d-flex gap-1 flex-wrap">
-                                  @for (key of getVariantAttributeKeys(variant); track key) {
-                                    <span class="badge bg-blue-lt">
-                                      {{ key }}: {{ variant.attributes[key] }}
-                                    </span>
-                                  }
+                                <div class="avatar bg-primary-lt text-primary">
+                                  <i class="ti {{ getFileIcon(file.type) }}"></i>
                                 </div>
                               }
-                            </td>
-                            <td>
-                              <div class="btn-list">
-                                <button type="button" class="btn btn-sm btn-ghost-secondary" (click)="openEditVariantModal(variant)" title="Edit">
-                                  <i class="ti ti-pencil icon"></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-ghost-danger" (click)="deleteVariant(variant)" title="Delete">
-                                  <i class="ti ti-trash icon"></i>
+                            </div>
+                            <div class="col">
+                              <div class="fw-bold">{{ file.name }}</div>
+                              <div class="text-muted small">{{ formatFileSize(file.size) }}</div>
+                            </div>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <!-- Additional Information Form -->
+              <form>
+                <div class="mb-3">
+                  <label class="form-label">Your Comments (Optional)</label>
+                  <textarea
+                    class="form-control"
+                    rows="3"
+                    [(ngModel)]="formData.comments"
+                    name="comments"
+                    placeholder="Any additional comments or notes"
+                  ></textarea>
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label class="form-label">Sandbox URL (Optional)</label>
+                    <input
+                      type="url"
+                      class="form-control"
+                      [(ngModel)]="formData.sandboxUrl"
+                      name="sandboxUrl"
+                      placeholder="https://sandbox.example.com"
+                    />
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label">Application Certification</label>
+                    <div class="form-check form-switch mt-2">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="isCertified"
+                        [(ngModel)]="formData.isCertified"
+                        name="isCertified"
+                      />
+                      <label class="form-check-label" for="isCertified">
+                        Is application certified?
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Upload Additional Files (Optional)</label>
+                  <input
+                    type="file"
+                    class="form-control"
+                    multiple
+                    (change)="onAdditionalFilesSelected($event)"
+                    #additionalFilesInput
+                  />
+                  <small class="form-hint">You can select multiple files. Max size: 10MB per file</small>
+
+                  @if (formData.additionalFiles.length > 0) {
+                    <div class="mt-3">
+                      <label class="form-label">Uploaded Files ({{ formData.additionalFiles.length }}):</label>
+                      <div class="list-group">
+                        @for (file of formData.additionalFiles; track file.name; let i = $index) {
+                          <div class="list-group-item">
+                            <div class="row align-items-center">
+                              <div class="col-auto">
+                                @if (file.type.startsWith('image/')) {
+                                  <img
+                                    [src]="file.dataUrl"
+                                    [alt]="file.name"
+                                    class="rounded"
+                                    style="width: 60px; height: 60px; object-fit: cover;"
+                                  />
+                                } @else {
+                                  <div
+                                    class="avatar avatar-lg bg-primary-lt text-primary"
+                                  >
+                                    <i class="ti {{ getFileIcon(file.type) }} fs-2"></i>
+                                  </div>
+                                }
+                              </div>
+                              <div class="col">
+                                <div class="fw-bold">{{ file.name }}</div>
+                                <div class="text-muted small">
+                                  {{ formatFileSize(file.size) }}
+                                  <span class="mx-1">•</span>
+                                  {{ file.type || 'Unknown type' }}
+                                </div>
+                              </div>
+                              <div class="col-auto">
+                                <button
+                                  type="button"
+                                  class="btn btn-sm btn-ghost-danger"
+                                  (click)="removeAdditionalFile(i)"
+                                >
+                                  <i class="ti ti-trash"></i>
+                                  Remove
                                 </button>
                               </div>
-                            </td>
-                          </tr>
+                            </div>
+                          </div>
                         }
-                      </tbody>
-                    </table>
-                  </div>
-                }
-              </div>
-            </div>
-          }
-
-          <!-- Step 5: Review & Submit -->
-          @if (currentStep === 5) {
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title" translate>Review & Submit</h3>
-              </div>
-              <div class="card-body">
-                @if (!isStepValid(5)) {
-                  <div class="alert alert-danger alert-dismissible" role="alert">
-                    <div class="d-flex">
-                      <div>
-                        <i class="ti ti-alert-circle icon alert-icon"></i>
-                      </div>
-                      <div>
-                        <h4 class="alert-title" translate>Cannot Submit - Validation Errors</h4>
-                        <div class="text-muted">
-                          <p>Please go back and fix the following issues:</p>
-                          <ul class="mb-0">
-                            @for (error of getStepErrors(5); track error) {
-                              <li>{{ error }}</li>
-                            }
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                } @else {
-                  <div class="alert alert-success">
-                    <i class="ti ti-check icon"></i>
-                    <span translate>All validations passed! Ready to submit.</span>
-                  </div>
-                }
-
-                <div class="alert alert-info">
-                  <i class="ti ti-info-circle icon"></i>
-                  <span translate>Please review all the information before submitting</span>
-                </div>
-
-                <!-- Basic Information Summary -->
-                <div class="mb-4">
-                  <h4 translate>Basic Information</h4>
-                  <div class="row">
-                    <div class="col-md-3 text-muted" translate>Product Name:</div>
-                    <div class="col-md-9 fw-bold">{{ formData.name }}</div>
-                  </div>
-                  <div class="row mt-2">
-                    <div class="col-md-3 text-muted" translate>Category:</div>
-                    <div class="col-md-9">
-                      <span class="badge bg-blue-lt">{{ formData.category }}</span>
-                    </div>
-                  </div>
-                  <div class="row mt-2">
-                    <div class="col-md-3 text-muted" translate>Description:</div>
-                    <div class="col-md-9">{{ formData.description }}</div>
-                  </div>
-                  <div class="row mt-2">
-                    <div class="col-md-3 text-muted" translate>Status:</div>
-                    <div class="col-md-9">
-                      <span class="badge" [class.bg-success]="formData.status === 'active'" [class.bg-secondary]="formData.status === 'draft'" [class.bg-warning]="formData.status === 'archived'">
-                        {{ formData.status | translate }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <hr />
-
-                <!-- Pricing & Stock Summary -->
-                <div class="mb-4">
-                  <h4 translate>Pricing & Stock</h4>
-                  <div class="row">
-                    <div class="col-md-3 text-muted" translate>Price:</div>
-                    <div class="col-md-9 fw-bold">${{ formData.price?.toFixed(2) }}</div>
-                  </div>
-                  @if (formData.compareAtPrice) {
-                    <div class="row mt-2">
-                      <div class="col-md-3 text-muted" translate>Compare at Price:</div>
-                      <div class="col-md-9 text-muted"><s>${{ formData.compareAtPrice?.toFixed(2) }}</s></div>
-                    </div>
-                  }
-                  <div class="row mt-2">
-                    <div class="col-md-3 text-muted" translate>SKU:</div>
-                    <div class="col-md-9">{{ formData.sku }}</div>
-                  </div>
-                  <div class="row mt-2">
-                    <div class="col-md-3 text-muted" translate>Stock:</div>
-                    <div class="col-md-9">{{ formData.stock }} <span translate>units</span></div>
-                  </div>
-                </div>
-
-                <hr />
-
-                <!-- Images Summary -->
-                <div class="mb-4">
-                  <h4 translate>Images</h4>
-                  <div class="row">
-                    <div class="col-md-3 text-muted" translate>Main Image:</div>
-                    <div class="col-md-9">
-                      <img [src]="formData.imageUrl" alt="Product" style="max-width: 200px; height: auto; border-radius: 4px" />
-                    </div>
-                  </div>
-                  @if (formData.galleryImages.length > 0) {
-                    <div class="row mt-2">
-                      <div class="col-md-3 text-muted" translate>Gallery:</div>
-                      <div class="col-md-9">{{ formData.galleryImages.length }} <span translate>images</span></div>
-                    </div>
-                  }
-                </div>
-
-                <hr />
-
-                <!-- Variants Summary -->
-                <div class="mb-4">
-                  <h4 translate>Product Variants</h4>
-                  @if (formData.variants.length === 0) {
-                    <div class="row">
-                      <div class="col-md-3 text-muted" translate>Variants:</div>
-                      <div class="col-md-9 text-muted" translate>No variants added</div>
-                    </div>
-                  } @else {
-                    <div class="row">
-                      <div class="col-md-3 text-muted" translate>Total Variants:</div>
-                      <div class="col-md-9 fw-bold">{{ formData.variants.length }}</div>
-                    </div>
-                    <div class="row mt-3">
-                      <div class="col-12">
-                        <div class="table-responsive">
-                          <table class="table table-sm table-bordered">
-                            <thead>
-                              <tr>
-                                <th translate>Name</th>
-                                <th translate>SKU</th>
-                                <th translate>Price</th>
-                                <th translate>Stock</th>
-                                <th translate>Attributes</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              @for (variant of formData.variants; track variant.id) {
-                                <tr>
-                                  <td>{{ variant.name }}</td>
-                                  <td>{{ variant.sku }}</td>
-                                  <td>${{ variant.price?.toFixed(2) || '0.00' }}</td>
-                                  <td>{{ variant.stock || 0 }}</td>
-                                  <td>
-                                    @if (getVariantAttributeKeys(variant).length === 0) {
-                                      <span class="text-muted">-</span>
-                                    } @else {
-                                      @for (key of getVariantAttributeKeys(variant); track key) {
-                                        <span class="badge bg-blue-lt me-1">
-                                          {{ key }}: {{ variant.attributes[key] }}
-                                        </span>
-                                      }
-                                    }
-                                  </td>
-                                </tr>
-                              }
-                            </tbody>
-                          </table>
-                        </div>
                       </div>
                     </div>
                   }
                 </div>
-              </div>
-            </div>
-          }
+              </form>
 
-          <!-- Navigation Buttons -->
-          <div class="card mt-4">
-            <div class="card-body">
-              <div class="row">
-                <div class="col">
-                  @if (currentStep > 1) {
-                    <button type="button" class="btn btn-outline-secondary" (click)="previousStep()">
-                      <i class="ti ti-arrow-left icon"></i>
-                      <span translate>Previous</span>
-                    </button>
-                  }
-                </div>
-                <div class="col-auto">
-                  @if (currentStep < totalSteps) {
-                    <button type="button" class="btn btn-primary" (click)="nextStep()" [disabled]="!canProceed()">
-                      <span translate>Next</span>
-                      <i class="ti ti-arrow-right icon"></i>
-                    </button>
-                  } @else {
-                    <button type="button" class="btn btn-success" (click)="submitProduct()" [disabled]="!isStepValid(5)">
-                      <i class="ti ti-check icon"></i>
-                      <span>{{ isEditMode ? ('Update Product' | translate) : ('Create Product' | translate) }}</span>
-                    </button>
-                    @if (!isStepValid(5)) {
-                      <small class="text-danger ms-2">
-                        <i class="ti ti-alert-circle icon"></i>
-                        <span translate>Please fix validation errors</span>
-                      </small>
-                    }
-                  }
-                </div>
+              <!-- Terms and Conditions -->
+              <div class="alert alert-info">
+                <h4 class="alert-title">
+                  <i class="ti ti-info-circle"></i>
+                  Terms and Conditions
+                </h4>
+                <p class="mb-0">
+                  By submitting this form, you agree to our terms and conditions. Please ensure all information provided is accurate and complete.
+                </p>
               </div>
+            }
+
+            <!-- Navigation Buttons -->
+            <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                (click)="previousStep()"
+                [disabled]="currentStep === 1"
+              >
+                <i class="ti ti-arrow-left"></i>
+                Previous
+              </button>
+
+              @if (currentStep < totalSteps) {
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  (click)="nextStep()"
+                  [disabled]="!canProceed()"
+                >
+                  Next
+                  <i class="ti ti-arrow-right"></i>
+                </button>
+              }
+
+              @if (currentStep === totalSteps) {
+                <button
+                  type="button"
+                  class="btn btn-success"
+                  (click)="submitProvider()"
+                >
+                  <i class="ti ti-check"></i>
+                  Submit Application
+                </button>
+              }
             </div>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   </div>
 </div>
-
-<!-- Variant Add/Edit Modal -->
-@if (showVariantModal) {
-  <div class="modal modal-blur fade show" style="display: block" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">
-            {{ editingVariant ? ('Edit Variant' | translate) : ('Add Variant' | translate) }}
-          </h5>
-          <button type="button" class="btn-close" (click)="closeVariantModal()"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label class="form-label required" translate>Variant Name</label>
-              <input type="text" class="form-control" [(ngModel)]="variantForm.name" name="variantName" placeholder="e.g., Red - Large" required />
-              <small class="form-hint" translate>Descriptive name for this variant</small>
-            </div>
-            <div class="col-md-6 mb-3">
-              <label class="form-label required" translate>SKU</label>
-              <input type="text" class="form-control" [(ngModel)]="variantForm.sku" name="variantSku" placeholder="e.g., PROD-001-RED-L" required />
-              <small class="form-hint" translate>Unique identifier for this variant</small>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label class="form-label" translate>Price</label>
-              <div class="input-group">
-                <span class="input-group-text">$</span>
-                <input type="number" class="form-control" [(ngModel)]="variantForm.price" name="variantPrice" placeholder="0.00" step="0.01" />
-              </div>
-              <small class="form-hint" translate>Leave empty to use base product price</small>
-            </div>
-            <div class="col-md-6 mb-3">
-              <label class="form-label" translate>Stock Quantity</label>
-              <input type="number" class="form-control" [(ngModel)]="variantForm.stock" name="variantStock" placeholder="0" />
-            </div>
-          </div>
-
-          <hr />
-
-          <div class="mb-3">
-            <label class="form-label" translate>Variant Attributes</label>
-            <p class="text-muted small" translate>Add attributes like color, size, material, etc.</p>
-
-            @if (getAttributeKeys().length > 0) {
-              <div class="mb-3">
-                <div class="list-group">
-                  @for (key of getAttributeKeys(); track key) {
-                    <div class="list-group-item">
-                      <div class="row align-items-center">
-                        <div class="col">
-                          <strong>{{ key }}:</strong> {{ variantForm.attributes[key] }}
-                        </div>
-                        <div class="col-auto">
-                          <button type="button" class="btn btn-sm btn-ghost-danger" (click)="removeAttribute(key)">
-                            <i class="ti ti-x icon"></i>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  }
-                </div>
-              </div>
-            }
-
-            <div class="row">
-              <div class="col-md-5">
-                <input type="text" class="form-control" #attrKey placeholder="Attribute name (e.g., Color)" />
-              </div>
-              <div class="col-md-5">
-                <input type="text" class="form-control" #attrValue placeholder="Value (e.g., Red)" />
-              </div>
-              <div class="col-md-2">
-                <button
-                  type="button"
-                  class="btn btn-primary w-100"
-                  (click)="addAttribute(attrKey.value, attrValue.value); attrKey.value = ''; attrValue.value = ''"
-                >
-                  <i class="ti ti-plus icon"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-link link-secondary" (click)="closeVariantModal()">
-            <span translate>Cancel</span>
-          </button>
-          <button type="button" class="btn btn-primary" (click)="saveVariant()">
-            <i class="ti ti-check icon"></i>
-            <span>{{ editingVariant ? ('Update Variant' | translate) : ('Add Variant' | translate) }}</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="modal-backdrop fade show" (click)="closeVariantModal()"></div>
-}

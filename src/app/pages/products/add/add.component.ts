@@ -4,7 +4,42 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { TranslateService } from '@ngx-translate/core';
 import { ProductsService } from '../services/products.service';
 import { ToastService } from '@shared/services/toast.service';
-import { ProductFormData, ProductVariant } from '../entities';
+
+interface UploadedFile {
+  name: string;
+  size: number;
+  type: string;
+  dataUrl: string;
+  file: File;
+}
+
+interface ProviderFormData {
+  // Step 1: Application Information
+  applicationName: string;
+  applicationDescription: string;
+  businessUrl: string;
+  registeredBusinessAddress: string;
+  contactPersonName: string;
+  designation: string;
+  officialEmail: string;
+  logo: UploadedFile | null;
+  selectedPlan: string;
+
+  // Step 2: Personal Information
+  licenseNumber: string;
+  dateOfBirth: string;
+  age: number | null;
+
+  // Step 3: Authorization and Scopes
+  allowedGrant: 'implicit' | 'authorization' | '';
+  redirectUrls: string[];
+
+  // Step 4: Preview and Submit
+  comments: string;
+  sandboxUrl: string;
+  isCertified: boolean;
+  additionalFiles: UploadedFile[];
+}
 
 @UntilDestroy()
 @Component({
@@ -15,51 +50,56 @@ import { ProductFormData, ProductVariant } from '../entities';
 })
 export class AddComponent implements OnInit {
   currentStep = 1;
-  totalSteps = 5;
+  totalSteps = 4;
   isEditMode = false;
-  productId: number | null = null;
+  providerId: number | null = null;
   isLoading = false;
 
   // Validation tracking
   attemptedNext = false;
   stepAttempted: { [key: number]: boolean } = {};
 
-  // Variant management
-  showVariantModal = false;
-  editingVariant: ProductVariant | null = null;
-  variantForm: ProductVariant = {
-    id: '',
-    name: '',
-    sku: '',
-    price: null,
-    stock: null,
-    attributes: {},
+  // Temporary inputs for arrays
+  tempRedirectUrl = '';
+
+  formData: ProviderFormData = {
+    // Step 1
+    applicationName: '',
+    applicationDescription: '',
+    businessUrl: '',
+    registeredBusinessAddress: '',
+    contactPersonName: '',
+    designation: '',
+    officialEmail: '',
+    logo: null,
+    selectedPlan: '',
+
+    // Step 2
+    licenseNumber: '',
+    dateOfBirth: '',
+    age: null,
+
+    // Step 3
+    allowedGrant: '',
+    redirectUrls: [],
+
+    // Step 4
+    comments: '',
+    sandboxUrl: '',
+    isCertified: false,
+    additionalFiles: [],
   };
 
-  formData: ProductFormData = {
-    name: '',
-    category: '',
-    description: '',
-    status: 'draft',
-    price: null,
-    compareAtPrice: null,
-    costPerItem: null,
-    sku: '',
-    stock: null,
-    lowStockThreshold: 10,
-    imageUrl: '',
-    galleryImages: [],
-    variants: [],
-    tags: '',
-    weight: null,
-    dimensions: '',
-  };
+  plans = [
+    { value: 'basic', label: 'Basic Plan - Free' },
+    { value: 'professional', label: 'Professional Plan - $99/month' },
+    { value: 'enterprise', label: 'Enterprise Plan - $299/month' },
+    { value: 'premium', label: 'Premium Plan - $499/month' },
+  ];
 
-  categories = ['Electronics', 'Accessories', 'Clothing', 'Books', 'Home & Garden', 'Sports', 'Toys', 'Beauty'];
-  statuses = [
-    { value: 'draft', label: 'Draft' },
-    { value: 'active', label: 'Active' },
-    { value: 'archived', label: 'Archived' },
+  grantTypes = [
+    { value: 'implicit', label: 'Implicit Grant' },
+    { value: 'authorization', label: 'Authorization Code Grant' },
   ];
 
   constructor(
@@ -74,50 +114,25 @@ export class AddComponent implements OnInit {
     const id = this._route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode = true;
-      this.productId = parseInt(id, 10);
-      this.loadProduct(this.productId);
+      this.providerId = parseInt(id, 10);
+      // Load provider data if in edit mode (can be implemented later)
     }
   }
 
-  loadProduct(id: number): void {
-    this.isLoading = true;
-    this._productsService
-      .getProductById(id)
-      .pipe(untilDestroyed(this))
-      .subscribe({
-        next: (product) => {
-          if (product) {
-            this.formData = {
-              name: product.name,
-              category: product.category,
-              description: product.description,
-              status: product.status === 'in-stock' ? 'active' : 'draft',
-              price: product.price,
-              compareAtPrice: null,
-              costPerItem: null,
-              sku: `SKU-${product.id}`,
-              stock: product.stock,
-              lowStockThreshold: 10,
-              imageUrl: product.image,
-              galleryImages: [],
-              variants: [],
-              tags: '',
-              weight: null,
-              dimensions: '',
-            };
-          }
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Error loading product:', error);
-          this._toastService.error(
-            this._translateService.instant('Load Failed'),
-            this._translateService.instant('Failed to load product details.')
-          );
-          this.isLoading = false;
-          this._router.navigate(['/products']);
-        },
-      });
+  // Calculate age from date of birth
+  calculateAge(): void {
+    if (this.formData.dateOfBirth) {
+      const today = new Date();
+      const birthDate = new Date(this.formData.dateOfBirth);
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+
+      this.formData.age = age >= 0 ? age : null;
+    }
   }
 
   nextStep(): void {
@@ -156,37 +171,41 @@ export class AddComponent implements OnInit {
   isStepValid(step: number): boolean {
     switch (step) {
       case 1:
+        // Step 1: Application Information
         return !!(
-          this.formData.name &&
-          this.formData.name.trim().length >= 3 &&
-          this.formData.category &&
-          this.formData.description &&
-          this.formData.description.trim().length >= 10
+          this.formData.applicationName &&
+          this.formData.applicationName.trim().length >= 3 &&
+          this.formData.applicationDescription &&
+          this.formData.applicationDescription.trim().length >= 10 &&
+          this.formData.businessUrl &&
+          this.isValidUrl(this.formData.businessUrl) &&
+          this.formData.registeredBusinessAddress &&
+          this.formData.contactPersonName &&
+          this.formData.designation &&
+          this.formData.officialEmail &&
+          this.isValidEmail(this.formData.officialEmail) &&
+          this.formData.logo &&
+          this.formData.selectedPlan
         );
       case 2:
+        // Step 2: Personal Information
         return !!(
-          this.formData.price &&
-          this.formData.price > 0 &&
-          this.formData.sku &&
-          this.formData.sku.trim().length >= 3 &&
-          this.formData.stock !== null &&
-          this.formData.stock >= 0 &&
-          (!this.formData.compareAtPrice || this.formData.compareAtPrice > 0) &&
-          (!this.formData.costPerItem || this.formData.costPerItem >= 0)
+          this.formData.licenseNumber &&
+          this.formData.licenseNumber.trim().length >= 5 &&
+          this.formData.dateOfBirth &&
+          this.formData.age !== null &&
+          this.formData.age >= 18
         );
       case 3:
-        return !!(this.formData.imageUrl && this.isValidUrl(this.formData.imageUrl));
+        // Step 3: Authorization and Scopes
+        return !!(
+          this.formData.allowedGrant &&
+          this.formData.redirectUrls.length > 0 &&
+          this.formData.redirectUrls.every((url) => this.isValidUrl(url))
+        );
       case 4:
-        // Variants are optional, but if any exist, validate them
-        if (this.formData.variants.length > 0) {
-          return this.formData.variants.every(
-            (v) => v.name && v.sku && (v.price === null || v.price >= 0) && (v.stock === null || v.stock >= 0)
-          );
-        }
-        return true;
-      case 5:
-        // Final step - all previous steps must be valid
-        return this.isStepValid(1) && this.isStepValid(2) && this.isStepValid(3) && this.isStepValid(4);
+        // Step 4: Preview and Submit - all previous steps must be valid
+        return this.isStepValid(1) && this.isStepValid(2) && this.isStepValid(3);
       default:
         return false;
     }
@@ -201,80 +220,83 @@ export class AddComponent implements OnInit {
 
     switch (step) {
       case 1:
-        if (!this.formData.name || this.formData.name.trim().length < 3) {
-          errors.push(this._translateService.instant('Product name must be at least 3 characters'));
+        if (!this.formData.applicationName || this.formData.applicationName.trim().length < 3) {
+          errors.push('Application name must be at least 3 characters');
         }
-        if (!this.formData.category) {
-          errors.push(this._translateService.instant('Category is required'));
+        if (!this.formData.applicationDescription || this.formData.applicationDescription.trim().length < 10) {
+          errors.push('Application description must be at least 10 characters');
         }
-        if (!this.formData.description || this.formData.description.trim().length < 10) {
-          errors.push(this._translateService.instant('Description must be at least 10 characters'));
+        if (!this.formData.businessUrl) {
+          errors.push('Business URL is required');
+        } else if (!this.isValidUrl(this.formData.businessUrl)) {
+          errors.push('Business URL must be a valid URL');
+        }
+        if (!this.formData.registeredBusinessAddress) {
+          errors.push('Registered business address is required');
+        }
+        if (!this.formData.contactPersonName) {
+          errors.push('Contact person name is required');
+        }
+        if (!this.formData.designation) {
+          errors.push('Designation is required');
+        }
+        if (!this.formData.officialEmail) {
+          errors.push('Official email is required');
+        } else if (!this.isValidEmail(this.formData.officialEmail)) {
+          errors.push('Official email must be valid');
+        }
+        if (!this.formData.logo) {
+          errors.push('Logo file is required');
+        }
+        if (!this.formData.selectedPlan) {
+          errors.push('Plan selection is required');
         }
         break;
 
       case 2:
-        if (!this.formData.price || this.formData.price <= 0) {
-          errors.push(this._translateService.instant('Price must be greater than 0'));
+        if (!this.formData.licenseNumber || this.formData.licenseNumber.trim().length < 5) {
+          errors.push('License number must be at least 5 characters');
         }
-        if (!this.formData.sku || this.formData.sku.trim().length < 3) {
-          errors.push(this._translateService.instant('SKU must be at least 3 characters'));
+        if (!this.formData.dateOfBirth) {
+          errors.push('Date of birth is required');
         }
-        if (this.formData.stock === null || this.formData.stock < 0) {
-          errors.push(this._translateService.instant('Stock quantity must be 0 or greater'));
-        }
-        if (this.formData.compareAtPrice && this.formData.compareAtPrice <= 0) {
-          errors.push(this._translateService.instant('Compare at price must be greater than 0'));
-        }
-        if (this.formData.costPerItem && this.formData.costPerItem < 0) {
-          errors.push(this._translateService.instant('Cost per item cannot be negative'));
+        if (this.formData.age === null) {
+          errors.push('Age must be calculated from date of birth');
+        } else if (this.formData.age < 18) {
+          errors.push('Applicant must be at least 18 years old');
         }
         break;
 
       case 3:
-        if (!this.formData.imageUrl) {
-          errors.push(this._translateService.instant('Main product image is required'));
-        } else if (!this.isValidUrl(this.formData.imageUrl)) {
-          errors.push(this._translateService.instant('Please enter a valid image URL'));
+        if (!this.formData.allowedGrant) {
+          errors.push('Grant type selection is required');
         }
-        break;
-
-      case 4:
-        if (this.formData.variants.length > 0) {
-          this.formData.variants.forEach((variant, index) => {
-            if (!variant.name) {
-              errors.push(`${this._translateService.instant('Variant')} ${index + 1}: ${this._translateService.instant('Name')} ${this._translateService.instant('is required')}`);
-            }
-            if (!variant.sku) {
-              errors.push(`${this._translateService.instant('Variant')} ${index + 1}: ${this._translateService.instant('SKU')} ${this._translateService.instant('is required')}`);
-            }
-            if (variant.price !== null && variant.price < 0) {
-              errors.push(`${this._translateService.instant('Variant')} ${index + 1}: ${this._translateService.instant('Price')} ${this._translateService.instant('cannot be negative')}`);
-            }
-            if (variant.stock !== null && variant.stock < 0) {
-              errors.push(`${this._translateService.instant('Variant')} ${index + 1}: ${this._translateService.instant('Stock')} ${this._translateService.instant('cannot be negative')}`);
+        if (this.formData.redirectUrls.length === 0) {
+          errors.push('At least one redirect URL is required');
+        } else {
+          this.formData.redirectUrls.forEach((url, index) => {
+            if (!this.isValidUrl(url)) {
+              errors.push(`Redirect URL ${index + 1} is not valid`);
             }
           });
         }
         break;
 
-      case 5:
+      case 4:
         // Aggregate errors from all previous steps
         if (!this.isStepValid(1)) {
-          errors.push(this._translateService.instant('Basic information is incomplete'));
+          errors.push('Application information is incomplete');
         }
         if (!this.isStepValid(2)) {
-          errors.push(this._translateService.instant('Pricing & stock information is incomplete'));
+          errors.push('Personal information is incomplete');
         }
         if (!this.isStepValid(3)) {
-          errors.push(this._translateService.instant('Product image is required'));
-        }
-        if (!this.isStepValid(4)) {
-          errors.push(this._translateService.instant('Some variants have validation errors'));
+          errors.push('Authorization and scopes information is incomplete');
         }
         break;
     }
 
-    return errors.length > 0 ? errors : [this._translateService.instant('Please complete all required fields')];
+    return errors.length > 0 ? errors : ['Please complete all required fields'];
   }
 
   isValidUrl(url: string): boolean {
@@ -286,56 +308,182 @@ export class AddComponent implements OnInit {
     }
   }
 
+  isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
   hasFieldError(field: string): boolean {
     const currentStepAttempted = this.stepAttempted[this.currentStep];
     if (!currentStepAttempted) return false;
 
     switch (field) {
-      case 'name':
-        return !this.formData.name || this.formData.name.trim().length < 3;
-      case 'category':
-        return !this.formData.category;
-      case 'description':
-        return !this.formData.description || this.formData.description.trim().length < 10;
-      case 'price':
-        return !this.formData.price || this.formData.price <= 0;
-      case 'sku':
-        return !this.formData.sku || this.formData.sku.trim().length < 3;
-      case 'stock':
-        return this.formData.stock === null || this.formData.stock < 0;
-      case 'imageUrl':
-        return !this.formData.imageUrl || !this.isValidUrl(this.formData.imageUrl);
+      case 'applicationName':
+        return !this.formData.applicationName || this.formData.applicationName.trim().length < 3;
+      case 'applicationDescription':
+        return !this.formData.applicationDescription || this.formData.applicationDescription.trim().length < 10;
+      case 'businessUrl':
+        return !this.formData.businessUrl || !this.isValidUrl(this.formData.businessUrl);
+      case 'registeredBusinessAddress':
+        return !this.formData.registeredBusinessAddress;
+      case 'contactPersonName':
+        return !this.formData.contactPersonName;
+      case 'designation':
+        return !this.formData.designation;
+      case 'officialEmail':
+        return !this.formData.officialEmail || !this.isValidEmail(this.formData.officialEmail);
+      case 'logo':
+        return !this.formData.logo;
+      case 'selectedPlan':
+        return !this.formData.selectedPlan;
+      case 'licenseNumber':
+        return !this.formData.licenseNumber || this.formData.licenseNumber.trim().length < 5;
+      case 'dateOfBirth':
+        return !this.formData.dateOfBirth;
+      case 'age':
+        return this.formData.age === null || this.formData.age < 18;
+      case 'allowedGrant':
+        return !this.formData.allowedGrant;
       default:
         return false;
     }
   }
 
-  addGalleryImage(): void {
-    const url = prompt('Enter image URL:');
-    if (url) {
-      this.formData.galleryImages.push(url);
+  // Redirect URL Management
+  addRedirectUrl(): void {
+    if (this.tempRedirectUrl && this.isValidUrl(this.tempRedirectUrl)) {
+      if (!this.formData.redirectUrls.includes(this.tempRedirectUrl)) {
+        this.formData.redirectUrls.push(this.tempRedirectUrl);
+        this.tempRedirectUrl = '';
+      } else {
+        this._toastService.warning('Duplicate URL', 'This redirect URL already exists.');
+      }
+    } else {
+      this._toastService.warning('Invalid URL', 'Please enter a valid redirect URL.');
     }
   }
 
-  removeGalleryImage(index: number): void {
-    this.formData.galleryImages.splice(index, 1);
+  removeRedirectUrl(index: number): void {
+    this.formData.redirectUrls.splice(index, 1);
   }
 
-  submitProduct(): void {
+  // Logo File Upload
+  onLogoFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        this._toastService.error('Invalid File Type', 'Please upload an image file (PNG, JPG, etc.)');
+        input.value = '';
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        this._toastService.error('File Too Large', 'Logo file must be less than 5MB');
+        input.value = '';
+        return;
+      }
+
+      // Read file and convert to data URL for preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.formData.logo = {
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          dataUrl: e.target?.result as string,
+          file: file,
+        };
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  removeLogo(): void {
+    this.formData.logo = null;
+  }
+
+  // Additional Files Upload
+  onAdditionalFilesSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const files = Array.from(input.files);
+
+      files.forEach((file) => {
+        // Validate file size (max 10MB per file)
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (file.size > maxSize) {
+          this._toastService.warning('File Too Large', `${file.name} exceeds 10MB limit`);
+          return;
+        }
+
+        // Check for duplicates
+        const isDuplicate = this.formData.additionalFiles.some((f) => f.name === file.name && f.size === file.size);
+        if (isDuplicate) {
+          this._toastService.warning('Duplicate File', `${file.name} has already been added`);
+          return;
+        }
+
+        // Read file
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.formData.additionalFiles.push({
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            dataUrl: e.target?.result as string,
+            file: file,
+          });
+        };
+        reader.readAsDataURL(file);
+      });
+
+      // Clear input
+      input.value = '';
+    }
+  }
+
+  removeAdditionalFile(index: number): void {
+    this.formData.additionalFiles.splice(index, 1);
+  }
+
+  // Utility: Format file size
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  }
+
+  // Utility: Get file icon based on type
+  getFileIcon(type: string): string {
+    if (type.startsWith('image/')) return 'ti-photo';
+    if (type.includes('pdf')) return 'ti-file-text';
+    if (type.includes('word') || type.includes('document')) return 'ti-file-text';
+    if (type.includes('excel') || type.includes('spreadsheet')) return 'ti-table';
+    if (type.includes('zip') || type.includes('archive')) return 'ti-file-zip';
+    return 'ti-file';
+  }
+
+  submitProvider(): void {
     // Mark all steps as attempted to show validation errors
     this.stepAttempted[1] = true;
     this.stepAttempted[2] = true;
     this.stepAttempted[3] = true;
     this.stepAttempted[4] = true;
-    this.stepAttempted[5] = true;
 
     // Validate all steps
-    if (!this.isStepValid(5)) {
-      const errors = this.getStepErrors(5);
+    if (!this.isStepValid(4)) {
+      const errors = this.getStepErrors(4);
       this._toastService.error('Validation Failed', 'Please fix all validation errors before submitting. ' + errors.join('; '));
 
       // Navigate to the first invalid step
-      for (let step = 1; step <= 4; step++) {
+      for (let step = 1; step <= 3; step++) {
         if (!this.isStepValid(step)) {
           this.currentStep = step;
           window.scrollTo(0, 0);
@@ -345,11 +493,11 @@ export class AddComponent implements OnInit {
       return;
     }
 
-    console.log('Product submitted:', this.formData);
+    console.log('Provider registration submitted:', this.formData);
 
-    const action = this.isEditMode ? 'updated' : 'created';
-    const title = this.isEditMode ? 'Product Updated' : 'Product Created';
-    const message = `"${this.formData.name}" has been successfully ${action}.`;
+    const action = this.isEditMode ? 'updated' : 'registered';
+    const title = this.isEditMode ? 'Provider Updated' : 'Provider Registered';
+    const message = `"${this.formData.applicationName}" has been successfully ${action}.`;
 
     this._toastService.success(title, message);
     this._router.navigate(['/products']);
@@ -365,15 +513,13 @@ export class AddComponent implements OnInit {
   getStepTitle(step: number): string {
     switch (step) {
       case 1:
-        return 'Basic Information';
+        return 'Application Information';
       case 2:
-        return 'Pricing & Stock';
+        return 'Personal Information';
       case 3:
-        return 'Images & Media';
+        return 'Authorization and Scopes';
       case 4:
-        return 'Product Variants';
-      case 5:
-        return 'Review & Submit';
+        return 'Preview and Submit';
       default:
         return '';
     }
@@ -382,95 +528,16 @@ export class AddComponent implements OnInit {
   getStepIcon(step: number): string {
     switch (step) {
       case 1:
-        return 'ti-file-text';
+        return 'ti-briefcase';
       case 2:
-        return 'ti-currency-dollar';
+        return 'ti-user';
       case 3:
-        return 'ti-photo';
+        return 'ti-lock';
       case 4:
-        return 'ti-versions';
-      case 5:
         return 'ti-check';
       default:
         return 'ti-circle';
     }
-  }
-
-  // Variant Management Methods
-  openAddVariantModal(): void {
-    this.editingVariant = null;
-    this.variantForm = {
-      id: this.generateVariantId(),
-      name: '',
-      sku: '',
-      price: this.formData.price,
-      stock: null,
-      attributes: {},
-    };
-    this.showVariantModal = true;
-  }
-
-  openEditVariantModal(variant: ProductVariant): void {
-    this.editingVariant = variant;
-    this.variantForm = { ...variant, attributes: { ...variant.attributes } };
-    this.showVariantModal = true;
-  }
-
-  closeVariantModal(): void {
-    this.showVariantModal = false;
-    this.editingVariant = null;
-  }
-
-  saveVariant(): void {
-    if (!this.variantForm.name || !this.variantForm.sku) {
-      this._toastService.warning('Invalid Variant', 'Please provide variant name and SKU.');
-      return;
-    }
-
-    if (this.editingVariant) {
-      // Update existing variant
-      const index = this.formData.variants.findIndex((v) => v.id === this.editingVariant!.id);
-      if (index !== -1) {
-        this.formData.variants[index] = { ...this.variantForm };
-        this._toastService.success('Variant Updated', 'Product variant has been updated.');
-      }
-    } else {
-      // Add new variant
-      this.formData.variants.push({ ...this.variantForm });
-      this._toastService.success('Variant Added', 'Product variant has been added.');
-    }
-
-    this.closeVariantModal();
-  }
-
-  deleteVariant(variant: ProductVariant): void {
-    const confirmed = confirm(`Are you sure you want to delete variant "${variant.name}"?`);
-    if (confirmed) {
-      this.formData.variants = this.formData.variants.filter((v) => v.id !== variant.id);
-      this._toastService.success('Variant Deleted', 'Product variant has been deleted.');
-    }
-  }
-
-  addAttribute(key: string, value: string): void {
-    if (key && value) {
-      this.variantForm.attributes[key] = value;
-    }
-  }
-
-  removeAttribute(key: string): void {
-    delete this.variantForm.attributes[key];
-  }
-
-  getAttributeKeys(): string[] {
-    return Object.keys(this.variantForm.attributes);
-  }
-
-  getVariantAttributeKeys(variant: ProductVariant): string[] {
-    return Object.keys(variant.attributes);
-  }
-
-  private generateVariantId(): string {
-    return `variant-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
 
   getProgress(): number {
