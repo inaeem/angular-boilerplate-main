@@ -372,29 +372,17 @@ export class ProductsService {
 
   /**
    * Get all products (supports both mock and API modes)
-   * Automatically maps API response to Product entities if useApiMapper is enabled
+   * Real API ALWAYS returns DTOs which are mapped to Product entities
    */
   getProducts(): Observable<Product[]> {
     if (this.useMockData) {
       return this.getMockProducts();
     }
 
+    // Real API ALWAYS returns DTOs, so ALWAYS map them to Product entities
     const url = this.buildUrl(environment.apiEndpoints.products.getAll);
-
-    // If API returns DTOs, map them to Product entities
-    if (this.useApiMapper) {
-      return this.http.get<ProductApiDto[]>(url).pipe(
-        map((dtos) => this.productMapper.fromDtoArray(dtos)),
-        timeout(this.apiTimeout),
-        catchError((error) => {
-          console.error('Error fetching products from API:', error);
-          return throwError(() => error);
-        })
-      );
-    }
-
-    // If API already returns correct format, use directly
-    return this.http.get<Product[]>(url).pipe(
+    return this.http.get<ProductApiDto[]>(url).pipe(
+      map((dtos) => this.productMapper.fromDtoArray(dtos)),
       timeout(this.apiTimeout),
       catchError((error) => {
         console.error('Error fetching products from API:', error);
@@ -423,29 +411,17 @@ export class ProductsService {
 
   /**
    * Get a single product by ID (supports both mock and API modes)
-   * Automatically maps API response to Product entity if useApiMapper is enabled
+   * Real API ALWAYS returns DTOs which are mapped to Product entities
    */
   getProductById(id: number): Observable<Product | undefined> {
     if (this.useMockData) {
       return this.getMockProductById(id);
     }
 
+    // Real API ALWAYS returns DTOs, so ALWAYS map them to Product entities
     const url = this.buildUrl(environment.apiEndpoints.products.getById, { id });
-
-    // If API returns DTOs, map them to Product entities
-    if (this.useApiMapper) {
-      return this.http.get<ProductApiDto>(url).pipe(
-        map((dto) => this.productMapper.fromDto(dto)),
-        timeout(this.apiTimeout),
-        catchError((error) => {
-          console.error(`Error fetching product ${id} from API:`, error);
-          return throwError(() => error);
-        })
-      );
-    }
-
-    // If API already returns correct format, use directly
-    return this.http.get<Product>(url).pipe(
+    return this.http.get<ProductApiDto>(url).pipe(
+      map((dto) => this.productMapper.fromDto(dto)),
       timeout(this.apiTimeout),
       catchError((error) => {
         console.error(`Error fetching product ${id} from API:`, error);
@@ -478,30 +454,18 @@ export class ProductsService {
 
   /**
    * Search products by query (supports both mock and API modes)
-   * Automatically maps API response to Product entities if useApiMapper is enabled
+   * Real API ALWAYS returns DTOs which are mapped to Product entities
    */
   searchProducts(query: string): Observable<Product[]> {
     if (this.useMockData) {
       return this.mockSearchProducts(query);
     }
 
+    // Real API ALWAYS returns DTOs, so ALWAYS map them to Product entities
     const url = this.buildUrl(environment.apiEndpoints.products.search);
     const params = new HttpParams().set('q', query);
-
-    // If API returns DTOs, map them to Product entities
-    if (this.useApiMapper) {
-      return this.http.get<ProductApiDto[]>(url, { params }).pipe(
-        map((dtos) => this.productMapper.fromDtoArray(dtos)),
-        timeout(this.apiTimeout),
-        catchError((error) => {
-          console.error('Error searching products from API:', error);
-          return throwError(() => error);
-        })
-      );
-    }
-
-    // If API already returns correct format, use directly
-    return this.http.get<Product[]>(url, { params }).pipe(
+    return this.http.get<ProductApiDto[]>(url, { params }).pipe(
+      map((dtos) => this.productMapper.fromDtoArray(dtos)),
       timeout(this.apiTimeout),
       catchError((error) => {
         console.error('Error searching products from API:', error);
@@ -644,30 +608,19 @@ export class ProductsService {
 
   /**
    * Create a new product (supports both mock and API modes)
-   * Automatically serializes Product entity to API DTO if useApiMapper is enabled
+   * Real API ALWAYS expects DTOs and returns DTOs
    */
   createProduct(product: Partial<Product>): Observable<Product> {
     if (this.useMockData) {
       return this.mockCreateProduct(product);
     }
 
+    // Real API ALWAYS expects DTOs
+    // Serialize Product entity to DTO, send to API, then map response back to entity
     const url = this.buildUrl(environment.apiEndpoints.products.create);
-
-    // If API expects DTOs, serialize Product entity to DTO
-    if (this.useApiMapper) {
-      const dto = this.productMapper.toCreateDto(product);
-      return this.http.post<ProductApiDto>(url, dto).pipe(
-        map((responseDto) => this.productMapper.fromDto(responseDto)),
-        timeout(this.apiTimeout),
-        catchError((error) => {
-          console.error('Error creating product:', error);
-          return throwError(() => error);
-        })
-      );
-    }
-
-    // If API already expects correct format, use directly
-    return this.http.post<Product>(url, product).pipe(
+    const dto = this.productMapper.toCreateDto(product);
+    return this.http.post<ProductApiDto>(url, dto).pipe(
+      map((responseDto) => this.productMapper.fromDto(responseDto)),
       timeout(this.apiTimeout),
       catchError((error) => {
         console.error('Error creating product:', error);
@@ -729,30 +682,19 @@ export class ProductsService {
 
   /**
    * Update an existing product (supports both mock and API modes)
-   * Automatically serializes Product entity to API DTO if useApiMapper is enabled
+   * Real API ALWAYS expects DTOs and returns DTOs
    */
   updateProduct(productId: number, updates: Partial<Product>): Observable<Product> {
     if (this.useMockData) {
       return this.mockUpdateProduct(productId, updates);
     }
 
+    // Real API ALWAYS expects DTOs
+    // Serialize Product updates to DTO, send to API, then map response back to entity
     const url = this.buildUrl(environment.apiEndpoints.products.update, { id: productId });
-
-    // If API expects DTOs, serialize Product updates to DTO
-    if (this.useApiMapper) {
-      const dto = this.productMapper.toUpdateDto(updates);
-      return this.http.put<ProductApiDto>(url, dto).pipe(
-        map((responseDto) => this.productMapper.fromDto(responseDto)),
-        timeout(this.apiTimeout),
-        catchError((error) => {
-          console.error(`Error updating product ${productId}:`, error);
-          return throwError(() => error);
-        })
-      );
-    }
-
-    // If API already expects correct format, use directly
-    return this.http.put<Product>(url, updates).pipe(
+    const dto = this.productMapper.toUpdateDto(updates);
+    return this.http.put<ProductApiDto>(url, dto).pipe(
+      map((responseDto) => this.productMapper.fromDto(responseDto)),
       timeout(this.apiTimeout),
       catchError((error) => {
         console.error(`Error updating product ${productId}:`, error);
