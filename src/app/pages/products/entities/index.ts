@@ -4,3 +4,5 @@
  */
 export * from './product.entity';
 export * from './product-api.dto';
+export * from './plan.entity';
+export * from './plan-api.dto';

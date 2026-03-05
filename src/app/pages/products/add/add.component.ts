@@ -3,7 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { TranslateService } from '@ngx-translate/core';
 import { ProductsService } from '../services/products.service';
-import { Product } from '../entities';
+import { PlansService } from '../services/plans.service';
+import { Product, Plan } from '../entities';
 import { ToastService } from '@shared/services/toast.service';
 
 interface UploadedFile {
@@ -24,7 +25,7 @@ interface ProviderFormData {
   designation: string;
   officialEmail: string;
   logo: UploadedFile | null;
-  selectedPlan: string;
+  selectedPlans: number[]; // Changed to array of plan IDs
 
   // Step 2: Personal Information
   licenseNumber: string;
@@ -55,6 +56,11 @@ export class AddComponent implements OnInit {
   isEditMode = false;
   providerId: number | null = null;
   isLoading = false;
+  isLoadingPlans = false;
+
+  // Plan selection UI mode: 'grid' or 'dropdown'
+  planSelectionMode: 'grid' | 'dropdown' = 'grid'; // Change to 'dropdown' to use dropdown mode
+  isPlansDropdownOpen = false;
 
   // Validation tracking
   attemptedNext = false;
@@ -73,7 +79,7 @@ export class AddComponent implements OnInit {
     designation: '',
     officialEmail: '',
     logo: null,
-    selectedPlan: '',
+    selectedPlans: [], // Changed to empty array
 
     // Step 2
     licenseNumber: '',
@@ -91,12 +97,8 @@ export class AddComponent implements OnInit {
     additionalFiles: [],
   };
 
-  plans = [
-    { value: 'basic', label: 'Basic Plan - Free' },
-    { value: 'professional', label: 'Professional Plan - $99/month' },
-    { value: 'enterprise', label: 'Enterprise Plan - $299/month' },
-    { value: 'premium', label: 'Premium Plan - $499/month' },
-  ];
+  // Plans loaded from API
+  plans: Plan[] = [];
 
   grantTypes = [
     { value: 'implicit', label: 'Implicit Grant' },
@@ -107,17 +109,43 @@ export class AddComponent implements OnInit {
     private readonly _router: Router,
     private readonly _route: ActivatedRoute,
     private readonly _productsService: ProductsService,
+    private readonly _plansService: PlansService,
     private readonly _toastService: ToastService,
     private readonly _translateService: TranslateService,
   ) {}
 
   ngOnInit(): void {
+    // Load plans from API
+    this.loadPlans();
+
+    // Check if we're in edit mode
     const id = this._route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode = true;
       this.providerId = parseInt(id, 10);
       this.loadProductData(this.providerId);
     }
+  }
+
+  loadPlans(): void {
+    this.isLoadingPlans = true;
+    this._plansService
+      .getPlans()
+      .pipe(untilDestroyed(this))
+      .subscribe({
+        next: (plans) => {
+          this.plans = plans;
+          this.isLoadingPlans = false;
+        },
+        error: (error) => {
+          console.error('Error loading plans:', error);
+          this.isLoadingPlans = false;
+          this._toastService.error(
+            'Failed to Load Plans',
+            'Could not load application plans. Please refresh the page.'
+          );
+        },
+      });
   }
 
   loadProductData(id: number): void {
@@ -145,7 +173,7 @@ export class AddComponent implements OnInit {
                 dataUrl: product.image,
                 file: null as any
               } : null,
-              selectedPlan: 'basic',
+              selectedPlans: [], // Initialize as empty array for edit mode
 
               // Step 2: Personal Information
               licenseNumber: '',
@@ -254,7 +282,7 @@ export class AddComponent implements OnInit {
           this.formData.officialEmail &&
           this.isValidEmail(this.formData.officialEmail) &&
           this.formData.logo &&
-          this.formData.selectedPlan
+          this.formData.selectedPlans.length > 0 // Changed to check array length
         );
       case 2:
         // Step 2: Personal Information
@@ -317,8 +345,8 @@ export class AddComponent implements OnInit {
         if (!this.formData.logo) {
           errors.push('Logo file is required');
         }
-        if (!this.formData.selectedPlan) {
-          errors.push('Plan selection is required');
+        if (this.formData.selectedPlans.length === 0) {
+          errors.push('At least one plan must be selected');
         }
         break;
 
@@ -403,8 +431,8 @@ export class AddComponent implements OnInit {
         return !this.formData.officialEmail || !this.isValidEmail(this.formData.officialEmail);
       case 'logo':
         return !this.formData.logo;
-      case 'selectedPlan':
-        return !this.formData.selectedPlan;
+      case 'selectedPlans':
+        return this.formData.selectedPlans.length === 0;
       case 'licenseNumber':
         return !this.formData.licenseNumber || this.formData.licenseNumber.trim().length < 5;
       case 'dateOfBirth':
@@ -416,6 +444,54 @@ export class AddComponent implements OnInit {
       default:
         return false;
     }
+  }
+
+  // Plan Selection Management
+  togglePlan(planId: number): void {
+    const index = this.formData.selectedPlans.indexOf(planId);
+    if (index > -1) {
+      // Plan is already selected, remove it
+      this.formData.selectedPlans.splice(index, 1);
+    } else {
+      // Plan is not selected, add it
+      this.formData.selectedPlans.push(planId);
+    }
+  }
+
+  isPlanSelected(planId: number): boolean {
+    return this.formData.selectedPlans.includes(planId);
+  }
+
+  toggleAllPlans(): void {
+    if (this.areAllPlansSelected()) {
+      // Deselect all
+      this.formData.selectedPlans = [];
+    } else {
+      // Select all
+      this.formData.selectedPlans = this.plans.map(plan => plan.id);
+    }
+  }
+
+  areAllPlansSelected(): boolean {
+    return this.plans.length > 0 && this.formData.selectedPlans.length === this.plans.length;
+  }
+
+  togglePlansDropdown(): void {
+    this.isPlansDropdownOpen = !this.isPlansDropdownOpen;
+  }
+
+  getSelectedPlanNames(): string {
+    if (this.formData.selectedPlans.length === 0) {
+      return this._translateService.instant('Select plans...');
+    }
+    const selectedNames = this.plans
+      .filter(plan => this.formData.selectedPlans.includes(plan.id))
+      .map(plan => plan.name);
+
+    if (selectedNames.length <= 2) {
+      return selectedNames.join(', ');
+    }
+    return `${selectedNames[0]}, ${selectedNames[1]} +${selectedNames.length - 2} more`;
   }
 
   // Redirect URL Management
