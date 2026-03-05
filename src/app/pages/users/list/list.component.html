@@ -14,11 +14,11 @@
             <span translate>Export</span>
           </a>
         </span>
-        <a href="#" class="btn btn-primary d-none d-sm-inline-block">
+        <a href="#" class="btn btn-azure d-none d-sm-inline-block">
           <i class="ti ti-plus icon"></i>
           <span translate>Add new user</span>
         </a>
-        <a href="#" class="btn btn-primary d-sm-none btn-icon" aria-label="Add new user">
+        <a href="#" class="btn btn-azure d-sm-none btn-icon" aria-label="Add new user">
           <i class="ti ti-plus icon"></i>
         </a>
       </div>
@@ -37,14 +37,14 @@
             <span class="input-icon-addon">
               <i class="ti ti-search icon"></i>
             </span>
-            <input type="text" class="form-control" placeholder="Search users..." />
+            <input type="text" class="form-control" [placeholder]="'Search users...' | translate" />
           </div>
         </div>
       </div>
       <div class="card-body border-bottom py-3">
         <div class="d-flex">
           <div class="text-muted">
-            Show
+            <span translate>Show</span>
             <div class="mx-2 d-inline-block">
               <select class="form-select form-select-sm">
                 <option value="5">5</option>
@@ -53,10 +53,10 @@
                 <option value="50">50</option>
               </select>
             </div>
-            entries
+            <span translate>entries</span>
           </div>
           <div class="ms-auto text-muted">
-            Search:
+            <span translate>Search:</span>
             <div class="ms-2 d-inline-block">
               <input type="text" class="form-control form-control-sm" aria-label="Search invoice" />
             </div>

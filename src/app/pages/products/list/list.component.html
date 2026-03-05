@@ -34,7 +34,7 @@
             <input type="text" class="form-control" placeholder="Search products..." [(ngModel)]="searchQuery" (input)="searchProducts()" [disabled]="isLoading || hasError" />
           </div>
           <!-- Add Product Button -->
-          <a routerLink="/products/add" class="btn btn-primary">
+          <a routerLink="/products/add" class="btn btn-azure">
             <i class="ti ti-plus icon"></i>
             <span translate>Add Product</span>
           </a>
@@ -221,12 +221,12 @@
 
                 <!-- Action Buttons -->
                 <div class="btn-list">
-                  <button type="button" class="btn btn-sm btn-primary w-100 mb-2" (click)="viewProduct(product)">
+                  <button type="button" class="btn btn-sm btn-azure w-100 mb-2" (click)="viewProduct(product)">
                     <i class="ti ti-eye icon"></i>
                     <span translate>View</span>
                   </button>
                   <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-sm btn-outline-primary flex-fill" (click)="editProduct(product)">
+                    <button type="button" class="btn btn-sm btn-outline-azure flex-fill" (click)="editProduct(product)">
                       <i class="ti ti-edit icon"></i>
                       <span translate>Edit</span>
                     </button>
@@ -327,8 +327,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-ghost-secondary" (click)="closeViewModal()" translate>Close</button>
-          <button type="button" class="btn btn-primary" (click)="editProduct(selectedProduct); closeViewModal()">
+          <button type="button" class="btn" (click)="closeViewModal()" translate>Close</button>
+          <button type="button" class="btn btn-azure" (click)="editProduct(selectedProduct); closeViewModal()">
             <i class="ti ti-edit icon"></i>
             <span translate>Edit Product</span>
           </button>
