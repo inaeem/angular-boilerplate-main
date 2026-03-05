@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { TranslateService } from '@ngx-translate/core';
 import { ProductsService } from '../services/products.service';
+import { Product } from '../entities';
 import { ToastService } from '@shared/services/toast.service';
 
 interface UploadedFile {
@@ -115,8 +116,76 @@ export class AddComponent implements OnInit {
     if (id) {
       this.isEditMode = true;
       this.providerId = parseInt(id, 10);
-      // Load provider data if in edit mode (can be implemented later)
+      this.loadProductData(this.providerId);
     }
+  }
+
+  loadProductData(id: number): void {
+    this.isLoading = true;
+    this._productsService
+      .getProductById(id)
+      .pipe(untilDestroyed(this))
+      .subscribe({
+        next: (product) => {
+          if (product) {
+            // Map product data to form data
+            this.formData = {
+              // Step 1: Application Information
+              applicationName: product.name || '',
+              applicationDescription: product.description || '',
+              businessUrl: product.category || '',
+              registeredBusinessAddress: product.description || '',
+              contactPersonName: '',
+              designation: '',
+              officialEmail: '',
+              logo: product.image ? {
+                name: 'product-image.jpg',
+                size: 0,
+                type: 'image/jpeg',
+                dataUrl: product.image,
+                file: null as any
+              } : null,
+              selectedPlan: 'basic',
+
+              // Step 2: Personal Information
+              licenseNumber: '',
+              dateOfBirth: '',
+              age: null,
+
+              // Step 3: Authorization and Scopes
+              allowedGrant: '',
+              redirectUrls: [],
+
+              // Step 4: Preview and Submit
+              comments: '',
+              sandboxUrl: '',
+              isCertified: false,
+              additionalFiles: [],
+            };
+            this.isLoading = false;
+            this._toastService.info(
+              this._translateService.instant('Load Successful'),
+              `Loaded product "${product.name}" for editing.`
+            );
+          } else {
+            this.isLoading = false;
+            this._toastService.error(
+              this._translateService.instant('Load Failed'),
+              'Product not found.'
+            );
+            this._router.navigate(['/products']);
+          }
+        },
+        error: (error) => {
+          console.error('Error loading product:', error);
+          this.isLoading = false;
+          this._toastService.error(
+            this._translateService.instant('Load Failed'),
+            this._translateService.instant('Failed to load product details.')
+          );
+          this._router.navigate(['/products']);
+        },
+      });
   }
 
   // Calculate age from date of birth
@@ -493,14 +562,69 @@ export class AddComponent implements OnInit {
       return;
     }
 
-    console.log('Provider registration submitted:', this.formData);
+    // Prepare product data
+    const productData: Partial<Product> = {
+      name: this.formData.applicationName,
+      description: this.formData.applicationDescription,
+      category: this.formData.businessUrl,
+      price: 0, // Default value
+      image: this.formData.logo?.dataUrl || '',
+      stock: 100, // Default value
+      rating: 4.5, // Default value
+      isFavorite: false,
+      deprecated: false,
+      status: 'in-stock',
+    };
 
-    const action = this.isEditMode ? 'updated' : 'registered';
-    const title = this.isEditMode ? 'Provider Updated' : 'Provider Registered';
-    const message = `"${this.formData.applicationName}" has been successfully ${action}.`;
+    this.isLoading = true;
 
-    this._toastService.success(title, message);
-    this._router.navigate(['/products']);
+    if (this.isEditMode && this.providerId) {
+      // Update existing product
+      this._productsService
+        .updateProduct(this.providerId, productData)
+        .pipe(untilDestroyed(this))
+        .subscribe({
+          next: (updatedProduct) => {
+            this.isLoading = false;
+            this._toastService.success(
+              this._translateService.instant('Product Updated'),
+              `"${updatedProduct.name}" has been successfully updated.`
+            );
+            this._router.navigate(['/products']);
+          },
+          error: (error) => {
+            console.error('Error updating product:', error);
+            this.isLoading = false;
+            this._toastService.error(
+              this._translateService.instant('Update Failed'),
+              'An error occurred while updating the product.'
+            );
+          },
+        });
+    } else {
+      // Create new product
+      this._productsService
+        .createProduct(productData)
+        .pipe(untilDestroyed(this))
+        .subscribe({
+          next: (newProduct) => {
+            this.isLoading = false;
+            this._toastService.success(
+              this._translateService.instant('Product Created'),
+              `"${newProduct.name}" has been successfully created.`
+            );
+            this._router.navigate(['/products']);
+          },
+          error: (error) => {
+            console.error('Error creating product:', error);
+            this.isLoading = false;
+            this._toastService.error(
+              this._translateService.instant('Creation Failed'),
+              'An error occurred while creating the product.'
+            );
+          },
+        });
+    }
   }
 
   cancel(): void {

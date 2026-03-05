@@ -33,6 +33,20 @@
 
 <div class="page-body">
   <div class="container-xl">
+
+    <!-- Loading Indicator -->
+    @if (isLoading) {
+      <div class="card">
+        <div class="card-body text-center py-5">
+          <div class="spinner-border text-azure mb-3" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <h3 class="text-muted">{{ isEditMode ? 'Loading product data...' : 'Saving...' }}</h3>
+        </div>
+      </div>
+    }
+
+    @if (!isLoading) {
     <!-- Horizontal Wizard Steps -->
     <div class="card mb-4">
       <div class="card-body py-3">
@@ -839,5 +853,6 @@
           </div>
         </div>
       </div>
-    </div>
+    }
   </div>
+</div>

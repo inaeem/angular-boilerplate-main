@@ -137,6 +137,9 @@
   "Are you sure you want to delete variant": "Are you sure you want to delete variant",
   "Load Failed": "Load Failed",
   "Failed to load product details.": "Failed to load product details.",
+  "Load Successful": "Load Successful",
+  "Update Failed": "Update Failed",
+  "Creation Failed": "Creation Failed",
 
   "Variant": "Variant",
   "Stock": "Stock",
