@@ -1,100 +1,64 @@
 # Infrastructure & Compute
 
-> Server infrastructure, container orchestration, networking topology, and mobile backend services that underpin the enterprise mobile platform.
+> Server infrastructure, container orchestration, networking topology, and mobile backend services.
 
 ---
 
 ## Deployment Model Key
 
-| Badge | Deployment Model |
-|---|---|
-| ![On-Premises](https://img.shields.io/badge/On--Premises-1F4E79?style=flat-square&logoColor=white) | On-Premises — self-managed infrastructure within your datacentre |
-| ![Cloud](https://img.shields.io/badge/Cloud%20(Azure%20%2B%20OSS)-833C00?style=flat-square&logoColor=white) | Cloud — Azure-native managed services + OSS application layer |
-| ![Hybrid](https://img.shields.io/badge/Hybrid-375623?style=flat-square&logoColor=white) | Hybrid — cloud for internet-facing workloads, on-prem for regulated/legacy |
+| Symbol | Model |
+|:---:|---|
+| 🏢 | **On-Premises** — self-managed infrastructure within your datacentre |
+| ☁️ | **Cloud** — Azure-native managed services + OSS application layer |
+| 🔀 | **Hybrid** — cloud for internet-facing workloads, on-prem for regulated/legacy |
+
+| Signal | Meaning |
+|:---:|---|
+| ✅ | Advantage or recommended approach for this dimension |
+| ⚠️ | Neutral, trade-off, or requires additional context |
+| ❌ | Disadvantage, risk, or significant operational burden |
 
 ---
 
 ## Compute Infrastructure
 
-### Primary Compute Model
+_The physical and virtual compute layer that runs all backend workloads — from raw VM provisioning through container scheduling to serverless event-driven functions._
 
-The foundational unit of compute — physical servers, virtualised machines, or managed Kubernetes nodes. Determines who owns hardware procurement, OS patching, capacity planning, and failure response. On-premises gives maximum physical control; cloud delegates all of this to the provider; hybrid splits responsibility at a defined boundary.
-
-### Container Orchestration
-
-The system that schedules, scales, heals, and manages containerised workloads. Kubernetes is the de facto standard, but the operational burden of running it differs sharply: self-managed kubeadm on bare metal carries full control-plane responsibility, whereas Azure Kubernetes Service (AKS) manages the control plane and node OS upgrades on your behalf.
-
-### Serverless / Event-Driven Compute
-
-Workloads billed and scaled at the invocation or request level, with no persistent infrastructure to manage. Enables burst capacity at zero idle cost. On-premises cannot offer true serverless natively without additional tooling (OpenFaaS, Knative). Azure Container Apps and Azure Functions provide managed serverless runtimes that scale to zero.
-
-### Autoscaling
-
-The ability for compute capacity to increase or decrease automatically in response to demand signals such as CPU utilisation, queue depth, or HTTP request rate. KEDA (Kubernetes Event-Driven Autoscaling) enables scale-to-zero on AKS driven by Azure Service Bus queue depth — a pattern not available on self-managed on-prem without equivalent OSS plumbing.
-
-### Multi-Region / HA
-
-Whether the architecture can withstand an availability zone or full datacenter failure without user-visible impact. Azure Availability Zones provide free multi-zone redundancy within a region; a second physical on-premises datacenter represents significant capital expenditure. Hybrid allows the cloud zone to be multi-AZ while the on-prem zone remains single-site.
-
-### Hardware Procurement Lead Time
-
-The elapsed time between a decision to add capacity and that capacity being available to the platform. Server hardware procurement typically takes 8–26 weeks end-to-end including delivery, rack installation, and OS baseline. Cloud provisioning via API is measured in seconds. This difference is critical during unexpected growth events or product launches.
-
-### Hardware Refresh Cycle
-
-The periodic replacement of aging server hardware to maintain performance, security patch eligibility, and vendor support. On-premises environments require a planned CapEx refresh approximately every 3–5 years. Cloud providers continuously refresh the underlying physical infrastructure transparently, with no disruption or cost to the tenant.
-
-### Edge / On-Device Compute
-
-Computation placed physically close to users or at the network edge, reducing latency for time-sensitive workloads. On-premises can operate fully air-gapped edge clusters. Azure IoT Edge and Azure Arc extend cloud management to edge hardware. For mobile platforms this enables on-device model inference (Phi-4-mini via ONNX Runtime) and local sync without round-tripping to a central region.
+| Criterion | Description | 🏢 On-Premises | ☁️ Cloud (Azure + OSS) | 🔀 Hybrid |
+|---|---|---|---|---|
+| **Primary Compute Model** | The foundational unit of compute. Determines who owns hardware procurement, OS patching, capacity planning, and failure response. | ⚠️ Physical servers / VM clusters managed in-house (VMware, Hyper-V) | ✅ Azure Kubernetes Service (AKS) — managed control plane, Azure-hosted nodes | ✅ AKS (cloud) for internet-facing workloads + on-prem VMs/K8s for sensitive compute |
+| **Container Orchestration** | Schedules, scales, heals, and manages containerised workloads. Operational burden differs sharply between self-managed and managed K8s. | ⚠️ Self-managed Kubernetes (kubeadm) or OpenShift on bare-metal / VMware | ✅ AKS with managed node upgrades, Azure CNI networking, AAD RBAC | ✅ AKS (cloud zone) + on-prem K8s or OpenShift — unified via Azure Arc |
+| **Serverless / Event-Driven Compute** | Workloads billed at invocation level with no persistent infrastructure. Enables burst capacity at zero idle cost. | ❌ Not natively available without additional OSS tooling (OpenFaaS, Knative) | ✅ Azure Container Apps (serverless K8s) + Azure Functions for event-driven tasks | ⚠️ Azure Container Apps for cloud; on-prem retains full-process containers only |
+| **Autoscaling** | Capacity increases or decreases automatically in response to demand signals such as CPU, queue depth, or HTTP request rate. | ⚠️ Manual or HPA on self-managed K8s; requires dedicated ops configuration | ✅ HPA + KEDA (event-driven autoscaling) + Cluster Autoscaler — fully managed | ⚠️ KEDA in cloud zone; static capacity in on-prem zone — asymmetric scaling |
+| **Multi-Region / HA** | Ability to withstand an availability zone or full datacenter failure without user-visible impact. | ❌ Active-passive DC pairs; complex failover; high capex for second DC | ✅ Azure Availability Zones (free) + Azure Front Door for global routing | ⚠️ Cloud zone multi-AZ + on-prem as warm standby; asymmetric DR complexity |
+| **Hardware Procurement Lead Time** | Elapsed time between a decision to add capacity and that capacity being available. Critical during unexpected growth events. | ❌ 8–26 weeks for new server hardware; blocks rapid scaling | ✅ Immediate provisioning via API/portal — seconds to minutes | ⚠️ Cloud scales instantly; on-prem bounded by existing hardware floor |
+| **Hardware Refresh Cycle** | Periodic replacement of aging server hardware to maintain performance, security patch eligibility, and vendor support. | ❌ Every 3–5 years; CapEx planning required; risk of obsolescence | ✅ No hardware ownership; Azure continuously refreshes underlying infrastructure | ⚠️ Cloud portion: no refresh. On-prem portion: 3–5 year cycle still required |
+| **Edge / On-Device Compute** | Computation placed physically close to users or at the network edge, enabling on-device model inference and local sync without round-tripping. | ✅ Full control of edge hardware; custom edge K8s clusters possible | ✅ Azure IoT Edge + Azure Arc for edge extensions of cloud workloads | ✅ Arc-enabled on-prem nodes act as edge for mobile sync and caching |
 
 ## Networking
 
-### Network Architecture
+_Traffic routing topology from mobile client through CDN, WAF, load balancers, API gateways, and into backend services — including private connectivity and DDoS protection._
 
-The overall topology governing how traffic flows between mobile clients, the internet, CDN, load balancers, API gateways, and backend services. On-premises uses private MPLS or SD-WAN under direct control. Azure uses Virtual Networks, peering, and Front Door for global routing. Hybrid connects both planes via ExpressRoute or VPN Gateway.
-
-### Mobile Client Ingress
-
-The path that a mobile client's HTTPS request travels from device to application logic. The three-tier Azure pattern (Front Door → Application Gateway WAF v2 → AKS NGINX ingress) provides global DDoS scrubbing, OWASP rule enforcement, and TLS termination at each layer. On-premises achieves similar depth through on-prem WAF appliances but with higher operational ownership.
-
-### API Gateway
-
-The component that enforces contract, authentication, rate limiting, and routing for all API traffic. Azure API Management (APIM) provides a fully managed external gateway with built-in JWT validation, quota, and developer portal. Kong OSS handles east-west internal routing within the cluster. On-premises runs both Kong instances self-managed, increasing operational surface.
-
-### Service Mesh (East-West mTLS)
-
-Mutual TLS encryption and traffic policy enforcement between microservices inside the Kubernetes cluster. Istio, operating as the Azure Service Mesh managed add-on, provides automatic certificate rotation, traffic shaping, and observability without code changes. Self-managing Istio on bare-metal Kubernetes requires manual control-plane upgrades and certificate authority configuration.
-
-### CDN / Static Asset Delivery
-
-The network of globally distributed edge nodes that caches and serves static assets (JS bundles, images, fonts) close to users. Azure Front Door's 150+ global Points of Presence reduce asset load time for international mobile users. On-premises CDN appliances (Varnish, Squid) have limited geographic reach and require hardware at each location.
-
-### Private Connectivity to Mobile Backend
-
-The mechanism ensuring traffic between mobile API servers and downstream data stores never traverses the public internet. Azure Private Endpoints bind managed services (PostgreSQL, Redis, Service Bus) to a private IP inside the VNet. On-premises achieves equivalent isolation through physical network separation. ExpressRoute provides a dedicated private circuit bridging the two in hybrid.
-
-### DDoS Protection
-
-Defence against volumetric denial-of-service attacks targeting the mobile API surface. Azure DDoS Protection Standard provides always-on mitigation backed by Microsoft's global network capacity — absorbing attacks that would saturate a typical on-premises ISP connection. On-premises relies on ISP-level scrubbing and WAF appliances with limited mitigation headroom.
+| Criterion | Description | 🏢 On-Premises | ☁️ Cloud (Azure + OSS) | 🔀 Hybrid |
+|---|---|---|---|---|
+| **Network Architecture** | Overall topology governing how traffic flows between mobile clients, internet, CDN, load balancers, API gateways, and backend services. | ✅ Private MPLS / SD-WAN; full control of routing, firewall, QoS policies | ✅ Azure Virtual Network (VNet) + Azure Front Door + Application Gateway WAF | ✅ ExpressRoute / VPN Gateway bridges on-prem network to Azure VNet |
+| **Mobile Client Ingress** | The path a mobile HTTPS request travels from device to application logic. Three tiers provide global DDoS, OWASP enforcement, and TLS termination. | ⚠️ Reverse proxy (NGINX/HAProxy) behind on-prem firewall + WAF appliance | ✅ Azure Front Door (global anycast + WAF) → App Gateway WAF v2 → AKS NGINX | ✅ Front Door global → App Gateway cloud zone → ExpressRoute → on-prem services |
+| **API Gateway** | Enforces contract, authentication, rate limiting, and routing for all API traffic. External and internal gateways serve different trust domains. | ⚠️ Kong (self-managed) or NGINX Plus; full config control; ops overhead high | ✅ Azure API Management (managed) externally + Kong internally on AKS | ⚠️ APIM cloud + on-prem Kong; dual-gateway routing via VPN/ExpressRoute |
+| **Service Mesh (East-West mTLS)** | Mutual TLS encryption and traffic policy between microservices inside the cluster. Automatic cert rotation without code changes. | ⚠️ Istio self-managed on bare-metal K8s; complex cert rotation; high ops burden | ✅ Istio via Azure Service Mesh managed add-on; Microsoft manages control plane | ⚠️ Azure Service Mesh in cloud zone; self-managed Istio on-prem — dual meshes |
+| **CDN / Static Asset Delivery** | Globally distributed edge nodes caching and serving static assets close to users, reducing load time for international mobile users. | ⚠️ On-prem CDN appliance (Varnish, Squid) or commercial CDN; limited PoPs | ✅ Azure Front Door CDN — 150+ global PoPs; zero infrastructure to manage | ✅ Azure Front Door for public assets; internal on-prem cache for internal apps |
+| **Private Connectivity to Mobile Backend** | Ensures traffic between API servers and downstream data stores never traverses the public internet. | ✅ Direct private network — lowest latency for internal apps on corporate Wi-Fi | ✅ Azure Private Endpoints — all service traffic stays on Azure backbone; no internet | ✅ ExpressRoute for on-prem to cloud; Private Endpoints within Azure zone |
+| **DDoS Protection** | Defence against volumetric denial-of-service attacks targeting the mobile API surface. | ⚠️ On-prem WAF + ISP-level DDoS scrubbing; limited capacity; high cost | ✅ Azure DDoS Protection Standard — always-on; Microsoft absorbs attack capacity | ⚠️ Front Door + Azure DDoS protects cloud edge; on-prem still needs separate DDoS |
 
 ## Mobile Backend Services
 
-### Backend for Frontend (BFF)
+_Specialised server-side services that mobile apps depend on directly: BFF aggregation, push notification fan-out, real-time WebSocket, and over-the-air update delivery._
 
-A server-side aggregation layer purpose-built for the mobile client contract. Built with Apollo Server (GraphQL), the BFF shapes, batches, and caches queries to protect downstream microservices from the chatty request patterns typical of mobile UX. On-premises hosts this on self-managed Kubernetes; cloud uses AKS or Azure Container Apps with KEDA autoscaling; hybrid may co-locate some BFF instances on-prem for ultra-low-latency internal use cases.
-
-### Push Notification Infrastructure
-
-The server-side component responsible for reliably delivering push notifications to iOS (APNs) and Android (FCM) devices at scale. Azure Notification Hubs provides a managed fan-out abstraction handling credential rotation, per-platform protocol differences, and tag-based audience targeting. Self-hosted push relays require managing APNs certificates, FCM credentials, and horizontal scaling of the relay service.
-
-### Real-Time WebSocket
-
-Persistent bidirectional connections used for live data feeds, collaborative editing, and chat within the mobile app. Azure Web PubSub provides managed WebSocket infrastructure that scales horizontally without sticky-session configuration. On-premises requires Socket.io or uWebSockets behind a load balancer with session affinity — a complex operational setup under high connection counts.
-
-### OTA Mobile Updates
-
-Over-the-air delivery of JavaScript bundle updates to deployed React Native apps, bypassing app store review for JS-only changes. EAS Update (Expo managed) handles bundle signing, CDN distribution, and update channel targeting. Self-hosting requires running the open-source EAS Update server on your own infrastructure with Azure Blob or MinIO as the bundle store.
+| Criterion | Description | 🏢 On-Premises | ☁️ Cloud (Azure + OSS) | 🔀 Hybrid |
+|---|---|---|---|---|
+| **Backend for Frontend (BFF)** | Server-side aggregation layer purpose-built for the mobile client contract, shaping and batching queries to protect downstream microservices. | ⚠️ Apollo Server / Node.js on self-managed K8s; full control; high ops overhead | ✅ Apollo Server on AKS or Azure Container Apps; KEDA autoscaling; managed infra | ✅ BFF on AKS cloud zone; sensitive BFFs optionally on-prem behind ExpressRoute |
+| **Push Notification Infrastructure** | Server-side component for reliably delivering push notifications to iOS (APNs) and Android (FCM) at scale. | ❌ Self-hosted push relay (custom FCM/APNs proxy); complex cert management | ✅ Azure Notification Hubs — managed FCM + APNs fan-out; tag-based targeting | ✅ Notification Hubs cloud; on-prem service triggers push via Event Hubs bridge |
+| **Real-Time WebSocket** | Persistent bidirectional connections for live data feeds, collaborative editing, and chat within the mobile app. | ⚠️ Socket.io on self-managed Node.js; sticky sessions; manual horizontal scaling | ✅ Azure Web PubSub — managed WebSocket; auto-scales; OSS client SDK | ✅ Web PubSub (cloud zone) or self-hosted Socket relay (on-prem) per policy |
+| **OTA Mobile Updates** | Over-the-air delivery of JavaScript bundle updates to deployed React Native apps, bypassing app store review for JS-only changes. | ⚠️ Self-hosted EAS Update server (oss.expo.dev) or custom CDN; ops required | ✅ EAS Update (Expo managed) + Azure Blob CDN for JS bundle hosting | ✅ EAS Update for cloud delivery; internal apps may use on-prem update server |
 
 ---
 

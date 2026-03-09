@@ -1,82 +1,66 @@
 # Observability
 
-> Metrics collection, log aggregation, distributed tracing, crash reporting, real-user monitoring, and AI-assisted operational tooling for the mobile platform.
+> Metrics, logging, distributed tracing, crash reporting, real-user monitoring, and AI-assisted operational tooling across cloud and on-premises zones.
 
 ---
 
 ## Deployment Model Key
 
-| Badge | Deployment Model |
-|---|---|
-| ![On-Premises](https://img.shields.io/badge/On--Premises-1F4E79?style=flat-square&logoColor=white) | On-Premises — self-managed infrastructure within your datacentre |
-| ![Cloud](https://img.shields.io/badge/Cloud%20(Azure%20%2B%20OSS)-833C00?style=flat-square&logoColor=white) | Cloud — Azure-native managed services + OSS application layer |
-| ![Hybrid](https://img.shields.io/badge/Hybrid-375623?style=flat-square&logoColor=white) | Hybrid — cloud for internet-facing workloads, on-prem for regulated/legacy |
+| Symbol | Model |
+|:---:|---|
+| 🏢 | **On-Premises** — self-managed infrastructure within your datacentre |
+| ☁️ | **Cloud** — Azure-native managed services + OSS application layer |
+| 🔀 | **Hybrid** — cloud for internet-facing workloads, on-prem for regulated/legacy |
+
+| Signal | Meaning |
+|:---:|---|
+| ✅ | Advantage or recommended approach for this dimension |
+| ⚠️ | Neutral, trade-off, or requires additional context |
+| ❌ | Disadvantage, risk, or significant operational burden |
 
 ---
 
 ## Metrics
 
-### Metrics Collection
+_Prometheus-format metric collection, Grafana visualisation, SLO dashboarding, and alert routing for both backend services and mobile client health indicators._
 
-All services expose Prometheus-format metrics at `/metrics`. Azure Managed Prometheus scrapes these endpoints and stores the time-series data with a fully managed retention backend, eliminating the operational overhead of running Prometheus server, Thanos, and Alertmanager in-house. On-premises uses self-managed Prometheus with Thanos for long-term object storage. Both expose the same PromQL query surface for Grafana dashboards.
-
-### Metrics Visualization
-
-Azure Managed Grafana provides pre-configured datasource integrations for Azure Managed Prometheus, Azure Monitor, and Azure Log Analytics, backed by Entra ID SSO for access control. It is the single pane of glass for all platform health visibility. Teams create squad-specific dashboards in their own Grafana folders without requiring shared dashboard credentials. The OSS Grafana API is fully compatible, protecting the investment if the platform later migrates from Azure.
-
-### Mobile SLO Dashboards
-
-Mobile-specific SLOs — crash-free sessions (≥99.5%), cold start p95 (≤2.5s), OTA adoption 48h (≥85%), push delivery rate (≥97%) — are tracked on dedicated Grafana dashboards alongside backend SLOs (API p95 latency, error rate). This collocated view is critical for correlating a mobile regression with an upstream backend degradation during incident response.
-
-### Alerting
-
-Grafana OnCall (OSS) handles alert routing, escalation policies, and on-call schedule management. Alerts from Prometheus alerting rules fire into Grafana OnCall, which pages the on-call engineer via PagerDuty, with escalation to the squad lead if not acknowledged within 15 minutes. Azure Monitor dynamic threshold alerts use ML-based baselines to detect anomalies without requiring manual threshold calibration.
+| Criterion | Description | 🏢 On-Premises | ☁️ Cloud (Azure + OSS) | 🔀 Hybrid |
+|---|---|---|---|---|
+| **Metrics Collection** | All services expose Prometheus metrics. Azure Managed Prometheus scrapes and stores time-series without operating Prometheus server, Thanos, or Alertmanager. | ⚠️ Prometheus (OSS) self-managed; Thanos for long-term storage; alertmanager | ✅ Azure Managed Prometheus — fully managed; PromQL compatible; no Prometheus server | ✅ Azure Managed Prometheus for cloud zone; self-managed Prometheus for on-prem zone |
+| **Metrics Visualization** | Azure Managed Grafana pre-wired to Azure Monitor, Entra ID SSO, and all Azure datasources. OSS Grafana API ensures portability. | ⚠️ Grafana (OSS) self-managed on on-prem K8s; full plugin control | ✅ Azure Managed Grafana — pre-wired to Azure Monitor; Entra ID SSO; no infra | ✅ Azure Managed Grafana; single pane of glass for cloud + on-prem Prometheus |
+| **Mobile SLO Dashboards** | Mobile SLOs — crash-free sessions ≥99.5%, cold start p95 ≤2.5s, OTA adoption ≥85%, push delivery ≥97% — tracked alongside backend SLOs on a single dashboard. | ⚠️ Grafana dashboards querying self-managed Prometheus + Sentry datasource | ✅ Azure Managed Grafana with Prometheus + Sentry + Azure Monitor datasources | ✅ Single Grafana instance aggregates cloud Prometheus, on-prem Prometheus, and Sentry |
+| **Alerting** | Grafana OnCall (OSS) handling alert routing, escalation policies, and on-call schedule management with PagerDuty integration. | ⚠️ Grafana OnCall (OSS) self-managed; PagerDuty integration; on-prem runbooks | ✅ Grafana OnCall (OSS) on AKS or Grafana Cloud; PagerDuty escalation policies | ✅ Grafana OnCall on AKS cloud; alerts fire regardless of which zone is impacted |
 
 ## Logging
 
-### Log Aggregation
+_Structured log aggregation, compliance-grade retention with WORM enforcement, and automated PII redaction before log storage._
 
-All microservices emit structured JSON logs to stdout. The OpenTelemetry Collector deployed as a DaemonSet on AKS collects, enriches with resource attributes, and forwards to Azure Log Analytics Workspace. On-premises uses Grafana Loki with Azure Blob or MinIO as the object store backend. Grafana's unified datasource model allows both Azure Log Analytics and Loki to be queried from the same dashboard.
-
-### Log Retention (Compliance)
-
-Different log categories have different regulatory retention requirements: application logs (90 days hot), audit logs (7 years HIPAA minimum), security events (1 year SOC 2 minimum). Azure Blob lifecycle management policies automate the tiering from hot to cool to archive. Immutable storage policy prevents deletion within the retention window. On-premises replicates this through MinIO WORM bucket configuration and custom retention job scheduling.
-
-### Sensitive Data Redaction
-
-An OpenTelemetry Collector processor pipeline applies Microsoft Presidio PII detection to all log records before they are forwarded to any storage backend. Phone numbers, email addresses, names, and national ID numbers matching configurable patterns are replaced with [REDACTED] tokens. This processor runs in both the cloud and on-premises OTel Collector deployments, ensuring PII never reaches Log Analytics or Loki.
+| Criterion | Description | 🏢 On-Premises | ☁️ Cloud (Azure + OSS) | 🔀 Hybrid |
+|---|---|---|---|---|
+| **Log Aggregation** | OTel Collector DaemonSet on AKS collects, enriches, and forwards structured JSON logs to Azure Log Analytics or Grafana Loki. | ⚠️ Grafana Loki (OSS) self-managed; Azure Blob / MinIO as object store backend | ✅ Azure Log Analytics Workspace — managed; KQL queries; 90-day hot retention | ✅ Azure Log Analytics (cloud) + Loki (on-prem); Grafana unifies both datasources |
+| **Log Retention (Compliance)** | Tiered retention: 90-day hot application logs, 7-year HIPAA audit logs, 1-year SOC 2 security events. Azure Blob lifecycle policies automate tiering. | ⚠️ MinIO WORM-tier + Loki ruler; manual retention job scheduling | ✅ Azure Blob archive tier (immutable) — automated lifecycle; 7-year HIPAA retention | ✅ Azure Blob immutable for cloud logs; on-prem WORM storage for on-prem log compliance |
+| **Sensitive Data Redaction** | Microsoft Presidio (OSS) as OTel Collector processor replacing PII patterns with typed redaction tokens before forwarding to any storage backend. | ✅ OTel Collector processor (on-prem) redacts PII before log storage — same tooling | ✅ OTel Collector processor (AKS) redacts PII before Azure Log Analytics ingestion | ✅ OTel Collector in each zone independently redacts before forwarding to storage |
 
 ## Tracing & Errors
 
-### Distributed Tracing
+_Distributed trace correlation across the full mobile request chain, vendor-neutral OTel instrumentation, self-hosted crash reporting, and real-user performance monitoring._
 
-Every API request spanning the mobile client → Front Door → APIM → BFF → microservice chain is tracked as a single trace with spans at each service boundary. OpenTelemetry SDKs instrument all services automatically. Traces are exported via OTLP to Azure Application Insights, which provides trace search, dependency maps, and failure analytics. On-premises exports to Jaeger.
-
-### Instrumentation Standard
-
-OpenTelemetry is the vendor-neutral CNCF standard for trace, metric, and log instrumentation. All services — Node.js BFF, Go microservices, React Native mobile app — use the official OTel SDK for their respective language. The OTel Collector acts as the routing layer, allowing the export destination (Application Insights, Jaeger, Datadog) to change without modifying application code.
-
-### Crash Reporting (Mobile)
-
-Sentry (OSS) self-hosted on AKS captures unhandled exceptions, React Native crash reports, and JavaScript error boundaries from mobile clients. Crash reports include device metadata, breadcrumb event sequence, and symbolicated stack traces. Self-hosting Sentry ensures that crash data — which may contain user context from the breadcrumb trail — never leaves the Azure tenant boundary, supporting GDPR data residency requirements.
-
-### Real User Monitoring (RUM)
-
-Sentry Performance tracks real-device transaction timings from the mobile app: cold start duration, screen-to-interactive time, API call latency distribution, and time-to-first-contentful-paint for WebView screens. These measurements feed the mobile SLO dashboard and provide the ground truth for performance regression detection between releases, complementing synthetic Detox test timings with actual user experience data.
+| Criterion | Description | 🏢 On-Premises | ☁️ Cloud (Azure + OSS) | 🔀 Hybrid |
+|---|---|---|---|---|
+| **Distributed Tracing** | Every API request spanning mobile client → Front Door → APIM → BFF → microservice tracked as a single trace with spans at each boundary. | ⚠️ Jaeger (OSS) self-managed; OTel SDK in all services; on-prem storage | ✅ OpenTelemetry → Azure Application Insights (OTLP ingest); managed storage | ✅ OTel Collector in each zone; cloud traces → App Insights; on-prem traces → Jaeger |
+| **Instrumentation Standard** | OpenTelemetry SDK — vendor-neutral CNCF standard for traces, metrics, and logs. Destination changes without modifying application code. | ✅ OpenTelemetry SDK — OSS; vendor-neutral; same regardless of backend | ✅ OpenTelemetry SDK — same; zero vendor lock-in at application code layer | ✅ OpenTelemetry SDK — same; backend destination differs per zone, not per app |
+| **Crash Reporting (Mobile)** | Sentry (OSS, self-hosted on AKS) capturing unhandled exceptions with symbolicated stack traces. Crash data stays within Azure tenant boundary. | ✅ Sentry (OSS, self-hosted) on on-prem K8s; crash data never leaves premises | ✅ Sentry (OSS, self-hosted) on AKS — crash data stays within Azure subscription | ✅ Sentry on AKS cloud zone; crash data stays within Azure tenant regardless |
+| **Real User Monitoring (RUM)** | Sentry Performance tracking real-device transaction timings: cold start, screen-to-interactive, API latency distribution from actual user devices. | ✅ Sentry Performance on self-hosted Sentry — app startup, API latency | ✅ Sentry Performance (self-hosted AKS) — same quality RUM data | ✅ Sentry Performance on AKS; covers mobile client interactions with both backend zones |
 
 ## Operational Tooling
 
-### Incident Management (AI Ops)
+_AI-assisted incident diagnosis, automated capacity planning recommendations, and cost anomaly detection. AI scoped strictly to operational tooling — never to end-user product features._
 
-AI is scoped strictly to operational tooling — never to end-user product features. During an incident, Microsoft Copilot for Azure accepts natural language questions ('Show me all 5xx errors from the BFF in the last 30 minutes broken down by endpoint') and generates KQL queries against Log Analytics, accelerating time-to-diagnosis. Grafana Sift automatically analyses metric and log data on alert fire to identify probable root cause before the on-call engineer has finished acknowledging the page.
-
-### Capacity Planning
-
-Azure Advisor analyses 30-day utilisation trends and recommends right-sizing for AKS node pools, PostgreSQL compute SKUs, and Redis cache tiers. Reserved Instance purchase recommendations include projected 3-year NPV. On-premises capacity planning relies on Prometheus utilisation dashboards and manual quarterly review, with hardware procurement lead time creating a significant lag between identified need and available capacity.
-
-### Cost Anomaly Detection
-
-Azure Cost Management sends automated alerts when daily or weekly spend deviates more than a configurable threshold from the rolling average baseline. This catches runaway scaling events, accidentally left-running load tests, or unexpectedly high data transfer charges before they compound. On-premises infrastructure costs are primarily fixed CapEx amortisation, making anomaly detection less applicable — but under-utilisation waste is correspondingly harder to act on.
+| Criterion | Description | 🏢 On-Premises | ☁️ Cloud (Azure + OSS) | 🔀 Hybrid |
+|---|---|---|---|---|
+| **Incident Management (AI Ops)** | Copilot for Azure generates KQL queries from natural language during incidents. Grafana Sift performs automated RCA on alert fire. AI advisory only — human retains authority. | ⚠️ Manual KQL / PromQL authoring; GitHub Copilot assists query writing in IDE | ✅ Microsoft Copilot for Azure (natural language Log Analytics) + Grafana Sift (OSS) | ⚠️ Copilot for Azure covers cloud logs; on-prem requires manual or Grafana Sift only |
+| **Capacity Planning** | Azure Advisor analyses 30-day utilisation trends and recommends right-sizing and reserved instance purchases. | ⚠️ Manual utilisation reviews; k6 load tests to model capacity needs | ✅ Azure Advisor automated right-sizing + reserved instance recommendations | ⚠️ Azure Advisor for cloud; manual capacity reviews for on-prem segment |
+| **Cost Anomaly Detection** | Azure Cost Management sends automated alerts when daily spend deviates from rolling average baseline, catching runaway scaling events early. | ❌ No native tooling; manual billing reviews; FinOps tooling required | ✅ Azure Cost Management anomaly alerts — automated spend spike detection | ⚠️ Azure Cost Management for cloud spend; on-prem costs managed via CapEx budget |
 
 ---
 

@@ -1,92 +1,62 @@
 # Compliance & Privacy
 
-> Regulatory frameworks, governance tooling, privacy architecture, and audit controls required for enterprise mobile platforms operating across multiple jurisdictions.
+> Regulatory frameworks, governance tooling, privacy architecture, and audit controls for enterprise mobile platforms operating across multiple jurisdictions.
 
 ---
 
 ## Deployment Model Key
 
-| Badge | Deployment Model |
-|---|---|
-| ![On-Premises](https://img.shields.io/badge/On--Premises-1F4E79?style=flat-square&logoColor=white) | On-Premises — self-managed infrastructure within your datacentre |
-| ![Cloud](https://img.shields.io/badge/Cloud%20(Azure%20%2B%20OSS)-833C00?style=flat-square&logoColor=white) | Cloud — Azure-native managed services + OSS application layer |
-| ![Hybrid](https://img.shields.io/badge/Hybrid-375623?style=flat-square&logoColor=white) | Hybrid — cloud for internet-facing workloads, on-prem for regulated/legacy |
+| Symbol | Model |
+|:---:|---|
+| 🏢 | **On-Premises** — self-managed infrastructure within your datacentre |
+| ☁️ | **Cloud** — Azure-native managed services + OSS application layer |
+| 🔀 | **Hybrid** — cloud for internet-facing workloads, on-prem for regulated/legacy |
+
+| Signal | Meaning |
+|:---:|---|
+| ✅ | Advantage or recommended approach for this dimension |
+| ⚠️ | Neutral, trade-off, or requires additional context |
+| ❌ | Disadvantage, risk, or significant operational burden |
 
 ---
 
 ## Regulatory Compliance
 
-### GDPR / CCPA
+_Key regulatory frameworks applicable to enterprise mobile platforms. Each framework imposes specific technical controls that must be implemented and evidenced._
 
-GDPR (EU) and CCPA (California) require lawful basis for personal data processing, transparent consent, data subject rights (access, rectification, erasure, portability), and breach notification. The OneTrust SDK gates all analytics and tracking events on mobile behind a consent prompt. Microsoft Purview auto-discovers and classifies PII across Azure storage. The Right to Erasure is implemented as an Azure Durable Function triggered by a Service Bus erasure message, confirmed by each microservice.
-
-### HIPAA
-
-HIPAA governs Protected Health Information (PHI) in US healthcare contexts. Microsoft's Business Associate Agreement (BAA) covers all Azure services used in the platform architecture. The Azure HIPAA Blueprint provides pre-built policy assignments, Key Vault HSM key management for PHI encryption, and Defender for Cloud scoring against HIPAA controls. On-premises deployments require a separate BAA with hardware vendors and manual HIPAA control implementation.
-
-### SOC 2 Type II
-
-SOC 2 Type II audits the design and operating effectiveness of security, availability, processing integrity, confidentiality, and privacy controls over a minimum 6-month observation period. Drata integrates natively with Azure to collect continuous automated evidence from Azure Policy, Entra ID, GitHub Actions, and Defender for Cloud. On-premises control evidence is collected manually, increasing audit preparation time and human error risk.
-
-### PCI-DSS
-
-Payment Card Industry Data Security Standard applies if the app processes, stores, or transmits cardholder data. The architecture minimises PCI scope by using Stripe or Adyen mobile SDKs: the SDK handles card tokenisation entirely within the payment provider's certified environment, meaning card numbers (PAN) never touch application servers. Azure's PCI DSS Blueprint covers the limited infrastructure that remains in scope.
-
-### ISO 27001
-
-ISO 27001 is an international information security management standard certifying that an organisation operates a documented and continuously improving ISMS (Information Security Management System). Azure provides an ISO 27001 workbook within Defender for Cloud with pre-mapped controls. Organisations can layer their ISMS documentation on top of Azure's certified infrastructure to scope and simplify their own certification audit.
-
-### Data Residency / Sovereignty
-
-The legal requirement that data be stored and processed within a specific geographic jurisdiction. Azure's 60+ global regions allow precise data placement. The architecture separates EU user data to EU regions (West Europe, North Europe) from US data via tenant-level routing. Highly regulated on-premises deployments can offer the strongest sovereignty guarantee — data physically cannot leave a specific building or jurisdiction without explicit operator action.
-
-### WCAG 2.2 AA Accessibility
-
-Web Content Accessibility Guidelines 2.2 Level AA is the accessibility compliance baseline for enterprise mobile apps targeting public sector and large enterprise customers. Automated axe-core and react-native-accessibility-engine checks in CI catch regressions in screen reader labels, colour contrast (≥4.5:1 for normal text), touch target sizing (≥44×44pt), and keyboard navigability for external keyboard users on iPad.
-
-### EU AI Act (if AI ops used)
-
-The EU AI Act classifies AI systems by risk tier. The architecture scopes AI exclusively to developer tooling (GitHub Copilot, code review suggestions) and operational aids (Copilot for Azure KQL generation, Grafana Sift RCA) — all categorised as low-risk or out-of-scope productivity tools with human review gates. No AI system makes autonomous decisions affecting end-users, avoiding high-risk classification and the associated conformity assessment requirements.
+| Criterion | Description | 🏢 On-Premises | ☁️ Cloud (Azure + OSS) | 🔀 Hybrid |
+|---|---|---|---|---|
+| **GDPR / CCPA** | Requires lawful processing basis, consent management, data subject rights (access, erasure, portability), and breach notification within 72 hours. | ✅ OneTrust SDK (mobile) + custom erasure APIs; full data control on-prem | ✅ OneTrust SDK + Microsoft Purview data discovery; Entra Graph API for erasure | ✅ OneTrust SDK; Purview discovers cloud data; custom erasure covers on-prem data stores |
+| **HIPAA** | Governs Protected Health Information (PHI) in US healthcare. Requires BAA with all vendors, encryption, audit trails, and minimum-necessary access. | ⚠️ Custom HIPAA controls; BAA with self-managed infra vendors; full ops burden | ✅ Azure HIPAA Blueprint + Microsoft BAA + Key Vault HSM; Defender for Cloud scoring | ⚠️ Microsoft BAA covers Azure zone; on-prem zone needs separate BAA and HIPAA controls |
+| **SOC 2 Type II** | Audits operating effectiveness of security, availability, and confidentiality controls over a minimum 6-month observation period. | ⚠️ Drata / Vanta integration with self-hosted tooling; evidence collection manual | ✅ Drata integrates natively with Azure — continuous SOC 2 control evidence collection | ⚠️ Drata integrates Azure controls; on-prem controls require manual evidence collection |
+| **PCI-DSS** | Applies if the app processes or transmits cardholder data. Architecture minimises PCI scope by using Stripe/Adyen SDKs — PAN never touches application servers. | ⚠️ Custom PCI scope; never touch PAN — Stripe/Adyen SDK; PCI scope limited | ✅ Azure PCI Blueprint + Stripe/Adyen SDK; no PAN in Azure; PCI assessment supported | ✅ Stripe/Adyen SDK handles PAN regardless; Azure PCI Blueprint for cloud segment |
+| **ISO 27001** | International ISMS certification. Azure provides ISO 27001 workbook with pre-mapped controls for continuous compliance scoring. | ⚠️ Custom ISMS; Azure Security Center excluded; full internal audit burden | ✅ Azure Security Center + ISO 27001 workbook; continuous compliance scoring | ⚠️ Azure ISO 27001 coverage for cloud; on-prem resources require separate ISMS scope |
+| **Data Residency / Sovereignty** | Legal requirement that data be stored and processed within a specific geographic jurisdiction. | ✅ Complete data sovereignty — all data on-premises within jurisdiction | ✅ Azure region selection enforces data residency; 60+ regions globally available | ✅ On-prem for highest-sovereignty data; cloud zone for non-sensitive — tiered residency |
+| **WCAG 2.2 AA Accessibility** | Accessibility compliance baseline for enterprise mobile apps. Automated CI gates on every PR using axe-core and react-native-accessibility-engine. | ✅ axe-core + react-native-accessibility-engine in CI — backend-agnostic | ✅ axe-core + react-native-accessibility-engine — same; runs in cloud CI runners | ✅ Same accessibility tooling; CI runner location does not affect accessibility compliance |
+| **EU AI Act (if AI ops used)** | AI scoped exclusively to developer tooling and operational aids — all low-risk or out-of-scope. No AI makes autonomous decisions affecting end-users. | ✅ No AI in product; AI ops tools (GitHub Copilot) are developer-side only | ✅ AI strictly scoped to code assist + ops (GitHub Copilot, Copilot for Azure) | ✅ Same AI boundary — AI ops tools in cloud CI; no AI in product regardless of deployment |
 
 ## Governance Tooling
 
-### Policy as Code
+_Policy-as-code enforcement, continuous security posture scoring, data cataloguing, and immutable audit log infrastructure._
 
-Azure Policy enforces configuration compliance rules across the entire Azure subscription as code: all storage accounts must have HTTPS-only access, all AKS clusters must enable Azure Defender, all Key Vault keys must have expiry dates set. Policies are evaluated continuously in audit mode and can be set to deny non-compliant resource creation. On-premises uses OPA/Gatekeeper for equivalent Kubernetes admission control.
-
-### Security Posture Scoring
-
-Microsoft Defender for Cloud provides a continuous Secure Score — a percentage reflecting how many recommended security controls across the subscription are implemented. The score is tracked as a platform KPI alongside reliability SLOs. It is mapped to industry frameworks (CIS Benchmarks, NIST SP 800-53, ISO 27001) for compliance evidence. OpenSCAP is used for on-premises node hardening verification.
-
-### Data Governance / Catalog
-
-Microsoft Purview scans Azure PostgreSQL, Blob Storage, and Cosmos DB to discover, classify, and label sensitive data assets automatically. It builds a lineage graph showing how data flows from ingestion through transformation to mobile API. This catalog is the primary tool for responding to GDPR subject access requests — identifying all locations where a specific user's data is stored.
-
-### Audit Log Immutability
-
-Every privileged action — Key Vault secret access, Entra ID role assignment change, ArgoCD deployment event, database schema migration — is written as a structured audit event to Azure Blob immutable storage (WORM policy). The immutability policy prevents deletion, and the blob is geo-redundant for disaster recovery. These logs constitute legally admissible evidence for SOC 2 Type II and HIPAA audit trails.
-
-### SBOM Management
-
-A Software Bill of Materials enumerates all first- and third-party components in a release, including transitive npm dependencies and base container image packages. CycloneDX format SBOMs are generated automatically by the EAS Build pipeline and stored in Azure Blob immutable storage with the release version tag. SBOMs enable rapid CVE impact assessment when a new vulnerability is disclosed in a widely-used library.
+| Criterion | Description | 🏢 On-Premises | ☁️ Cloud (Azure + OSS) | 🔀 Hybrid |
+|---|---|---|---|---|
+| **Policy as Code** | Azure Policy enforces configuration compliance continuously across the subscription. OPA/Gatekeeper provides equivalent Kubernetes admission control on-prem. | ⚠️ Open Policy Agent (OPA/Gatekeeper) on on-prem K8s; custom Rego policies | ✅ Azure Policy — enforces config compliance across entire Azure subscription; no-code | ⚠️ Azure Policy for cloud resources; OPA/Gatekeeper for on-prem K8s; dual policy engines |
+| **Security Posture Scoring** | Continuous Secure Score tracked as a platform KPI, mapped to CIS Benchmarks, NIST SP 800-53, and ISO 27001. | ⚠️ OpenSCAP for node hardening; manual periodic assessments; no continuous score | ✅ Microsoft Defender for Cloud — continuous score against CIS, NIST, ISO 27001 | ⚠️ Defender for Cloud scores Azure zone; OpenSCAP + Wazuh for on-prem zone; dual scores |
+| **Data Governance / Catalog** | Microsoft Purview auto-discovers and classifies sensitive data across all Azure services, building lineage graphs for GDPR subject access responses. | ⚠️ Apache Atlas (OSS) or custom; no native integration with code annotations | ✅ Microsoft Purview — auto-discovers sensitive data across all Azure services | ⚠️ Purview covers cloud data; Atlas or manual catalog for on-prem data — dual governance |
+| **Audit Log Immutability** | All privileged actions written to Azure Blob WORM immutable storage — legally admissible evidence for SOC 2 Type II and HIPAA. | ⚠️ MinIO WORM + hash-chained OTel events; custom tooling; ops intensive | ✅ Azure Blob immutable storage (WORM) — legally admissible; automated lifecycle | ✅ Azure Blob WORM for cloud audit logs; MinIO WORM for on-prem logs — both immutable |
+| **SBOM Management** | CycloneDX SBOMs generated per build, stored in Azure Blob immutable tier with release version tag for CVE impact assessment. | ✅ CycloneDX (OSS) generated per build; stored in MinIO WORM on-prem | ✅ CycloneDX per build; stored in Azure Blob immutable tier; per-release versioning | ✅ CycloneDX same; Azure Blob immutable for all SBOMs regardless of on-prem/cloud |
 
 ## Privacy Architecture
 
-### Consent Management (Mobile)
+_Technical controls implementing Privacy by Design: consent management, PII detection and redaction, Apple Privacy Manifest compliance, and Right to Erasure workflow._
 
-The OneTrust SDK presents the consent prompt on first launch and at each subsequent policy revision, recording the user's explicit consent or refusal for each data processing purpose (analytics, personalisation, marketing). No analytics SDK initialises until consent is granted. Consent records are written to a consent ledger in PostgreSQL and replicated to Microsoft Purview for GDPR accountability evidence.
-
-### PII Detection & Redaction
-
-Microsoft Presidio (OSS) is deployed as a processor within the OpenTelemetry Collector pipeline. It analyses structured log fields and trace attributes for PII patterns — email addresses, phone numbers, national ID formats, credit card patterns — and replaces matches with typed redaction tokens before forwarding to any storage backend. This ensures PII cannot accumulate in Log Analytics or Loki indexes regardless of developer logging hygiene.
-
-### Apple Privacy Manifest
-
-From iOS 17.4, Apple requires a PrivacyInfo.xcprivacy manifest in every app and SDK declaring all API usage reasons and data collection categories. The manifest is auto-generated in the EAS Build pipeline from the CycloneDX SBOM — each SDK dependency is mapped to its declared API usages, generating a merged manifest that satisfies App Store review. Without automation, this manifest must be manually maintained as dependencies change.
-
-### Right to Erasure (GDPR Art 17)
-
-When a user requests deletion of their account and personal data, an erasure event is published to Azure Service Bus. Each microservice subscribes to the erasure topic and is contractually obligated to confirm deletion of the user's records within 30 days. An Azure Durable Function orchestrates the process, tracking acknowledgement from each service and escalating to the data protection officer if any service fails to confirm within the deadline.
+| Criterion | Description | 🏢 On-Premises | ☁️ Cloud (Azure + OSS) | 🔀 Hybrid |
+|---|---|---|---|---|
+| **Consent Management (Mobile)** | OneTrust SDK gates all analytics events on mobile. Consent ledger in PostgreSQL. No analytics SDK initialises until consent is granted. | ✅ OneTrust SDK gates all analytics events; consent ledger in on-prem PostgreSQL | ✅ OneTrust SDK gates analytics; consent ledger in Azure PostgreSQL; Purview integration | ✅ OneTrust SDK same; consent ledger in cloud PostgreSQL; on-prem apps check via API |
+| **PII Detection & Redaction** | Microsoft Presidio (OSS) as OTel Collector processor replacing PII patterns with typed redaction tokens before any storage backend. | ✅ Microsoft Presidio (OSS) as OTel Collector processor; on-prem deployment | ✅ Microsoft Presidio (OSS) in OTel Collector on AKS; runs before log storage | ✅ Presidio in each zone independently; no PII crosses zone boundaries in logs |
+| **Apple Privacy Manifest** | PrivacyInfo.xcprivacy manifest auto-generated in EAS Build pipeline from CycloneDX SBOM, mapping each SDK to its declared API usages. | ✅ CycloneDX SBOM-driven auto-generation in EAS Build pipeline; backend-agnostic | ✅ Same pipeline; build runs in EAS cloud; manifest committed to repo in CI | ✅ Same pipeline; EAS Build is always cloud; no on-prem impact on Apple compliance |
+| **Right to Erasure (GDPR Art 17)** | Erasure event published to Azure Service Bus. Azure Durable Function orchestrates confirmation from each microservice within 30 days. | ✅ Azure Durable Function or on-prem worker; Service Bus erasure message per tenant | ✅ Azure Durable Function; Service Bus erasure message consumed by each microservice | ✅ Erasure message via Service Bus; cloud microservices + on-prem services each confirm |
 
 ---
 

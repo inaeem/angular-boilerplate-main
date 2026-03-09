@@ -1,62 +1,48 @@
 # Scalability & Performance
 
-> Horizontal scale-out speed, burst capacity ceilings, global distribution, database scaling patterns, mobile client performance targets, and CDN delivery characteristics.
+> Horizontal scale-out speed, burst capacity ceilings, global distribution, database scaling, mobile client performance targets, and CDN delivery characteristics.
 
 ---
 
 ## Deployment Model Key
 
-| Badge | Deployment Model |
-|---|---|
-| ![On-Premises](https://img.shields.io/badge/On--Premises-1F4E79?style=flat-square&logoColor=white) | On-Premises — self-managed infrastructure within your datacentre |
-| ![Cloud](https://img.shields.io/badge/Cloud%20(Azure%20%2B%20OSS)-833C00?style=flat-square&logoColor=white) | Cloud — Azure-native managed services + OSS application layer |
-| ![Hybrid](https://img.shields.io/badge/Hybrid-375623?style=flat-square&logoColor=white) | Hybrid — cloud for internet-facing workloads, on-prem for regulated/legacy |
+| Symbol | Model |
+|:---:|---|
+| 🏢 | **On-Premises** — self-managed infrastructure within your datacentre |
+| ☁️ | **Cloud** — Azure-native managed services + OSS application layer |
+| 🔀 | **Hybrid** — cloud for internet-facing workloads, on-prem for regulated/legacy |
+
+| Signal | Meaning |
+|:---:|---|
+| ✅ | Advantage or recommended approach for this dimension |
+| ⚠️ | Neutral, trade-off, or requires additional context |
+| ❌ | Disadvantage, risk, or significant operational burden |
 
 ---
 
 ## Scalability
 
-### Horizontal Scale-Out Speed
+_The platform's ability to handle traffic growth from baseline to burst without degradation or manual intervention._
 
-The elapsed time between a load spike being detected and new compute capacity being actively serving requests. On-premises requires manual VM provisioning or pre-warmed spare capacity, with new K8s nodes taking 5–30 minutes to be schedulable. AKS Cluster Autoscaler provisions new nodes in 2–5 minutes; KEDA can scale pods from zero to handling traffic in under 30 seconds for pre-warmed node pool configurations.
-
-### Maximum Burst Capacity
-
-The theoretical ceiling on peak traffic the architecture can serve. On-premises is hard-bounded by physical rack space and procured hardware. Cloud is bounded only by Azure regional quotas, which can be raised on request and are effectively unlimited for enterprise workloads. This distinction is critical for mobile platforms with unpredictable usage spikes from marketing campaigns, feature launches, or viral sharing.
-
-### Global Distribution
-
-Serving mobile users with low API latency from geographically distributed regions. Azure Front Door routes requests to the nearest healthy backend region with sub-100ms switchover on regional failure. Active-active multi-region AKS deployment can be configured using Azure Traffic Manager or Front Door origin groups. On-premises global distribution requires purchasing or leasing physical datacenter presence in each target region — a multi-million dollar investment.
-
-### Database Scaling
-
-Scaling PostgreSQL beyond a single server's capacity requires read replicas for read distribution and connection pooling (PgBouncer) for connection multiplexing. Azure PostgreSQL Flexible Server adds read replicas with a single API call and provides elastic storage auto-scaling to prevent disk-full events. On-premises replica addition requires DBA coordination, configuration file changes, and manual HAProxy weight adjustment.
-
-### Mobile Client Scale (Push)
-
-Push notification fan-out to millions of devices is a distinct scalability challenge separate from API scale. Azure Notification Hubs is purpose-built for this: it maintains persistent connections to both APNs and FCM, batches device registration lookups, and fans out to millions of devices in parallel. A custom push relay on self-managed infrastructure must be horizontally scaled and operated, with connection pool management to APNs being particularly operationally sensitive.
+| Criterion | Description | 🏢 On-Premises | ☁️ Cloud (Azure + OSS) | 🔀 Hybrid |
+|---|---|---|---|---|
+| **Horizontal Scale-Out Speed** | Elapsed time between a load spike being detected and new compute capacity actively serving requests. | ❌ Minutes to hours: provisioning VMs + configuring K8s nodes; hardware bounded | ✅ Seconds: AKS Cluster Autoscaler + KEDA trigger new pods and nodes automatically | ⚠️ Seconds (cloud zone); bounded (on-prem zone) — elastic only where cloud is deployed |
+| **Maximum Burst Capacity** | The theoretical ceiling on peak traffic. On-prem is hard-bounded by rack space. Cloud is bounded only by Azure regional quotas — effectively unlimited. | ❌ Hard ceiling: physical rack space and hardware; cannot exceed provisioned capacity | ✅ Effectively unlimited within Azure region; multi-region if one region is exhausted | ✅ Cloud zone can burst without limit; on-prem is hard-capped — hybrid enables overflow routing |
+| **Global Distribution** | Serving mobile users with low API latency from geographically distributed regions. Azure Front Door routes to nearest healthy backend. | ❌ Requires multiple physical DCs; high CapEx; complex GSLB configuration | ✅ Azure Front Door + multi-region AKS; active-active global routing in hours | ⚠️ Front Door routes globally for cloud zone; on-prem accessible only from fixed locations |
+| **Database Scaling** | Scaling PostgreSQL beyond a single server's capacity via read replicas and connection pooling. | ⚠️ Patroni + manual read replica addition; scale events require DBA + ops coordination | ✅ Azure PostgreSQL read replicas + connection pooling; elastic storage; auto-scaling | ⚠️ Azure PostgreSQL scales in cloud; on-prem PostgreSQL manual scale; separate ops paths |
+| **Mobile Client Scale (Push)** | Push notification fan-out to millions of devices. Azure Notification Hubs built for this scale; custom relays require careful connection pool management to APNs. | ⚠️ Custom FCM/APNs relay; fan-out throughput limited by relay server capacity | ✅ Azure Notification Hubs: millions of devices; managed fan-out; no throughput ceiling | ✅ Notification Hubs (cloud) handles all mobile push regardless of where data lives |
 
 ## Performance
 
-### API Latency (Mobile Client)
+_API latency characteristics, mobile app cold start time, offline performance, response caching layers, and CDN asset delivery performance._
 
-The round-trip time experienced by the mobile app for API calls. Azure Front Door's anycast routing ensures mobile clients worldwide connect to the nearest Front Door PoP (150+), with the PoP maintaining persistent TCP connections to origin servers. This significantly reduces connection setup latency for mobile clients with high-latency or lossy connections. On-premises achieves low latency only for clients on the corporate LAN or a well-peered connection.
-
-### Cold Start Time (App)
-
-The elapsed time from process launch to the first interactive screen. React Native's Hermes engine compiles JavaScript to bytecode at build time (AOT compilation), eliminating the JIT warmup delay present in earlier React Native versions. The New Architecture's TurboModules load native modules lazily on first use rather than eagerly at startup. These are client-side optimisations that are independent of backend deployment model.
-
-### Offline Performance
-
-The responsiveness of the app when the device has no network connectivity. WatermelonDB provides indexed SQLite queries with Lazy-loading, returning results in sub-10ms for typical mobile query patterns. MMKV delivers sub-millisecond key-value reads from a memory-mapped file. These are device-local data stores — their performance is entirely determined by device hardware and is independent of backend topology.
-
-### Response Caching
-
-Multiple caching layers stack to reduce perceived API latency for the mobile user. TanStack Query provides in-process client-side caching with configurable stale-while-revalidate semantics. Azure APIM response caching stores GET responses at the gateway edge. Azure Cache for Redis stores BFF-level aggregated query results. These layers compound: a stale TanStack Query hit never reaches the network; a fresh-but-cached APIM response never reaches the BFF.
-
-### CDN / Asset Performance
-
-JavaScript bundles, image assets, web fonts, and OTA update packages delivered through Azure Front Door CDN are cached at edge PoPs globally. Cache hit ratio for static assets typically exceeds 95% in production. Mobile clients downloading a 2MB JS bundle from a geographically proximate PoP experience download times measured in hundreds of milliseconds versus seconds from a single-origin datacenter, directly improving first-launch experience for new users.
+| Criterion | Description | 🏢 On-Premises | ☁️ Cloud (Azure + OSS) | 🔀 Hybrid |
+|---|---|---|---|---|
+| **API Latency (Mobile Client)** | Round-trip time experienced by the mobile app. Azure Front Door anycast reduces connection setup latency for global mobile clients significantly. | ⚠️ Low latency on corporate LAN; high latency for remote/mobile users outside office | ✅ Azure Front Door anycast: 150+ PoPs; consistent low latency globally | ✅ Front Door for internet users (low latency); on-prem for office intranet (ultra-low latency) |
+| **Cold Start Time (App)** | Elapsed time from process launch to first interactive screen. Hermes AOT + TurboModules lazy loading are client-side optimisations independent of backend. | ✅ Hermes bytecode + New Architecture — client-side; backend deployment irrelevant | ✅ Hermes + New Architecture + Metro bundle splitting — same client-side optimization | ✅ Same client-side optimizations — backend model has zero impact on app cold start |
+| **Offline Performance** | App responsiveness with no network connectivity. WatermelonDB sub-10ms queries, MMKV sub-millisecond KV reads — entirely device-local. | ✅ WatermelonDB + MMKV on device; full offline performance — backend irrelevant | ✅ WatermelonDB + MMKV; same offline performance — backend deployment irrelevant | ✅ Same device-local data stores; offline performance identical regardless of backend |
+| **Response Caching** | TanStack Query (client) + Azure APIM response cache (edge) + Azure Cache for Redis (BFF) layers compound to dramatically reduce perceived API latency. | ✅ Redis OSS on-prem; NGINX proxy cache; TanStack Query client-side cache | ✅ Azure Cache for Redis + APIM response caching + TanStack Query client cache | ✅ Azure Cache for Redis (cloud); Redis OSS (on-prem); TanStack Query always on client |
+| **CDN / Asset Performance** | Azure Front Door CDN at 150+ PoPs delivers JS bundles and OTA update packages with cache hit ratio exceeding 95% in production. | ❌ Limited PoPs with on-prem CDN (Varnish); poor performance for global users | ✅ Azure Front Door CDN: 150+ PoPs; 30–50ms edge for most global locations | ✅ Azure Front Door CDN for all public assets — hybrid backend does not affect CDN |
 
 ---
 

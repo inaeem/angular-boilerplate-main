@@ -1,76 +1,58 @@
 # Cost Model
 
-> Capital vs operating expenditure trade-offs, operational headcount costs, cost optimisation levers, and total cost of ownership projections across deployment models.
+> Capital vs operating expenditure trade-offs, headcount costs, cost optimisation levers, and 3-year total cost of ownership projections.
 
 ---
 
 ## Deployment Model Key
 
-| Badge | Deployment Model |
-|---|---|
-| ![On-Premises](https://img.shields.io/badge/On--Premises-1F4E79?style=flat-square&logoColor=white) | On-Premises — self-managed infrastructure within your datacentre |
-| ![Cloud](https://img.shields.io/badge/Cloud%20(Azure%20%2B%20OSS)-833C00?style=flat-square&logoColor=white) | Cloud — Azure-native managed services + OSS application layer |
-| ![Hybrid](https://img.shields.io/badge/Hybrid-375623?style=flat-square&logoColor=white) | Hybrid — cloud for internet-facing workloads, on-prem for regulated/legacy |
+| Symbol | Model |
+|:---:|---|
+| 🏢 | **On-Premises** — self-managed infrastructure within your datacentre |
+| ☁️ | **Cloud** — Azure-native managed services + OSS application layer |
+| 🔀 | **Hybrid** — cloud for internet-facing workloads, on-prem for regulated/legacy |
+
+| Signal | Meaning |
+|:---:|---|
+| ✅ | Advantage or recommended approach for this dimension |
+| ⚠️ | Neutral, trade-off, or requires additional context |
+| ❌ | Disadvantage, risk, or significant operational burden |
 
 ---
 
-## Capital Vs Operating Expenditure
+## Capital vs Operating Expenditure
 
-### Infrastructure Cost Model
+_The fundamental financial model governing how infrastructure costs appear on the balance sheet and how they scale with growth._
 
-On-premises is CapEx-dominant: hardware, racks, networking equipment, datacentre space, power, and cooling are purchased or leased upfront, depreciated over 3–5 years, and require a refresh cycle. Cloud is OpEx-dominant: all infrastructure costs appear as monthly consumption charges with no upfront commitment required (pay-as-you-go) or reduced committed rates (reserved instances). Hybrid produces a split budget requiring CapEx planning for the on-prem portion and OpEx forecasting for the cloud portion.
-
-### Hardware Investment
-
-An enterprise mobile backend at scale (50K+ MAU) requires substantial compute: a minimum of 3 AKS-equivalent worker nodes, 2 PostgreSQL HA nodes, 3 Redis Sentinel nodes, and monitoring infrastructure. At current hardware pricing this represents $200K–$2M+ in initial capital depending on redundancy requirements, plus a comparable refresh investment every 3–5 years. Cloud converts this to zero upfront cost with equivalent capability provisioned on demand.
-
-### Idle Resource Cost
-
-On-premises hardware runs at full power draw and rack space cost 24/7 regardless of actual utilisation. Development and staging environments that are idle 16 hours per day represent pure waste. Cloud scale-to-zero (KEDA, Azure Container Apps) eliminates this waste: development clusters cost nothing overnight. Spot node pools for non-critical batch workloads provide 60–90% cost reduction versus on-demand. Hybrid retains idle waste on the on-prem portion.
-
-### Licensing Cost
-
-An OSS-first architecture minimises licensing spend: PostgreSQL, Redis, Prometheus, Grafana, ArgoCD, and Sentry are all open-source under permissive licences. Unavoidable commercial costs include GuardSquare (DexGuard/iXGuard), Approov (device attestation), OneTrust (consent management), and optionally Chromatic (visual regression). GitHub Copilot (Teams) is the sole AI licensing cost. Azure managed services are billed as consumption OpEx rather than per-seat licence fees.
+| Criterion | Description | 🏢 On-Premises | ☁️ Cloud (Azure + OSS) | 🔀 Hybrid |
+|---|---|---|---|---|
+| **Infrastructure Cost Model** | CapEx (hardware, space, power) vs OpEx (consumption billing). Hybrid requires managing both budget types simultaneously. | ⚠️ CapEx-dominant: servers, racks, networking, cooling, power, datacenter lease | ✅ OpEx-dominant: pay-as-you-go; reserved instances; no hardware ownership | ⚠️ Split: CapEx for on-prem portion; OpEx for cloud portion; hybrid budget planning required |
+| **Hardware Investment** | Enterprise mobile backend at scale (50K+ MAU) requires $200K–$2M+ initial CapEx plus a 3–5 year refresh. Cloud converts this to zero upfront. | ❌ High upfront CapEx ($200K–$2M+ for enterprise mobile backend); 3–5 yr refresh | ✅ Zero hardware CapEx; no refresh cycles; infrastructure cost is pure OpEx | ⚠️ Reduced CapEx (smaller on-prem footprint); still requires hardware refresh for on-prem |
+| **Idle Resource Cost** | Servers run 24/7 regardless of utilisation. Cloud scale-to-zero (KEDA, Container Apps) eliminates idle waste in dev/staging. Spot nodes provide 60–90% savings. | ❌ Servers run 24/7 regardless of load; significant waste in low-traffic periods | ✅ Pay-per-use; scale to zero for dev/staging; spot nodes reduce costs 60–90% | ⚠️ On-prem portion runs 24/7; cloud portion scales to zero — partial waste reduction |
+| **Licensing Cost** | OSS-first architecture minimises licensing spend. Unavoidable commercial: GuardSquare, Approov, OneTrust. GitHub Copilot is the sole AI licensing cost. | ✅ OSS-only possible; avoid commercial licenses entirely; Sentry, Unleash all self-hosted | ⚠️ Azure managed services included in OpEx; GuardSquare + Approov commercial still required | ⚠️ Commercial licenses same (GuardSquare, Approov, OneTrust); Azure OpEx + on-prem CapEx |
 
 ## Operational Cost
 
-### DevOps / Platform Engineering Headcount
+_Human capital required to operate the platform — the largest cost line in most enterprise mobile programmes._
 
-Platform engineering labour is typically the largest cost line in an enterprise mobile programme. On-premises requires a larger platform team to manage hardware lifecycle, K8s upgrades, network configuration, and custom monitoring — typically 6–10 FTEs at senior engineer rates. Cloud reduces this to 3–5 FTEs focused on application architecture, observability, and security posture rather than infrastructure operations. Hybrid sits between but closer to the higher end due to dual-system expertise requirements.
-
-### DBA Headcount
-
-PostgreSQL HA, replication, vacuuming, index management, major version upgrades, and performance tuning require dedicated DBA expertise on-premises. Azure PostgreSQL Flexible Server handles patching, backup, and zone-redundant failover automatically, significantly reducing DBA involvement to schema design review, query optimisation, and capacity planning. At enterprise scale this represents a 0.5–1 FTE reduction versus an equivalent on-premises deployment.
-
-### Security Operations Cost
-
-Operating a security posture across a complex on-premises mobile backend requires dedicated SecOps investment: vulnerability scanning, patch scheduling, WAF rule tuning, certificate management, and penetration test remediation. Defender for Cloud, Azure Policy, and managed WAF rules automate the majority of ongoing posture management in the cloud model, reducing reactive SecOps toil and allowing the security function to focus on architecture review and threat modelling.
-
-### Mobile Build Infrastructure Cost
-
-Building iOS apps requires macOS hardware. A self-hosted iOS CI fleet requires Apple Mac Minis or Mac Pros in a rack, ongoing macOS licensing, Xcode version management, and code signing certificate maintenance. At 2024 pricing, a 4-agent macOS rack costs $15K–$20K per year in hardware amortisation plus hosting. EAS Build eliminates this entirely: Expo maintains the macOS fleet, and builds are triggered via API with per-build pricing.
+| Criterion | Description | 🏢 On-Premises | ☁️ Cloud (Azure + OSS) | 🔀 Hybrid |
+|---|---|---|---|---|
+| **DevOps / Platform Engineering Headcount** | On-prem requires 6–10 FTEs managing hardware lifecycle. Cloud reduces to 3–5 FTEs focused on application architecture and security posture. | ❌ Highest: requires dedicated infra team (6–10 FTEs for enterprise-scale on-prem) | ✅ Medium: platform team (3–5 FTEs) — Azure manages infra; team focuses on app arch | ⚠️ Medium-High: hybrid model requires expertise in both Azure and on-prem (4–7 FTEs) |
+| **DBA Headcount** | Azure PostgreSQL handles patching, backup, and HA automatically, reducing DBA involvement to schema design and query optimisation. | ❌ High: dedicated DBA required for PostgreSQL HA, backup, replication, patching | ✅ Low: Azure managed PostgreSQL handles patching, backup, HA automatically | ⚠️ Medium: on-prem PostgreSQL still needs DBA; Azure PostgreSQL is self-managing |
+| **Security Operations Cost** | Defender for Cloud, Azure Policy, and managed WAF rules automate majority of posture management, reducing reactive SecOps toil. | ❌ High: SOC team, patching cadence, vulnerability management all in-house | ✅ Medium: Defender for Cloud + Azure Policy automates most posture management | ⚠️ Medium-High: SecOps covers both Azure zone (Defender) and on-prem zone (Wazuh/OPA) |
+| **Mobile Build Infrastructure Cost** | macOS rack for iOS builds costs $15K+/yr in hardware + hosting. EAS Build eliminates this entirely at the cost of per-build pricing. | ❌ High: macOS rack for iOS builds ($15K+/yr hardware + hosting); Android Linux agents | ✅ Low: EAS Build (Expo managed) eliminates macOS agent maintenance entirely | ✅ Low: EAS Build (cloud) for all builds regardless of backend deployment model |
 
 ## Cost Optimization Levers
 
-### Autoscaling / Scale-to-Zero
+_Mechanisms to reduce infrastructure spend without impacting reliability: autoscaling, reserved capacity, OSS-first observability, OTA delivery, and relative TCO._
 
-KEDA enables Kubernetes pods to scale to zero replicas when a trigger metric (Service Bus queue depth, HTTP request rate, Prometheus query result) reaches zero. Combined with the AKS Cluster Autoscaler removing idle nodes, development and staging environments can run at effectively zero cost overnight and on weekends. This is not achievable on-premises without deprovisioning VMs manually — which creates a significant restore time before morning stand-up.
-
-### Reserved Capacity Discounts
-
-Azure Reserved Instances allow pre-committing to 1 or 3 years of specific VM SKUs, PostgreSQL compute tiers, and Redis cache sizes in exchange for discounts of 35–55% versus pay-as-you-go pricing. For production workloads with stable baseline capacity (PostgreSQL flexible server, Redis cache, AKS system node pool), reservation purchases are a straightforward cost reduction with minimal risk given the 3–5 year architecture horizon.
-
-### Per-MAU Cost (Observability)
-
-Commercial observability SaaS platforms (Datadog, New Relic, Dynatrace) charge per host per month or per data ingested, with costs scaling rapidly past 50K MAU. The OSS-first approach — Sentry self-hosted, Unleash self-hosted, Grafana Managed — converts this to a fixed infrastructure cost (3–4 AKS pods) regardless of user count. At 100K MAU this typically represents $30K–$80K per year in avoided SaaS spend.
-
-### OTA vs Store Build Cost
-
-App Store review cycles (1–3 days) and the full native build pipeline represent significant time and compute cost per release. EAS Update allows JavaScript-only changes to be delivered as OTA updates in minutes without a native build or store review. For a team releasing weekly, shifting 60–70% of releases to OTA-only updates reduces EAS Build credit consumption, eliminates review uncertainty, and compresses the time from code merge to user availability.
-
-### 3-Year TCO Estimate (Relative)
-
-Industry benchmarks from Gartner and Forrester consistently show cloud TCO 20–40% lower than equivalent on-premises for enterprise workloads at mobile scale when total cost (hardware, software, people, space, power) is compared. The hybrid model typically sits 10–20% higher than pure cloud due to the dual operational overhead, but is justified when regulatory or integration requirements mandate on-premises presence. All three models benefit equally from the OSS-first observability and build cost reduction strategies.
+| Criterion | Description | 🏢 On-Premises | ☁️ Cloud (Azure + OSS) | 🔀 Hybrid |
+|---|---|---|---|---|
+| **Autoscaling / Scale-to-Zero** | KEDA enables Kubernetes pods to scale to zero when trigger metrics reach zero. Dev/staging environments cost nothing overnight. | ❌ Manual scaling only; no auto scale-down; full capacity provisioned at all times | ✅ KEDA scale-to-zero; cluster autoscaler; Container Apps serverless billing model | ⚠️ KEDA in cloud zone (scale-to-zero); on-prem zone always-on — partial optimization |
+| **Reserved Capacity Discounts** | Azure Reserved Instances (1yr/3yr) provide 35–55% discount on PostgreSQL, Redis, and AKS nodes versus pay-as-you-go pricing. | ❌ CapEx hardware already committed; no additional reservation discount available | ✅ Azure Reserved Instances (1yr/3yr): 35–55% discount on PostgreSQL, Redis, AKS nodes | ⚠️ Reserved Instances for cloud portion; on-prem hardware amortized separately |
+| **Per-MAU Cost (Observability)** | Self-hosted Sentry, Unleash, and Grafana convert variable per-MAU SaaS costs to fixed infrastructure cost — typically $30K–$80K/yr avoided at 100K MAU. | ✅ Self-hosted Sentry, Unleash, Grafana — fixed infrastructure cost; no per-MAU fee | ✅ Self-hosted Sentry + Unleash on AKS — fixed cost; significantly cheaper than SaaS at scale | ✅ Same OSS-first approach; self-hosted tools run on cloud AKS — no per-MAU fee |
+| **OTA vs Store Build Cost** | Shifting 60–70% of releases to OTA-only updates reduces EAS Build credit consumption and eliminates App Store review uncertainty. | ✅ EAS OTA for JS changes; still cloud-dependent for OTA delivery CDN | ✅ EAS OTA eliminates rebuild cost for JS-only changes; Azure Blob CDN for bundles | ✅ EAS OTA for all JS changes regardless of backend — cloud CDN always used for OTA |
+| **3-Year TCO Estimate (Relative)** | Cloud TCO is typically 20–40% lower than equivalent on-prem when total cost (hardware, software, people, space, power) is compared at mobile scale. | ❌ Highest TCO: CapEx + OpEx + headcount; industry avg 40–60% higher than cloud | ✅ Lowest TCO at scale: OpEx + reduced headcount; unit economics improve with growth | ⚠️ Middle TCO: cloud savings partially offset by on-prem CapEx + dual-ops headcount |
 
 ---
 

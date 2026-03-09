@@ -1,86 +1,67 @@
 # Data Storage
 
-> Relational databases, distributed caching, object storage, mobile offline data, and synchronisation patterns that form the persistence layer of the enterprise mobile platform.
+> Relational databases, distributed caching, object storage, document storage, search, and mobile offline data with synchronisation patterns.
 
 ---
 
 ## Deployment Model Key
 
-| Badge | Deployment Model |
-|---|---|
-| ![On-Premises](https://img.shields.io/badge/On--Premises-1F4E79?style=flat-square&logoColor=white) | On-Premises — self-managed infrastructure within your datacentre |
-| ![Cloud](https://img.shields.io/badge/Cloud%20(Azure%20%2B%20OSS)-833C00?style=flat-square&logoColor=white) | Cloud — Azure-native managed services + OSS application layer |
-| ![Hybrid](https://img.shields.io/badge/Hybrid-375623?style=flat-square&logoColor=white) | Hybrid — cloud for internet-facing workloads, on-prem for regulated/legacy |
+| Symbol | Model |
+|:---:|---|
+| 🏢 | **On-Premises** — self-managed infrastructure within your datacentre |
+| ☁️ | **Cloud** — Azure-native managed services + OSS application layer |
+| 🔀 | **Hybrid** — cloud for internet-facing workloads, on-prem for regulated/legacy |
+
+| Signal | Meaning |
+|:---:|---|
+| ✅ | Advantage or recommended approach for this dimension |
+| ⚠️ | Neutral, trade-off, or requires additional context |
+| ❌ | Disadvantage, risk, or significant operational burden |
 
 ---
 
 ## Relational Database
 
-### Primary Relational DB
+_The authoritative transactional store for structured application data. Covers HA topology, backup strategy, connection pooling, and horizontal read scaling._
 
-The authoritative transactional store for structured application data including user profiles, audit records, and domain entities. PostgreSQL is the OSS standard: Azure Database for PostgreSQL Flexible Server provides a fully managed PostgreSQL surface with automatic minor-version patching, built-in backup, and configurable zone-redundant HA. Self-managed PostgreSQL on VMs retains full configuration control but requires dedicated DBA operations.
-
-### High Availability
-
-The configuration ensuring the database remains accessible during single-node failure without manual intervention. Azure PostgreSQL Flexible Server zone-redundant HA maintains a synchronous standby in a separate availability zone; automatic failover completes in under 30 seconds with no DBA action required. On-premises achieves HA via Patroni (leader election) + HAProxy (connection routing), requiring operational expertise to configure, test, and operate.
-
-### Backup & Recovery
-
-The process of capturing consistent database snapshots, retaining them for a defined period, and restoring a specific point in time when required. Azure PostgreSQL provides automated geo-redundant backups with point-in-time restore to any second within the retention window. On-premises uses pgBackRest or Barman writing to NFS or MinIO, with retention policy enforcement managed through custom cron jobs and periodic restore tests.
-
-### Connection Pooling
-
-Middleware that multiplexes many application connections onto a smaller number of actual PostgreSQL backend connections, preventing connection exhaustion under high mobile API concurrency. PgBouncer in transaction-mode pooling is the standard. In cloud AKS it runs as a sidecar; Azure PostgreSQL Flexible Server includes built-in connection pooling as a configuration toggle, removing the need for a separately deployed component.
-
-### Read Replicas / Scaling
-
-Additional PostgreSQL instances that replicate from the primary and serve read-only queries, reducing load on the primary and improving read throughput for mobile dashboard and reporting queries. Azure PostgreSQL supports read replicas with one-click provisioning, automated lag monitoring, and optional promotion to primary. On-premises requires configuring streaming replication manually and scripting promotion procedures.
+| Criterion | Description | 🏢 On-Premises | ☁️ Cloud (Azure + OSS) | 🔀 Hybrid |
+|---|---|---|---|---|
+| **Primary Relational DB** | Authoritative transactional store for structured application data. Azure managed PostgreSQL vs self-managed on VMs. | ⚠️ PostgreSQL self-managed on VMs / bare metal; full control; full ops burden | ✅ Azure Database for PostgreSQL Flexible Server — managed; auto backup; HA failover | ✅ Azure PostgreSQL Flexible Server (cloud zone) + on-prem PostgreSQL for sensitive data |
+| **High Availability** | Configuration ensuring the database remains accessible during single-node failure without manual intervention. | ⚠️ Patroni + HAProxy cluster; manual failover setup; DBA expertise required | ✅ Zone-redundant HA built-in; automatic failover < 30s; no DBA config required | ⚠️ Azure PostgreSQL HA (cloud) + Patroni (on-prem); separate HA config per zone |
+| **Backup & Recovery** | Capturing consistent snapshots, retaining for a defined period, and restoring a specific point in time. | ⚠️ pgBackRest / Barman; custom S3/NFS target; manual retention policy | ✅ Automated backups; geo-redundant; point-in-time restore; configurable retention | ⚠️ Azure automated backups for cloud DB; pgBackRest for on-prem — dual backup management |
+| **Connection Pooling** | Middleware multiplexing many application connections onto fewer PostgreSQL backend connections, preventing exhaustion under high mobile API concurrency. | ⚠️ PgBouncer self-managed sidecar; must be deployed, monitored, upgraded | ✅ PgBouncer on AKS sidecar; or Azure flexible server built-in connection pooling | ⚠️ PgBouncer in both zones; separate config and monitoring per deployment |
+| **Read Replicas / Scaling** | Additional PostgreSQL instances serving read-only queries, reducing load on the primary for mobile dashboard and reporting queries. | ⚠️ Streaming replication; manual read replica promotion; DBA-intensive | ✅ Read replicas with 1-click provisioning; auto-lag monitoring; auto-failover option | ✅ Azure read replicas for cloud reads; on-prem replicas for latency-sensitive workloads |
 
 ## Caching & Key-Value
 
-### Distributed Cache
+_In-memory distributed cache reducing database read load, session storage, and device-local key-value storage for mobile performance._
 
-An in-memory data store shared across API server instances, providing sub-millisecond retrieval of frequently accessed results. Azure Cache for Redis (managed) supports cluster mode and geo-replication. For mobile workloads it typically absorbs 60–80% of read load on PostgreSQL for user profile, catalogue, and configuration data. The OSS ioredis client is protocol-compatible with both managed and self-hosted Redis.
-
-### Mobile Local KV Storage
-
-A high-performance persistent key-value store embedded within the mobile application for storing user preferences, cached API responses, and lightweight state. `react-native-mmkv` wraps MMKV, a memory-mapped key-value engine originally developed by WeChat, providing significantly faster read/write throughput than AsyncStorage. This is entirely device-local and independent of backend deployment model.
-
-### Session Store
-
-The server-side store used to maintain authenticated session state or short-lived token metadata across horizontally scaled API instances. Redis is the standard session store: all API pods share one Redis cluster, enabling stateless pod scaling. Azure Cache for Redis provides managed cluster mode with automatic failover. On-premises requires Redis Sentinel or Redis Cluster, configured for HA without platform-managed automation.
+| Criterion | Description | 🏢 On-Premises | ☁️ Cloud (Azure + OSS) | 🔀 Hybrid |
+|---|---|---|---|---|
+| **Distributed Cache** | In-memory data store shared across API server instances providing sub-millisecond retrieval of frequently accessed results. | ⚠️ Redis OSS self-managed on VMs; Sentinel for HA; manual eviction tuning | ✅ Azure Cache for Redis (Managed) — cluster mode; geo-replication; OSS ioredis client | ✅ Azure Cache for Redis (cloud) + Redis OSS (on-prem); same ioredis client for both |
+| **Mobile Local KV Storage** | High-performance persistent key-value store embedded within the mobile app. react-native-mmkv wraps MMKV — device-native and backend-agnostic. | ✅ MMKV (react-native-mmkv) on device — platform-native; backend-agnostic | ✅ MMKV (react-native-mmkv) — same regardless of backend deployment model | ✅ MMKV same — backend deployment has no impact on device-side KV storage |
+| **Session Store** | Server-side store maintaining authenticated session state across horizontally scaled API instances. | ⚠️ Redis Sentinel; sticky session config on NGINX; manual shard rebalancing | ✅ Azure Cache for Redis with session eviction policies; APIM session management | ⚠️ Redis on cloud for cloud API sessions; on-prem Redis for on-prem API sessions |
 
 ## Document & Object Storage
 
-### Object / Blob Storage
+_Binary large object storage for assets and artefacts, JSON document storage for flexible-schema entities, full-text and vector search, and compliance-grade immutable storage._
 
-Binary large object storage for user-uploaded files, app assets, OTA bundle archives, build artefacts, and log exports. Azure Blob Storage provides 99.99999999999% (11 nines) durability via geo-redundant storage, immutable WORM tier for compliance retention, and lifecycle policies for automatic hot→cool→archive tiering. MinIO (OSS, S3-compatible API) provides equivalent functionality on-premises with full data sovereignty.
-
-### Document Storage (NoSQL)
-
-Schema-flexible JSON document storage for entities with variable structure such as notification payloads, user preference trees, and feature flag configurations. Azure Cosmos DB provides single-digit millisecond reads globally with a 99.999% SLA. MongoDB Community Edition on-premises provides the same document model with full operational control at the cost of managing replication, sharding, and index management in-house.
-
-### Search
-
-A dedicated full-text, vector, and semantic search engine allowing mobile users to query across large content corpora. Azure AI Search provides managed indexing, hybrid BM25+vector retrieval, and semantic ranking without maintaining Elasticsearch infrastructure. On-premises deploys Elasticsearch OSS (7.x) or OpenSearch with index management, shard rebalancing, and snapshot policies as operational responsibilities.
-
-### Compliance / Immutable Storage
-
-A write-once, read-many storage layer where records cannot be deleted or modified within a defined retention period — legally admissible for SOC 2, HIPAA, and financial audit trails. Azure Blob immutable storage policies (WORM) are enforced at the storage-account level and are legally recognised. On-premises uses MinIO WORM buckets with hash-chained manifests, requiring custom audit evidence tooling.
+| Criterion | Description | 🏢 On-Premises | ☁️ Cloud (Azure + OSS) | 🔀 Hybrid |
+|---|---|---|---|---|
+| **Object / Blob Storage** | Binary large object storage for user uploads, app assets, OTA bundle archives, and log exports. | ⚠️ MinIO (OSS, S3-compatible) self-managed; erasure coding; monitoring required | ✅ Azure Blob Storage — immutable tier; lifecycle policies; geo-redundancy; 99.9999% SLA | ✅ Azure Blob for cloud assets; MinIO on-prem for sensitive docs — S3 API compatible |
+| **Document Storage (NoSQL)** | Schema-flexible JSON document storage for entities with variable structure: notification payloads, user preference trees, feature flag configurations. | ⚠️ MongoDB Community / CouchDB self-managed; manual sharding + replication | ✅ Azure Cosmos DB — globally distributed; multi-model; 99.999% SLA | ✅ Cosmos DB for cloud-side documents; MongoDB on-prem for regulated/sovereign data |
+| **Search** | Dedicated full-text, vector, and semantic search engine for mobile content discovery queries. | ⚠️ Elasticsearch self-managed (OSS) or OpenSearch; full control; index management | ✅ Azure AI Search — managed indexing, vector search, semantic ranking | ✅ Azure AI Search for cloud data; Elasticsearch OSS for on-prem indexed content |
+| **Compliance / Immutable Storage** | Write-once, read-many storage where records cannot be deleted or modified within a retention period — legally admissible for SOC 2, HIPAA, and financial audit. | ⚠️ MinIO WORM buckets + self-managed retention policies; audit required | ✅ Azure Blob immutable storage policy (WORM) — legally admissible; 0 management | ✅ Blob immutable for cloud compliance artifacts; on-prem WORM for local mandates |
 
 ## Mobile Client Data
 
-### Local Database (Offline)
+_Device-embedded database, conflict-free sync engine, and CRDT-based collaborative data patterns enabling offline-first mobile experiences._
 
-A full relational database embedded within the mobile app, enabling complex query, filtering, and aggregation against locally stored data without network connectivity. WatermelonDB provides a Lazy-loading, high-performance SQLite abstraction with a reactive query model, encrypted at rest via SQLCipher. This layer is entirely on-device and architecturally independent of the backend deployment model.
-
-### Sync Engine
-
-The server-side service that reconciles local device database state with the canonical backend store when connectivity is restored. It must handle multi-device conflict resolution (last-write-wins or CRDTs), partial sync for large datasets, and guaranteed delivery semantics. On-premises runs this as a custom service on K8s; cloud deploys it on AKS with Azure Service Bus providing guaranteed at-least-once event delivery; hybrid routes sync events to cloud DB or on-prem DB based on data classification.
-
-### CRDT / Collaborative Data
-
-Conflict-free Replicated Data Types are data structures that can be merged deterministically across multiple devices without a central coordinator, enabling true multi-device real-time collaboration. Yjs and Automerge are the leading OSS implementations. The server-side relay (Azure Web PubSub or a self-hosted Socket.io cluster) propagates CRDT operations between clients; the merge logic is on-device and backend-agnostic.
+| Criterion | Description | 🏢 On-Premises | ☁️ Cloud (Azure + OSS) | 🔀 Hybrid |
+|---|---|---|---|---|
+| **Local Database (Offline)** | Full relational database embedded within the mobile app enabling complex queries against locally stored data without network connectivity. | ✅ WatermelonDB + SQLCipher — OSS, device-native; backend-agnostic | ✅ WatermelonDB + SQLCipher — same on device regardless of backend | ✅ WatermelonDB + SQLCipher — same on device regardless of backend |
+| **Sync Engine** | Server-side service reconciling local device database state with the canonical backend store. Handles conflict resolution, partial sync, and guaranteed delivery. | ⚠️ Custom sync service self-managed on-prem K8s; conflict resolution app-side | ✅ Custom sync service on AKS; Azure Service Bus for sync event queue | ✅ Sync worker on AKS cloud; routes to cloud DB or on-prem DB based on tenant |
+| **CRDT / Collaborative Data** | Conflict-free Replicated Data Types enabling deterministic multi-device merge without a central coordinator for real-time collaboration features. | ✅ Yjs / Automerge OSS; custom WebSocket relay server on-prem; full control | ✅ Yjs OSS + Azure Web PubSub relay; scalable WebSocket without infra management | ✅ Yjs on client; Web PubSub (cloud) or self-hosted Socket relay (on-prem) per policy |
 
 ---
 
