@@ -1,0 +1,374 @@
+// Tabler Invoice-Style Print Component
+
+:host {
+  --tblr-primary: #206bc4;
+  --tblr-azure: #206bc4;
+}
+
+// Hide on print
+.no-print {
+  @media print {
+    display: none !important;
+  }
+}
+
+// Page styling
+.page-body {
+  background: #f8f9fa;
+  min-height: 100vh;
+  padding: 2rem 0;
+
+  @media print {
+    background: white;
+    padding: 0;
+  }
+}
+
+// Card Large (Invoice Style)
+.card-lg {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+
+  .card-body {
+    padding: 3rem;
+
+    @media (max-width: 768px) {
+      padding: 1.5rem;
+    }
+  }
+
+  @media print {
+    box-shadow: none;
+    border: none;
+
+    .card-body {
+      padding: 0;
+    }
+  }
+}
+
+// Typography
+h1, h2, h3 {
+  margin-bottom: 1rem;
+}
+
+h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--tblr-azure);
+
+  @media print {
+    font-size: 1.75rem;
+  }
+}
+
+h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+
+  &.text-muted {
+    color: #6c757d !important;
+  }
+
+  @media print {
+    font-size: 1.25rem;
+  }
+}
+
+h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+
+  @media print {
+    font-size: 1.1rem;
+  }
+}
+
+// Address block
+address {
+  font-style: normal;
+  line-height: 1.6;
+  color: #6c757d;
+}
+
+// Horizontal rules
+hr {
+  border-top: 2px solid #e9ecef;
+  margin: 2rem 0;
+
+  @media print {
+    border-top: 1px solid #dee2e6;
+  }
+}
+
+// Tables
+.table {
+  margin-bottom: 0;
+
+  th {
+    font-weight: 600;
+    color: var(--tblr-body-color);
+    background: #f8f9fa;
+    padding: 0.75rem;
+    vertical-align: middle;
+  }
+
+  td {
+    padding: 0.75rem;
+    vertical-align: middle;
+  }
+
+  &.table-bordered {
+    border: 1px solid #dee2e6;
+
+    th, td {
+      border: 1px solid #dee2e6;
+    }
+  }
+
+  &.table-vcenter {
+    td, th {
+      vertical-align: middle;
+    }
+  }
+
+  .table-active {
+    background-color: #e7f5ff;
+  }
+
+  @media print {
+    th {
+      background: #f8f9fa !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .table-active {
+      background-color: #e7f5ff !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  }
+}
+
+// Badges
+.badge {
+  padding: 0.35em 0.65em;
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  &.badge-outline {
+    background: transparent;
+    border: 1px solid currentColor;
+  }
+
+  @media print {
+    border: 1px solid currentColor !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+// Star rating
+.text-yellow {
+  color: #f59f00;
+
+  @media print {
+    color: #f59f00 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+// Images
+img.img-fluid {
+  max-width: 100%;
+  height: auto;
+}
+
+.rounded {
+  border-radius: 0.25rem;
+}
+
+.border {
+  border: 1px solid #dee2e6;
+}
+
+// Text utilities
+.text-azure {
+  color: var(--tblr-azure) !important;
+
+  @media print {
+    color: var(--tblr-azure) !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+.text-success {
+  color: #2fb344 !important;
+
+  @media print {
+    color: #2fb344 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+.text-warning {
+  color: #f59f00 !important;
+
+  @media print {
+    color: #f59f00 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+.text-danger {
+  color: #d63939 !important;
+
+  @media print {
+    color: #d63939 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+// Code elements
+code {
+  padding: 0.125rem 0.375rem;
+  font-size: 85%;
+  color: #e03e2d;
+  background-color: #f1f3f5;
+  border-radius: 0.25rem;
+
+  @media print {
+    background-color: #f1f3f5 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+// Empty state (no image)
+.bg-light {
+  background-color: #f8f9fa !important;
+
+  @media print {
+    background-color: #f8f9fa !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+// Print-specific styles
+@media print {
+  // Page setup
+  @page {
+    size: A4;
+    margin: 1.5cm;
+  }
+
+  body {
+    background: white !important;
+  }
+
+  // Hide everything except the document
+  .no-print,
+  .page-header,
+  .btn,
+  button {
+    display: none !important;
+  }
+
+  // Full width for print
+  .container-xl {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .page-body {
+    min-height: auto !important;
+  }
+
+  // Ensure colors print
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  // Prevent page breaks inside important elements
+  .card,
+  .row,
+  table,
+  tr {
+    page-break-inside: avoid;
+  }
+
+  // Ensure table headers repeat on new pages
+  thead {
+    display: table-header-group;
+  }
+
+  tfoot {
+    display: table-footer-group;
+  }
+
+  // Remove unnecessary margins
+  .mb-4, .my-4 {
+    margin-bottom: 1rem !important;
+  }
+
+  .mt-4 {
+    margin-top: 1rem !important;
+  }
+
+  // Adjust font sizes for print
+  body {
+    font-size: 11pt;
+    line-height: 1.5;
+  }
+
+  // Ensure borders are visible
+  .border, .table-bordered {
+    border: 1px solid #000 !important;
+  }
+
+  .table-bordered th,
+  .table-bordered td {
+    border: 1px solid #000 !important;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+  }
+
+  .card-lg .card-body {
+    padding: 1.5rem;
+  }
+
+  .table {
+    font-size: 0.875rem;
+
+    th, td {
+      padding: 0.5rem;
+    }
+  }
+
+  // Stack columns on mobile
+  .col-md-4,
+  .col-md-6,
+  .col-md-8 {
+    margin-bottom: 1rem;
+  }
+}

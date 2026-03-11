@@ -11,8 +11,8 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Product, ProductFormData } from '../entities';
-import { ProductApiDto, ProductCreateDto, ProductUpdateDto } from '../entities/product-api.dto';
+import { Product, ProductFormData, ProductVariant } from '../entities';
+import { ProductApiDto, ProductCreateDto, ProductUpdateDto, ProductVariantApiDto } from '../entities/product-api.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -28,16 +28,51 @@ export class ProductMapper {
   fromDto(dto: ProductApiDto): Product {
     return {
       id: dto.id,
+
+      // Basic Information
       name: dto.product_name,
       description: dto.product_description,
       category: dto.product_category,
-      price: dto.unit_price,
-      stock: dto.stock_quantity,
-      rating: dto.rating_score || 0,
-      image: dto.image_url,
-      isFavorite: dto.is_favorite,
       status: this.mapApiStatusToEntityStatus(dto.product_status),
+
+      // Pricing & Stock
+      price: dto.unit_price,
+      compareAtPrice: dto.compare_at_price || null,
+      costPerItem: dto.cost_per_item || null,
+      sku: dto.product_sku || '',
+      stock: dto.stock_quantity,
+      lowStockThreshold: dto.low_stock_threshold || null,
+
+      // Images & Media
+      image: dto.image_url,
+      galleryImages: dto.gallery_images || [],
+
+      // Variants
+      variants: dto.product_variants?.map(v => this.fromVariantDto(v)) || [],
+
+      // Additional Details
+      tags: dto.product_tags || '',
+      weight: dto.product_weight || null,
+      dimensions: dto.product_dimensions || '',
+
+      // Display attributes
+      rating: dto.rating_score || 0,
+      isFavorite: dto.is_favorite,
       deprecated: dto.is_deprecated || false,
+    };
+  }
+
+  /**
+   * Convert Variant DTO to Variant Entity
+   */
+  private fromVariantDto(dto: ProductVariantApiDto): ProductVariant {
+    return {
+      id: dto.id,
+      name: dto.variant_name,
+      sku: dto.variant_sku,
+      price: dto.variant_price,
+      stock: dto.variant_stock,
+      attributes: dto.variant_attributes || {},
     };
   }
 

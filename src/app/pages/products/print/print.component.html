@@ -1,0 +1,253 @@
+<!-- Loading State -->
+@if (isLoading) {
+  <div class="page page-center">
+    <div class="container-tight py-4">
+      <div class="text-center">
+        <div class="mb-3">
+          <div class="spinner-border text-azure" role="status"></div>
+        </div>
+        <div class="text-muted" translate>Loading provider details...</div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Print View -->
+@else if (provider) {
+  <!-- Action Bar (Hidden on print) -->
+  <div class="no-print">
+    <div class="page-header">
+      <div class="container-xl">
+        <div class="row align-items-center">
+          <div class="col">
+            <h2 class="page-title">
+              <span translate>Provider Information Sheet</span> - {{ provider.applicationName }}
+            </h2>
+          </div>
+          <div class="col-auto ms-auto">
+            <div class="btn-list">
+              <button type="button" class="btn btn-ghost-secondary" (click)="goBack()">
+                <i class="ti ti-arrow-left icon"></i>
+                <span translate>Back to Provider</span>
+              </button>
+              <button type="button" class="btn btn-primary" (click)="print()">
+                <i class="ti ti-printer icon"></i>
+                <span translate>Print Document</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Invoice-Style Document -->
+  <div class="page-body">
+    <div class="container-xl">
+      <div class="card card-lg">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-6">
+              <h1>{{ 'APP_NAME' | translate }}</h1>
+              <address>
+                <span translate>Provider Information Sheet</span><br>
+                <span translate>Generated</span>: {{ printDate | date: 'medium' }}<br>
+              </address>
+            </div>
+            <div class="col-6 text-end">
+              <h2 class="text-muted">#{{ provider.id }}</h2>
+              <div class="mt-1">
+                <span class="badge" [class]="getStatusBadgeClass(provider.status)">
+                  {{ provider.status | titlecase }}
+                </span>
+                @if (provider.isCertified) {
+                  <span class="badge bg-info ms-1">
+                    <i class="ti ti-certificate"></i> <span translate>Certified</span>
+                  </span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <!-- Provider Header -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <h2 class="mb-2">{{ provider.applicationName }}</h2>
+              <div class="text-muted">
+                <span translate>License</span>: <code>{{ provider.licenseNumber }}</code> |
+                <span translate>Grant Type</span>: <strong>{{ getGrantTypeLabel(provider.allowedGrant) }}</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Provider Logo and Description -->
+          <div class="row mb-4">
+            @if (provider.logo) {
+              <div class="col-md-3">
+                <img [src]="provider.logo.dataUrl" [alt]="provider.applicationName" class="img-fluid rounded border">
+              </div>
+            }
+            <div [class]="provider.logo ? 'col-md-9' : 'col-12'">
+              <h3 translate>Application Description</h3>
+              <p>{{ provider.applicationDescription }}</p>
+            </div>
+          </div>
+
+          <!-- Contact Information -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <h3 translate>Contact Information</h3>
+              <table class="table table-bordered">
+                <tbody>
+                  <tr>
+                    <th style="width: 30%"><span translate>Contact Person</span></th>
+                    <td>{{ provider.contactPersonName }}</td>
+                  </tr>
+                  <tr>
+                    <th><span translate>Designation</span></th>
+                    <td>{{ provider.designation }}</td>
+                  </tr>
+                  <tr>
+                    <th><span translate>Official Email</span></th>
+                    <td><a [href]="'mailto:' + provider.officialEmail">{{ provider.officialEmail }}</a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Business Information -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <h3 translate>Business Information</h3>
+              <table class="table table-bordered">
+                <tbody>
+                  <tr>
+                    <th style="width: 30%"><span translate>Business URL</span></th>
+                    <td><a [href]="provider.businessUrl" target="_blank">{{ provider.businessUrl }}</a></td>
+                  </tr>
+                  <tr>
+                    <th><span translate>Registered Address</span></th>
+                    <td>{{ provider.registeredBusinessAddress }}</td>
+                  </tr>
+                  @if (provider.sandboxUrl) {
+                    <tr>
+                      <th><span translate>Sandbox URL</span></th>
+                      <td><a [href]="provider.sandboxUrl" target="_blank">{{ provider.sandboxUrl }}</a></td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Personal Identity -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <h3 translate>Personal Identity</h3>
+              <table class="table table-bordered">
+                <tbody>
+                  <tr>
+                    <th style="width: 30%"><span translate>License Number</span></th>
+                    <td><code>{{ provider.licenseNumber }}</code></td>
+                  </tr>
+                  <tr>
+                    <th><span translate>Date of Birth</span></th>
+                    <td>{{ provider.dateOfBirth }}</td>
+                  </tr>
+                  <tr>
+                    <th><span translate>Age</span></th>
+                    <td>{{ provider.age }} <span translate>years</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- OAuth Settings -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <h3 translate>OAuth Settings</h3>
+              <table class="table table-bordered">
+                <tbody>
+                  <tr>
+                    <th style="width: 30%"><span translate>Grant Type</span></th>
+                    <td>{{ getGrantTypeLabel(provider.allowedGrant) }}</td>
+                  </tr>
+                  <tr>
+                    <th><span translate>Redirect URLs</span></th>
+                    <td>
+                      @for (url of provider.redirectUrls; track url) {
+                        <div>{{ url }}</div>
+                      }
+                    </td>
+                  </tr>
+                  <tr>
+                    <th><span translate>Selected Plans</span></th>
+                    <td>{{ provider.selectedPlans.length }} <span translate>plan(s) selected</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Additional Files -->
+          @if (provider.additionalFiles.length > 0) {
+            <div class="row mb-4">
+              <div class="col-12">
+                <h3 translate>Additional Files</h3>
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th><span translate>File Name</span></th>
+                      <th><span translate>File Type</span></th>
+                      <th><span translate>File Size</span></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (file of provider.additionalFiles; track file.name) {
+                      <tr>
+                        <td>{{ file.name }}</td>
+                        <td><code>{{ file.type }}</code></td>
+                        <td>{{ formatFileSize(file.size) }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          }
+
+          <!-- Comments -->
+          @if (provider.comments) {
+            <div class="row mb-4">
+              <div class="col-12">
+                <h3 translate>Comments</h3>
+                <div class="alert alert-info">
+                  {{ provider.comments }}
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Footer -->
+          <hr class="my-4">
+          <div class="row">
+            <div class="col-6 text-muted">
+              <small>
+                <strong translate>Created</strong>: {{ provider.createdAt | date: 'medium' }}
+              </small>
+            </div>
+            <div class="col-6 text-end text-muted">
+              <small>
+                <strong translate>Last Updated</strong>: {{ provider.updatedAt | date: 'medium' }}
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

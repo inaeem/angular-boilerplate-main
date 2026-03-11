@@ -51,15 +51,36 @@ export interface ProductFormData {
  */
 export interface Product {
   id: number;
+
+  // Basic Information
   name: string;
   description: string;
   category: string;
+  status: 'in-stock' | 'low-stock' | 'out-of-stock' | 'draft' | 'active' | 'archived';
+
+  // Pricing & Stock
   price: number;
+  compareAtPrice: number | null;
+  costPerItem: number | null;
+  sku: string;
   stock: number;
-  rating: number;
+  lowStockThreshold: number | null;
+
+  // Images & Media
   image: string;
+  galleryImages: string[];
+
+  // Variants
+  variants: ProductVariant[];
+
+  // Additional Details
+  tags: string;
+  weight: number | null;
+  dimensions: string;
+
+  // Display attributes
+  rating: number;
   isFavorite: boolean;
-  status: 'in-stock' | 'low-stock' | 'out-of-stock';
   deprecated: boolean;
 }
 

@@ -1,3 +1,4 @@
+<!-- Provider List Page -->
 <div class="page-header d-print-none">
   <div class="container-xl">
     <!-- Breadcrumb -->
@@ -6,7 +7,7 @@
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/dashboard" translate>Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page" translate>Products</li>
+            <li class="breadcrumb-item active" aria-current="page" translate>Providers</li>
           </ol>
         </nav>
       </div>
@@ -15,12 +16,12 @@
     <!-- Page Title and Actions -->
     <div class="row g-2 align-items-center">
       <div class="col">
-        <h2 class="page-title" translate>Products</h2>
+        <h2 class="page-title" translate>Provider Applications</h2>
         <div class="text-muted mt-1">
           @if (isLoading) {
             <span class="placeholder col-3"></span>
           } @else {
-            <span translate>Showing</span> {{ filteredProducts.length }} <span translate>of</span> {{ products.length }} <span translate>products</span>
+            <span translate>Showing</span> {{ filteredProviders.length }} <span translate>of</span> {{ providers.length }} <span translate>providers</span>
           }
         </div>
       </div>
@@ -31,12 +32,12 @@
             <span class="input-icon-addon">
               <i class="ti ti-search icon"></i>
             </span>
-            <input type="text" class="form-control" placeholder="Search products..." [(ngModel)]="searchQuery" (input)="searchProducts()" [disabled]="isLoading || hasError" />
+            <input type="text" class="form-control" placeholder="Search providers..." [(ngModel)]="searchQuery" (input)="searchProviders()" [disabled]="isLoading || hasError" />
           </div>
-          <!-- Add Product Button -->
+          <!-- Register Provider Button -->
           <a routerLink="/products/add" class="btn btn-azure">
             <i class="ti ti-plus icon"></i>
-            <span translate>Add Product</span>
+            <span translate>Register Provider</span>
           </a>
         </div>
       </div>
@@ -49,27 +50,27 @@
           <li class="nav-item" role="presentation">
             <a class="nav-link" [class.active]="activeTab === 'all'" href="#" (click)="switchTab('all'); $event.preventDefault()" role="tab">
               <i class="ti ti-list icon me-2"></i>
-              <span translate>All Products</span>
+              <span translate>All Providers</span>
               @if (!isLoading) {
                 <span class="badge bg-secondary ms-2">{{ getTabCount('all') }}</span>
               }
             </a>
           </li>
           <li class="nav-item" role="presentation">
-            <a class="nav-link" [class.active]="activeTab === 'favorites'" href="#" (click)="switchTab('favorites'); $event.preventDefault()" role="tab">
-              <i class="ti ti-heart icon me-2"></i>
-              <span translate>Favorites</span>
+            <a class="nav-link" [class.active]="activeTab === 'active'" href="#" (click)="switchTab('active'); $event.preventDefault()" role="tab">
+              <i class="ti ti-check icon me-2"></i>
+              <span translate>Active</span>
               @if (!isLoading) {
-                <span class="badge bg-red ms-2">{{ getTabCount('favorites') }}</span>
+                <span class="badge bg-green ms-2">{{ getTabCount('active') }}</span>
               }
             </a>
           </li>
           <li class="nav-item" role="presentation">
-            <a class="nav-link" [class.active]="activeTab === 'deprecated'" href="#" (click)="switchTab('deprecated'); $event.preventDefault()" role="tab">
-              <i class="ti ti-archive icon me-2"></i>
-              <span translate>Deprecated</span>
+            <a class="nav-link" [class.active]="activeTab === 'pending'" href="#" (click)="switchTab('pending'); $event.preventDefault()" role="tab">
+              <i class="ti ti-clock icon me-2"></i>
+              <span translate>Pending</span>
               @if (!isLoading) {
-                <span class="badge bg-warning ms-2">{{ getTabCount('deprecated') }}</span>
+                <span class="badge bg-warning ms-2">{{ getTabCount('pending') }}</span>
               }
             </a>
           </li>
@@ -79,7 +80,7 @@
   </div>
 </div>
 
-<!-- Products Grid -->
+<!-- Providers List -->
 <div class="page-body">
   <div class="container-xl">
     <!-- Error State -->
@@ -88,7 +89,7 @@
         <div class="empty-icon text-danger">
           <i class="ti ti-alert-triangle icon" style="font-size: 4rem"></i>
         </div>
-        <p class="empty-title" translate>Failed to Load Products</p>
+        <p class="empty-title" translate>Failed to Load Providers</p>
         <p class="empty-subtitle text-muted">{{ errorMessage }}</p>
         <div class="empty-action">
           <button type="button" class="btn btn-primary" (click)="retryLoading()">
@@ -101,141 +102,151 @@
       <!-- Loading State with Skeleton Placeholders -->
       <div class="row row-cards">
         @for (skeleton of skeletonArray; track $index) {
-          <div class="col-sm-6 col-lg-3">
-            <div class="card card-sm placeholder-glow">
-              <!-- Skeleton Image -->
-              <div class="placeholder" style="height: 200px; background-color: #e9ecef"></div>
-
-              <!-- Skeleton Details -->
+          <div class="col-sm-6 col-lg-4">
+            <div class="card placeholder-glow">
               <div class="card-body">
-                <div class="mb-2">
-                  <span class="placeholder col-8"></span>
-                </div>
-
-                <div class="mb-2">
-                  <span class="placeholder col-4"></span>
-                </div>
-
-                <div class="mb-2" style="height: 3rem">
-                  <span class="placeholder col-12"></span>
-                  <span class="placeholder col-10"></span>
-                </div>
-
-                <div class="mb-2">
-                  <span class="placeholder col-6"></span>
-                </div>
-
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <span class="placeholder col-4"></span>
-                  <span class="placeholder col-3"></span>
-                </div>
-
-                <div class="btn-list">
-                  <span class="placeholder col-12 btn"></span>
-                  <div class="d-flex gap-2">
-                    <span class="placeholder col-6 btn"></span>
-                    <span class="placeholder col-6 btn"></span>
-                  </div>
-                </div>
+                <div class="placeholder col-12 mb-3" style="height: 120px;"></div>
+                <div class="placeholder col-10 mb-2"></div>
+                <div class="placeholder col-8 mb-2"></div>
+                <div class="placeholder col-6"></div>
               </div>
             </div>
           </div>
         }
       </div>
-    } @else if (filteredProducts.length === 0) {
+    } @else if (filteredProviders.length === 0) {
       <div class="empty">
         <div class="empty-icon">
-          <i class="ti ti-package icon"></i>
+          <i class="ti ti-apps icon"></i>
         </div>
-        <p class="empty-title" translate>No products found</p>
+        <p class="empty-title" translate>No providers found</p>
         <p class="empty-subtitle text-muted" translate>Try adjusting your search or filter to find what you're looking for.</p>
       </div>
     } @else {
+      <!-- Compact Provider Cards -->
       <div class="row row-cards">
-        @for (product of filteredProducts; track product.id) {
-          <div class="col-sm-6 col-lg-3">
-            <div class="card card-sm">
-              <!-- Product Image -->
-              <a href="#" class="d-block position-relative" (click)="viewProduct(product); $event.preventDefault()">
-                <img [src]="product.image" class="card-img-top" [alt]="product.name" style="height: 200px; object-fit: cover" />
-                <!-- Favorite Badge -->
-                <button
-                  type="button"
-                  class="btn btn-icon position-absolute top-0 end-0 m-2"
-                  [class.btn-danger]="product.isFavorite"
-                  [class.btn-ghost-light]="!product.isFavorite"
-                  (click)="toggleFavorite(product); $event.preventDefault(); $event.stopPropagation()"
-                  [attr.aria-label]="product.isFavorite ? 'Remove from favorites' : 'Add to favorites'"
-                >
-                  <i class="ti" [class.ti-heart-filled]="product.isFavorite" [class.ti-heart]="!product.isFavorite" style="color: white"></i>
-                </button>
-                <!-- Status Badge -->
-                <span class="badge position-absolute top-0 start-0 m-2" [ngClass]="getStatusBadgeClass(product.status)">
-                  {{ product.status | translate }}
-                </span>
-              </a>
+        @for (provider of filteredProviders; track provider.id) {
+          <div class="col-sm-6 col-lg-4">
+            <div class="card card-link card-link-pop">
+              <!-- Card Image/Logo -->
+              <div class="card-img-top provider-logo-container">
+                @if (provider.logo) {
+                  <img
+                    [src]="provider.logo.dataUrl"
+                    [alt]="provider.applicationName"
+                    class="provider-logo-image"
+                    (error)="onImageError($event)"
+                    loading="lazy">
+                } @else {
+                  <div class="provider-logo-placeholder">
+                    <div class="placeholder-content">
+                      <div class="placeholder-initials">
+                        {{ getInitials(provider.applicationName) }}
+                      </div>
+                      <div class="placeholder-app-name">
+                        {{ provider.applicationName }}
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
 
-              <!-- Product Details -->
               <div class="card-body">
-                <div class="d-flex align-items-center mb-2">
-                  <div class="flex-fill">
-                    <h3 class="card-title mb-1">
-                      <a href="#" class="text-reset" (click)="viewProduct(product); $event.preventDefault()">{{ product.name }}</a>
-                    </h3>
+                <!-- Title and Status -->
+                <div class="d-flex align-items-start justify-content-between mb-2">
+                  <h3 class="card-title mb-0">
+                    <a href="#" class="text-reset" (click)="viewProvider(provider); $event.preventDefault()">
+                      {{ provider.applicationName }}
+                    </a>
+                  </h3>
+                  <div class="ms-2">
+                    <span class="badge badge-sm" [class]="getStatusBadgeClass(provider.status)">
+                      {{ provider.status | titlecase }}
+                    </span>
                   </div>
                 </div>
 
-                <!-- Category -->
-                <div class="mb-2">
-                  <span class="badge bg-blue-lt">
-                    <i class="ti ti-category icon"></i>
-                    {{ product.category }}
-                  </span>
-                </div>
+                <!-- Description - Compact and Optional -->
+                @if (provider.applicationDescription) {
+                  <div class="text-muted small mb-2" style="height: 40px; overflow: hidden; line-height: 1.4;">
+                    {{ provider.applicationDescription | slice:0:80 }}{{ provider.applicationDescription.length > 80 ? '...' : '' }}
+                  </div>
+                }
 
-                <!-- Description -->
-                <p class="text-muted mb-2" style="font-size: 0.875rem; height: 3rem; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical">
-                  {{ product.description }}
-                </p>
-
-                <!-- Rating -->
+                <!-- Key Info - Only show if available -->
                 <div class="mb-2">
-                  <div class="d-flex align-items-center">
-                    @for (star of getStars(product.rating); track $index) {
-                      <i class="ti ti-star-filled icon text-yellow" style="font-size: 0.875rem"></i>
+                  <div class="row g-1">
+                    @if (provider.contactPersonName) {
+                      <div class="col-12">
+                        <div class="d-flex align-items-center text-muted">
+                          <i class="ti ti-user icon-sm me-2"></i>
+                          <small class="text-truncate">{{ provider.contactPersonName }}</small>
+                        </div>
+                      </div>
                     }
-                    <span class="ms-1 text-muted" style="font-size: 0.875rem">{{ product.rating }}</span>
+                    @if (provider.officialEmail) {
+                      <div class="col-12">
+                        <div class="d-flex align-items-center text-muted">
+                          <i class="ti ti-mail icon-sm me-2"></i>
+                          <small class="text-truncate">{{ provider.officialEmail }}</small>
+                        </div>
+                      </div>
+                    }
+                    @if (provider.allowedGrant) {
+                      <div class="col-12">
+                        <div class="d-flex align-items-center text-muted">
+                          <i class="ti ti-key icon-sm me-2"></i>
+                          <small>{{ getGrantTypeLabel(provider.allowedGrant) }}</small>
+                        </div>
+                      </div>
+                    }
                   </div>
                 </div>
 
-                <!-- Price and Stock -->
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <div>
-                    <div class="h3 mb-0">${{ product.price.toFixed(2) }}</div>
-                  </div>
-                  <div class="text-end">
-                    <div class="text-muted" style="font-size: 0.75rem" translate>Stock</div>
-                    <div class="fw-bold">{{ product.stock }}</div>
-                  </div>
+                <!-- Badges - Compact -->
+                <div class="d-flex gap-1 flex-wrap mb-2">
+                  @if (provider.isCertified) {
+                    <span class="badge badge-sm bg-info-lt">
+                      <i class="ti ti-certificate"></i> Certified
+                    </span>
+                  }
+                  @if (provider.selectedPlans && provider.selectedPlans.length > 0) {
+                    @for (planName of getPlanNames(provider.selectedPlans); track planName) {
+                      <span class="badge badge-sm bg-azure-lt">
+                        {{ planName }}
+                      </span>
+                    }
+                  }
+                  @if (provider.additionalFiles && provider.additionalFiles.length > 0) {
+                    <span class="badge badge-sm bg-secondary-lt">
+                      <i class="ti ti-files"></i> {{ provider.additionalFiles.length }}
+                    </span>
+                  }
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="btn-list">
-                  <button type="button" class="btn btn-sm btn-azure w-100 mb-2" (click)="viewProduct(product)">
+                <!-- Actions -->
+                <div class="d-flex gap-1 mb-2">
+                  <button type="button" class="btn btn-sm btn-azure flex-fill" (click)="viewProvider(provider)">
                     <i class="ti ti-eye icon"></i>
                     <span translate>View</span>
                   </button>
-                  <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-sm btn-outline-azure flex-fill" (click)="editProduct(product)">
-                      <i class="ti ti-edit icon"></i>
-                      <span translate>Edit</span>
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-danger flex-fill" (click)="deleteProduct(product)">
-                      <i class="ti ti-trash icon"></i>
-                      <span translate>Delete</span>
-                    </button>
-                  </div>
+                  <button type="button" class="btn btn-sm btn-outline-azure" (click)="editProvider(provider)">
+                    <i class="ti ti-edit icon"></i>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="deleteProvider(provider)">
+                    <i class="ti ti-trash icon"></i>
+                  </button>
                 </div>
+
+                <!-- Updated timestamp -->
+                @if (provider.updatedAt) {
+                  <div class="text-muted text-end">
+                    <small style="font-size: 0.7rem;">
+                      <i class="ti ti-clock"></i>
+                      {{ provider.updatedAt | date: 'MMM d, y' }}
+                    </small>
+                  </div>
+                }
               </div>
             </div>
           </div>
@@ -245,106 +256,8 @@
   </div>
 </div>
 
-<!-- View Product Modal -->
-@if (showViewModal && selectedProduct) {
-  <div class="modal modal-blur fade show" style="display: block" tabindex="-1" role="dialog" (click)="closeViewModal()">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" translate>Product Details</h5>
-          <button type="button" class="btn-close" (click)="closeViewModal()" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row">
-            <!-- Product Image -->
-            <div class="col-md-5">
-              <img [src]="selectedProduct.image" [alt]="selectedProduct.name" class="img-fluid rounded" />
-              @if (selectedProduct.deprecated) {
-                <div class="alert alert-warning mt-3">
-                  <i class="ti ti-alert-triangle icon"></i>
-                  <span translate>This product has been deprecated</span>
-                </div>
-              }
-            </div>
-
-            <!-- Product Information -->
-            <div class="col-md-7">
-              <div class="mb-3">
-                <h3>{{ selectedProduct.name }}</h3>
-                @if (selectedProduct.isFavorite) {
-                  <span class="badge bg-red-lt">
-                    <i class="ti ti-heart-filled icon"></i>
-                    <span translate>Favorite</span>
-                  </span>
-                }
-                <span class="badge ms-2" [ngClass]="getStatusBadgeClass(selectedProduct.status)">
-                  {{ selectedProduct.status | translate }}
-                </span>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label fw-bold" translate>Description</label>
-                <p class="text-muted">{{ selectedProduct.description }}</p>
-              </div>
-
-              <div class="row mb-3">
-                <div class="col-6">
-                  <label class="form-label fw-bold" translate>Price</label>
-                  <div class="h2 text-primary">${{ selectedProduct.price.toFixed(2) }}</div>
-                </div>
-                <div class="col-6">
-                  <label class="form-label fw-bold" translate>Stock</label>
-                  <div class="h2">{{ selectedProduct.stock }} <span translate>units</span></div>
-                </div>
-              </div>
-
-              <div class="row mb-3">
-                <div class="col-6">
-                  <label class="form-label fw-bold" translate>Category</label>
-                  <div>
-                    <span class="badge bg-blue-lt">
-                      <i class="ti ti-category icon"></i>
-                      {{ selectedProduct.category }}
-                    </span>
-                  </div>
-                </div>
-                <div class="col-6">
-                  <label class="form-label fw-bold" translate>Rating</label>
-                  <div class="d-flex align-items-center">
-                    @for (star of getStars(selectedProduct.rating); track $index) {
-                      <i class="ti ti-star-filled icon text-yellow"></i>
-                    }
-                    <span class="ms-2">{{ selectedProduct.rating }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label fw-bold" translate>Product ID</label>
-                <div class="text-muted">#{{ selectedProduct.id }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn" (click)="closeViewModal()" translate>Close</button>
-          <button type="button" class="btn btn-azure" (click)="editProduct(selectedProduct); closeViewModal()">
-            <i class="ti ti-edit icon"></i>
-            <span translate>Edit Product</span>
-          </button>
-          <button type="button" class="btn btn-danger" (click)="deleteProduct(selectedProduct); closeViewModal()">
-            <i class="ti ti-trash icon"></i>
-            <span translate>Delete Product</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="modal-backdrop fade show"></div>
-}
-
 <!-- Delete Confirmation Modal -->
-@if (showDeleteModal && productToDelete) {
+@if (showDeleteModal && providerToDelete) {
   <div class="modal modal-blur fade show" style="display: block" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
       <div class="modal-content">
@@ -353,7 +266,7 @@
           <i class="ti ti-alert-triangle icon mb-2 text-danger" style="font-size: 3rem"></i>
           <h3 translate>Confirm Deletion</h3>
           <div class="text-muted">
-            <span translate>Are you sure you want to delete</span> <strong>"{{ productToDelete.name }}"</strong>?
+            <span translate>Are you sure you want to delete</span> <strong>"{{ providerToDelete.applicationName }}"</strong>?
             <br />
             <span translate>This action cannot be undone.</span>
           </div>

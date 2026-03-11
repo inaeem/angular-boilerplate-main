@@ -1,0 +1,360 @@
+// Product View - Read-Only Preview Style
+
+:host {
+  --tblr-primary: #206bc4;
+  --tblr-azure: #206bc4;
+}
+
+// Preview Field (Label + Value pairs)
+.preview-field {
+  margin-bottom: 0;
+
+  .preview-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--tblr-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+  }
+
+  .preview-value {
+    font-size: 0.9375rem;
+    color: var(--tblr-body-color);
+    line-height: 1.6;
+    word-wrap: break-word;
+
+    &.text-muted {
+      color: var(--tblr-muted) !important;
+    }
+
+    strong {
+      font-weight: 600;
+    }
+
+    code {
+      font-size: 0.875rem;
+      padding: 0.125rem 0.5rem;
+      background: var(--tblr-bg-surface);
+      border: 1px solid var(--tblr-border-color-light);
+      border-radius: var(--tblr-border-radius);
+      color: var(--tblr-body-color);
+    }
+  }
+
+  .preview-image {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--tblr-border-radius);
+  }
+}
+
+// Card styling
+.card {
+  border: 1px solid var(--tblr-border-color);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s;
+
+  .card-header {
+    background: var(--tblr-bg-surface);
+    border-bottom: 1px solid var(--tblr-border-color);
+    padding: 1rem 1.5rem;
+
+    .card-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin: 0;
+      display: flex;
+      align-items: center;
+
+      i {
+        font-size: 1.25rem;
+      }
+    }
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+
+  .card-body {
+    padding: 1.5rem;
+  }
+}
+
+// Badge enhancements
+.badge {
+  font-size: 0.75rem;
+  padding: 0.35em 0.65em;
+  font-weight: 600;
+
+  &.badge-outline {
+    background: transparent;
+    border: 1px solid currentColor;
+  }
+
+  i {
+    font-size: 0.875rem;
+    vertical-align: middle;
+  }
+}
+
+// Table styling
+.table {
+  &.card-table {
+    margin-bottom: 0;
+
+    thead th {
+      background: var(--tblr-bg-surface);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--tblr-muted);
+      border-bottom: 2px solid var(--tblr-border-color);
+      padding: 0.75rem 0.75rem;
+    }
+
+    tbody {
+      tr {
+        transition: background-color 0.2s;
+
+        &:hover {
+          background-color: var(--tblr-bg-surface);
+        }
+      }
+
+      td {
+        vertical-align: middle;
+        font-size: 0.875rem;
+        padding: 0.75rem 0.75rem;
+
+        code {
+          font-size: 0.8125rem;
+          padding: 0.125rem 0.5rem;
+          background: var(--tblr-bg-surface);
+          border: 1px solid var(--tblr-border-color-light);
+        }
+      }
+    }
+  }
+
+  &.table-vcenter {
+    td, th {
+      vertical-align: middle;
+    }
+  }
+}
+
+// Empty state
+.empty {
+  padding: 3rem 1rem;
+  text-align: center;
+
+  .empty-icon {
+    margin-bottom: 1rem;
+
+    .icon {
+      font-size: 4rem;
+      color: var(--tblr-muted);
+      opacity: 0.5;
+    }
+  }
+
+  .empty-title {
+    font-size: 1rem;
+    color: var(--tblr-muted);
+    margin-bottom: 0;
+  }
+}
+
+// Progress bar enhancement
+.progress {
+  background-color: var(--tblr-border-color-light);
+  border-radius: 0.25rem;
+  overflow: hidden;
+
+  .progress-bar {
+    transition: width 0.6s ease;
+  }
+}
+
+// Star rating
+.text-yellow {
+  color: #f59f00;
+}
+
+// Typography
+.h3 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 0;
+
+  &.text-azure {
+    color: var(--tblr-azure);
+  }
+}
+
+// Horizontal divider
+hr {
+  border-top: 1px solid var(--tblr-border-color);
+  margin: 1rem 0;
+}
+
+// Responsive grid adjustments
+.row.g-3 {
+  > * {
+    margin-bottom: 0;
+  }
+}
+
+// Color utilities
+.text-azure {
+  color: var(--tblr-azure) !important;
+}
+
+.text-success {
+  color: #2fb344 !important;
+}
+
+.text-warning {
+  color: #f59f00 !important;
+}
+
+.text-danger {
+  color: #d63939 !important;
+}
+
+.text-muted {
+  color: #6c757d !important;
+}
+
+// Background utilities
+.bg-light {
+  background-color: #f8f9fa !important;
+}
+
+// Print styles
+@media print {
+  .page-header,
+  .d-print-none {
+    display: none !important;
+  }
+
+  .page-body {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .container-xl {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .card {
+    border: 1px solid #ddd !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    margin-bottom: 1rem !important;
+
+    .card-header {
+      background: #f8f9fa !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  }
+
+  body {
+    font-size: 11pt !important;
+    line-height: 1.5 !important;
+  }
+
+  .badge {
+    border: 1px solid currentColor !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .table {
+    thead th {
+      background: #f8f9fa !important;
+      border-bottom: 2px solid #000 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  }
+
+  .row {
+    page-break-inside: avoid;
+  }
+
+  img {
+    max-height: 250px !important;
+    page-break-inside: avoid;
+  }
+
+  // Ensure colors print
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .card {
+    .card-header {
+      padding: 0.75rem 1rem;
+
+      .card-title {
+        font-size: 1rem;
+
+        i {
+          font-size: 1.125rem;
+        }
+      }
+    }
+
+    .card-body {
+      padding: 1rem;
+    }
+  }
+
+  .preview-field {
+    .preview-label {
+      font-size: 0.6875rem;
+      margin-bottom: 0.375rem;
+    }
+
+    .preview-value {
+      font-size: 0.875rem;
+    }
+  }
+
+  .h3 {
+    font-size: 1.5rem;
+  }
+
+  .table {
+    font-size: 0.8125rem;
+
+    thead th,
+    tbody td {
+      padding: 0.5rem 0.5rem;
+    }
+  }
+}
+
+// Accessibility
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .table tbody tr,
+  .progress-bar {
+    transition: none;
+  }
+}

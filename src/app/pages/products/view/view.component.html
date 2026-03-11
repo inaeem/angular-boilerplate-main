@@ -1,0 +1,336 @@
+<!-- Page Header -->
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <h2 class="page-title" translate>View Provider</h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <button type="button" class="btn" (click)="goBack()">
+            <i class="ti ti-arrow-left icon"></i>
+            <span translate>Back</span>
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="printView()">
+            <i class="ti ti-printer icon"></i>
+            <span translate>Print View</span>
+          </button>
+          <button type="button" class="btn btn-primary" (click)="editProvider()">
+            <i class="ti ti-edit icon"></i>
+            <span translate>Edit Provider</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Page Body -->
+<div class="page-body">
+  <div class="container-xl">
+    @if (isLoading) {
+      <!-- Loading State -->
+      <div class="card">
+        <div class="card-body">
+          <div class="text-center py-5">
+            <div class="spinner-border text-azure" role="status"></div>
+            <div class="mt-3 text-muted" translate>Loading provider details...</div>
+          </div>
+        </div>
+      </div>
+    } @else if (provider) {
+      <!-- Provider Overview Card -->
+      <div class="card mb-3">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="ti ti-info-circle me-2 text-azure"></i>
+            <span translate>Provider Overview</span>
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            @if (provider.logo) {
+              <div class="col-md-3">
+                <img [src]="provider.logo.dataUrl" [alt]="provider.applicationName" class="img-fluid rounded border">
+              </div>
+            }
+            <div [class]="provider.logo ? 'col-md-9' : 'col-12'">
+              <div class="row g-3">
+                <div class="col-md-6 col-lg-4">
+                  <div class="preview-field">
+                    <label class="preview-label" translate>Provider ID</label>
+                    <div class="preview-value">#{{ provider.id }}</div>
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="preview-field">
+                    <label class="preview-label" translate>Application Name</label>
+                    <div class="preview-value">{{ provider.applicationName }}</div>
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="preview-field">
+                    <label class="preview-label" translate>Status</label>
+                    <div class="preview-value">
+                      <span class="badge" [class]="getStatusBadgeClass(provider.status)">
+                        {{ provider.status | titlecase }}
+                      </span>
+                      @if (provider.isCertified) {
+                        <span class="badge bg-info ms-1">
+                          <i class="ti ti-certificate"></i> <span translate>Certified</span>
+                        </span>
+                      }
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="preview-field">
+                    <label class="preview-label" translate>Application Description</label>
+                    <div class="preview-value">{{ provider.applicationDescription }}</div>
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="preview-field">
+                    <label class="preview-label" translate>License Number</label>
+                    <div class="preview-value"><code>{{ provider.licenseNumber }}</code></div>
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="preview-field">
+                    <label class="preview-label" translate>Selected Plans</label>
+                    <div class="preview-value">
+                      <span class="badge bg-azure-lt">{{ provider.selectedPlans.length }} plan(s)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Information Card -->
+      <div class="card mb-3">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="ti ti-user me-2 text-azure"></i>
+            <span translate>Contact Information</span>
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6 col-lg-4">
+              <div class="preview-field">
+                <label class="preview-label" translate>Contact Person</label>
+                <div class="preview-value">{{ provider.contactPersonName }}</div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+              <div class="preview-field">
+                <label class="preview-label" translate>Designation</label>
+                <div class="preview-value">{{ provider.designation }}</div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+              <div class="preview-field">
+                <label class="preview-label" translate>Official Email</label>
+                <div class="preview-value">
+                  <a [href]="'mailto:' + provider.officialEmail" class="text-azure">
+                    {{ provider.officialEmail }}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Business Information Card -->
+      <div class="card mb-3">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="ti ti-building me-2 text-azure"></i>
+            <span translate>Business Information</span>
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="preview-field">
+                <label class="preview-label" translate>Business URL</label>
+                <div class="preview-value">
+                  <a [href]="provider.businessUrl" target="_blank" rel="noopener noreferrer" class="text-azure">
+                    {{ provider.businessUrl }}
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="preview-field">
+                <label class="preview-label" translate>Registered Address</label>
+                <div class="preview-value">{{ provider.registeredBusinessAddress }}</div>
+              </div>
+            </div>
+            @if (provider.sandboxUrl) {
+              <div class="col-md-6">
+                <div class="preview-field">
+                  <label class="preview-label" translate>Sandbox URL</label>
+                  <div class="preview-value">
+                    <a [href]="provider.sandboxUrl" target="_blank" rel="noopener noreferrer" class="text-azure">
+                      {{ provider.sandboxUrl }}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Personal Identity Card -->
+      <div class="card mb-3">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="ti ti-id me-2 text-azure"></i>
+            <span translate>Personal Identity</span>
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6 col-lg-4">
+              <div class="preview-field">
+                <label class="preview-label" translate>License Number</label>
+                <div class="preview-value"><code>{{ provider.licenseNumber }}</code></div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+              <div class="preview-field">
+                <label class="preview-label" translate>Date of Birth</label>
+                <div class="preview-value">{{ provider.dateOfBirth }}</div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+              <div class="preview-field">
+                <label class="preview-label" translate>Age</label>
+                <div class="preview-value">{{ provider.age }} <span translate>years</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OAuth Settings Card -->
+      <div class="card mb-3">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="ti ti-key me-2 text-azure"></i>
+            <span translate>OAuth Settings</span>
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6 col-lg-4">
+              <div class="preview-field">
+                <label class="preview-label" translate>Grant Type</label>
+                <div class="preview-value">
+                  <span class="badge bg-blue-lt">{{ getGrantTypeLabel(provider.allowedGrant) }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="preview-field">
+                <label class="preview-label" translate>Redirect URLs</label>
+                <div class="preview-value">
+                  @for (url of provider.redirectUrls; track url) {
+                    <div class="mb-1">
+                      <a [href]="url" target="_blank" rel="noopener noreferrer" class="text-azure">
+                        {{ url }}
+                      </a>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Files Card -->
+      @if (provider.additionalFiles.length > 0) {
+        <div class="card mb-3">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="ti ti-files me-2 text-azure"></i>
+              <span translate>Additional Files</span>
+            </h3>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-vcenter">
+                <thead>
+                  <tr>
+                    <th><span translate>File Name</span></th>
+                    <th><span translate>File Type</span></th>
+                    <th><span translate>File Size</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (file of provider.additionalFiles; track file.name) {
+                    <tr>
+                      <td>{{ file.name }}</td>
+                      <td><code>{{ file.type }}</code></td>
+                      <td>{{ formatFileSize(file.size) }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Comments Card -->
+      @if (provider.comments) {
+        <div class="card mb-3">
+          <div class="card-header">
+            <h3 class="card-title">
+              <i class="ti ti-message-circle me-2 text-azure"></i>
+              <span translate>Comments</span>
+            </h3>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-info mb-0">
+              {{ provider.comments }}
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- System Information Card -->
+      <div class="card mb-3">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="ti ti-clock me-2 text-azure"></i>
+            <span translate>System Information</span>
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="preview-field">
+                <label class="preview-label" translate>Created At</label>
+                <div class="preview-value">{{ provider.createdAt | date: 'medium' }}</div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="preview-field">
+                <label class="preview-label" translate>Last Updated</label>
+                <div class="preview-value">{{ provider.updatedAt | date: 'medium' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
