@@ -1,0 +1,32 @@
+.card-link-pop {
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+  }
+}
+
+.subheader {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  color: var(--tblr-secondary);
+}
+
+.form-check {
+  margin-bottom: 0.5rem;
+}
+
+.icon-inline {
+  width: 1em;
+  height: 1em;
+  vertical-align: text-top;
+}
+
+.avatar {
+  background-size: cover;
+  background-position: center;
+}

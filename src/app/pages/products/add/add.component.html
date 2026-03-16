@@ -47,62 +47,169 @@
     }
 
     @if (!isLoading) {
-    <!-- Horizontal Wizard Steps -->
-    <div class="card mb-4">
-      <div class="card-body py-3">
-        <!-- Steps Navigation -->
-        <div class="steps-horizontal mb-3">
-          @for (step of [1, 2, 3, 4]; track step) {
-            <div class="step-horizontal-item" [class.active]="currentStep === step" [class.completed]="currentStep > step">
-              <button
-                type="button"
-                class="step-button"
-                (click)="goToStep(step)"
-                [disabled]="currentStep < step"
-              >
-                <div class="step-number">
-                  @if (currentStep > step) {
-                    <i class="ti ti-check"></i>
-                  } @else {
-                    {{ step }}
-                  }
+      <!-- Layout with Sidebar -->
+      <div class="row">
+        <!-- Sticky Sidebar Navigation -->
+        <div class="col-md-3">
+          <div class="card card-stacked sticky-top register-sidebar" style="top: 1rem;">
+            <!-- Progress Header with Gradient -->
+            <div class="register-progress-header">
+              <div class="progress-circle-wrapper">
+                <svg class="progress-ring" width="120" height="120">
+                  <circle class="progress-ring-circle-bg" stroke="#e0e0e0" stroke-width="8" fill="transparent" r="52" cx="60" cy="60"/>
+                  <circle
+                    class="progress-ring-circle"
+                    stroke="url(#gradient)"
+                    stroke-width="8"
+                    fill="transparent"
+                    r="52"
+                    cx="60"
+                    cy="60"
+                    [style.stroke-dasharray]="326.56"
+                    [style.stroke-dashoffset]="326.56 - (326.56 * getProgress() / 100)"
+                  />
+                  <defs>
+                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div class="progress-circle-content">
+                  <div class="progress-percentage">{{ getProgress() | number: '1.0-0' }}%</div>
+                  <div class="progress-label" translate>Complete</div>
                 </div>
-                <div class="step-info">
-                  <div class="step-label"><span translate>Step</span> {{ step }}</div>
-                  <div class="step-title">{{ getStepTitle(step) }}</div>
-                </div>
-              </button>
-              @if (step < 4) {
-                <div class="step-connector"></div>
-              }
+              </div>
+              <h4 class="register-title" translate>Registration Progress</h4>
+              <p class="register-subtitle">
+                <span translate>Step</span> {{ currentStep }} <span translate>of</span> {{ totalSteps }}
+              </p>
             </div>
-          }
+
+            <div class="card-body p-0">
+              <!-- Step Navigation -->
+              <div class="register-steps">
+                <div class="register-steps-title" translate>Steps</div>
+
+                <button
+                  type="button"
+                  class="register-step-item"
+                  [class.step-active]="currentStep === 1"
+                  [class.step-completed]="currentStep > 1"
+                  [class.step-disabled]="currentStep < 1"
+                  (click)="goToStep(1)"
+                  [disabled]="currentStep < 1"
+                >
+                  <div class="step-connector" [class.connector-active]="currentStep >= 1"></div>
+                  <div class="step-icon-wrapper">
+                    <div class="step-icon">
+                      @if (currentStep > 1) {
+                        <i class="ti ti-check"></i>
+                      } @else {
+                        <i class="ti ti-briefcase"></i>
+                      }
+                    </div>
+                  </div>
+                  <div class="step-content">
+                    <div class="step-title" translate>Application Info</div>
+                    <div class="step-description" translate>Basic application details</div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  class="register-step-item"
+                  [class.step-active]="currentStep === 2"
+                  [class.step-completed]="currentStep > 2"
+                  [class.step-disabled]="currentStep < 2"
+                  (click)="goToStep(2)"
+                  [disabled]="currentStep < 2"
+                >
+                  <div class="step-connector" [class.connector-active]="currentStep >= 2"></div>
+                  <div class="step-icon-wrapper">
+                    <div class="step-icon">
+                      @if (currentStep > 2) {
+                        <i class="ti ti-check"></i>
+                      } @else {
+                        <i class="ti ti-user"></i>
+                      }
+                    </div>
+                  </div>
+                  <div class="step-content">
+                    <div class="step-title" translate>Personal Info</div>
+                    <div class="step-description" translate>Contact and identity details</div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  class="register-step-item"
+                  [class.step-active]="currentStep === 3"
+                  [class.step-completed]="currentStep > 3"
+                  [class.step-disabled]="currentStep < 3"
+                  (click)="goToStep(3)"
+                  [disabled]="currentStep < 3"
+                >
+                  <div class="step-connector" [class.connector-active]="currentStep >= 3"></div>
+                  <div class="step-icon-wrapper">
+                    <div class="step-icon">
+                      @if (currentStep > 3) {
+                        <i class="ti ti-check"></i>
+                      } @else {
+                        <i class="ti ti-key"></i>
+                      }
+                    </div>
+                  </div>
+                  <div class="step-content">
+                    <div class="step-title" translate>Authorization</div>
+                    <div class="step-description" translate>OAuth configuration</div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  class="register-step-item"
+                  [class.step-active]="currentStep === 4"
+                  [class.step-completed]="currentStep > 4"
+                  [class.step-disabled]="currentStep < 4"
+                  (click)="goToStep(4)"
+                  [disabled]="currentStep < 4"
+                >
+                  <div class="step-connector last-connector" [class.connector-active]="currentStep >= 4"></div>
+                  <div class="step-icon-wrapper">
+                    <div class="step-icon">
+                      @if (currentStep > 4) {
+                        <i class="ti ti-check"></i>
+                      } @else {
+                        <i class="ti ti-checkbox"></i>
+                      }
+                    </div>
+                  </div>
+                  <div class="step-content">
+                    <div class="step-title" translate>Review & Submit</div>
+                    <div class="step-description" translate>Confirm and submit</div>
+                  </div>
+                </button>
+              </div>
+
+              <!-- Help Section -->
+              <div class="register-help">
+                <div class="help-icon">
+                  <i class="ti ti-bulb"></i>
+                </div>
+                <div class="help-content">
+                  <div class="help-title" translate>Need Help?</div>
+                  <div class="help-text" translate>Complete all required steps to submit your provider application</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Progress Bar -->
-        <div>
-          <div class="d-flex justify-content-between mb-2">
-            <small class="text-muted" translate>Overall Progress</small>
-            <small class="text-muted fw-medium">{{ getProgress() | number: '1.0-0' }}%</small>
-          </div>
-          <div class="progress" style="height: 6px;">
-            <div
-              class="progress-bar"
-              [style.width.%]="getProgress()"
-              role="progressbar"
-              [attr.aria-valuenow]="getProgress()"
-              aria-valuemin="0"
-              aria-valuemax="100"
-            ></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Main Form Content -->
-    <div>
-        <div class="card">
-          <div class="card-body">
+        <!-- Main Form Content -->
+        <div class="col-md-9">
+          <div class="card">
+            <div class="card-body">
             <!-- Step 1: Application Information -->
             @if (currentStep === 1) {
               <h3 class="card-title mb-4">
@@ -978,7 +1085,10 @@
             </div>
           </div>
         </div>
+        <!-- End col-md-9 -->
+        </div>
       </div>
+      <!-- End row -->
     }
   </div>
 </div>

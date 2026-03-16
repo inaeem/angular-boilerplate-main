@@ -11,6 +11,10 @@
             <i class="ti ti-arrow-left icon"></i>
             <span translate>Back</span>
           </button>
+          <button type="button" class="btn btn-secondary" (click)="viewCredentials()">
+            <i class="ti ti-key icon"></i>
+            <span translate>API Credentials</span>
+          </button>
           <button type="button" class="btn btn-secondary" (click)="printView()">
             <i class="ti ti-printer icon"></i>
             <span translate>Print View</span>
@@ -31,7 +35,7 @@
     @if (isLoading) {
       <!-- Loading State -->
       <div class="card">
-        <div class="card-body">
+            <div class="card-body">
           <div class="text-center py-5">
             <div class="spinner-border text-azure" role="status"></div>
             <div class="mt-3 text-muted" translate>Loading provider details...</div>
@@ -39,50 +43,166 @@
         </div>
       </div>
     } @else if (provider) {
-      <!-- Provider Overview Card -->
-      <div class="card mb-3">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="ti ti-info-circle me-2 text-azure"></i>
-            <span translate>Provider Overview</span>
-          </h3>
-        </div>
-        <div class="card-body">
-          <div class="row g-3">
-            @if (provider.logo) {
-              <div class="col-md-3">
-                <img [src]="provider.logo.dataUrl" [alt]="provider.applicationName" class="img-fluid rounded border">
+      <!-- Layout with Sidebar Navigation -->
+      <div class="row">
+        <!-- Sticky Sidebar Navigation -->
+        <div class="col-md-3">
+          <div class="card card-stacked sticky-top sidebar-card" style="top: 1rem;">
+            <!-- Provider Header with Gradient Background -->
+            <div class="sidebar-header">
+              <div class="sidebar-avatar-wrapper">
+                @if (provider.logo) {
+                  <img [src]="provider.logo.dataUrl" [alt]="provider.applicationName" class="sidebar-avatar">
+                } @else {
+                  <span class="sidebar-avatar sidebar-avatar-initials" [style.background]="getAvatarGradient(provider.id)">
+                    {{ getInitials(provider.applicationName) }}
+                  </span>
+                }
+                <div class="sidebar-status-badge" [class.status-active]="provider.status === 'active'" [class.status-pending]="provider.status === 'pending'" [class.status-suspended]="provider.status === 'suspended'" [class.status-rejected]="provider.status === 'rejected'">
+                  <i class="ti" [class.ti-check]="provider.status === 'active'" [class.ti-clock]="provider.status === 'pending'" [class.ti-ban]="provider.status === 'suspended'" [class.ti-x]="provider.status === 'rejected'"></i>
+                </div>
               </div>
-            }
-            <div [class]="provider.logo ? 'col-md-9' : 'col-12'">
-              <div class="row g-3">
-                <div class="col-md-6 col-lg-4">
-                  <div class="preview-field">
-                    <label class="preview-label" translate>Provider ID</label>
-                    <div class="preview-value">#{{ provider.id }}</div>
+              <h3 class="sidebar-title">{{ provider.applicationName }}</h3>
+              <div class="sidebar-subtitle">{{ provider.designation }}</div>
+              <div class="sidebar-status-badge-large">
+                <span class="badge" [class.bg-success]="provider.status === 'active'" [class.bg-warning]="provider.status === 'pending'" [class.bg-secondary]="provider.status === 'suspended'" [class.bg-danger]="provider.status === 'rejected'">
+                  {{ provider.status | titlecase }}
+                </span>
+                @if (provider.isCertified) {
+                  <span class="badge bg-info ms-1">
+                    <i class="ti ti-certificate"></i> Certified
+                  </span>
+                }
+              </div>
+            </div>
+
+            <div class="card-body p-0">
+              <!-- Quick Stats -->
+              <div class="sidebar-stats">
+                <div class="sidebar-stat-item">
+                  <div class="sidebar-stat-icon bg-azure-lt">
+                    <i class="ti ti-calendar"></i>
+                  </div>
+                  <div class="sidebar-stat-content">
+                    <div class="sidebar-stat-label" translate>Member Since</div>
+                    <div class="sidebar-stat-value">{{ provider.createdAt | date: 'MMM yyyy' }}</div>
                   </div>
                 </div>
-                <div class="col-md-6 col-lg-4">
-                  <div class="preview-field">
-                    <label class="preview-label" translate>Application Name</label>
-                    <div class="preview-value">{{ provider.applicationName }}</div>
+                <div class="sidebar-stat-item">
+                  <div class="sidebar-stat-icon bg-green-lt">
+                    <i class="ti ti-file"></i>
+                  </div>
+                  <div class="sidebar-stat-content">
+                    <div class="sidebar-stat-label" translate>Plans</div>
+                    <div class="sidebar-stat-value">{{ provider.selectedPlans.length }}</div>
                   </div>
                 </div>
-                <div class="col-md-6 col-lg-4">
-                  <div class="preview-field">
-                    <label class="preview-label" translate>Status</label>
-                    <div class="preview-value">
-                      <span class="badge" [class]="getStatusBadgeClass(provider.status)">
-                        {{ provider.status | titlecase }}
-                      </span>
-                      @if (provider.isCertified) {
-                        <span class="badge bg-info ms-1">
-                          <i class="ti ti-certificate"></i> <span translate>Certified</span>
-                        </span>
-                      }
+                @if (provider.additionalFiles && provider.additionalFiles.length > 0) {
+                  <div class="sidebar-stat-item">
+                    <div class="sidebar-stat-icon bg-orange-lt">
+                      <i class="ti ti-files"></i>
+                    </div>
+                    <div class="sidebar-stat-content">
+                      <div class="sidebar-stat-label" translate>Files</div>
+                      <div class="sidebar-stat-value">{{ provider.additionalFiles.length }}</div>
                     </div>
                   </div>
-                </div>
+                }
+              </div>
+
+              <!-- Navigation Menu -->
+              <div class="sidebar-nav">
+                <div class="sidebar-nav-title" translate>Navigation</div>
+                <a href="#overview" class="sidebar-nav-item" (click)="scrollToSection('overview', $event)">
+                  <div class="sidebar-nav-icon bg-azure-lt text-azure">
+                    <i class="ti ti-info-circle"></i>
+                  </div>
+                  <span translate>Overview</span>
+                  <i class="ti ti-chevron-right ms-auto"></i>
+                </a>
+                <a href="#contact" class="sidebar-nav-item" (click)="scrollToSection('contact', $event)">
+                  <div class="sidebar-nav-icon bg-purple-lt text-purple">
+                    <i class="ti ti-user"></i>
+                  </div>
+                  <span translate>Contact</span>
+                  <i class="ti ti-chevron-right ms-auto"></i>
+                </a>
+                <a href="#business" class="sidebar-nav-item" (click)="scrollToSection('business', $event)">
+                  <div class="sidebar-nav-icon bg-teal-lt text-teal">
+                    <i class="ti ti-building"></i>
+                  </div>
+                  <span translate>Business</span>
+                  <i class="ti ti-chevron-right ms-auto"></i>
+                </a>
+                <a href="#identity" class="sidebar-nav-item" (click)="scrollToSection('identity', $event)">
+                  <div class="sidebar-nav-icon bg-pink-lt text-pink">
+                    <i class="ti ti-id"></i>
+                  </div>
+                  <span translate>Identity</span>
+                  <i class="ti ti-chevron-right ms-auto"></i>
+                </a>
+                <a href="#oauth" class="sidebar-nav-item" (click)="scrollToSection('oauth', $event)">
+                  <div class="sidebar-nav-icon bg-yellow-lt text-yellow">
+                    <i class="ti ti-key"></i>
+                  </div>
+                  <span translate>OAuth</span>
+                  <i class="ti ti-chevron-right ms-auto"></i>
+                </a>
+                @if (provider.additionalFiles && provider.additionalFiles.length > 0) {
+                  <a href="#files" class="sidebar-nav-item" (click)="scrollToSection('files', $event)">
+                    <div class="sidebar-nav-icon bg-orange-lt text-orange">
+                      <i class="ti ti-files"></i>
+                    </div>
+                    <span translate>Files</span>
+                    <span class="badge bg-orange-lt text-orange ms-auto me-2">{{ provider.additionalFiles.length }}</span>
+                    <i class="ti ti-chevron-right"></i>
+                  </a>
+                }
+                @if (provider.comments) {
+                  <a href="#comments" class="sidebar-nav-item" (click)="scrollToSection('comments', $event)">
+                    <div class="sidebar-nav-icon bg-cyan-lt text-cyan">
+                      <i class="ti ti-message-circle"></i>
+                    </div>
+                    <span translate>Comments</span>
+                    <i class="ti ti-chevron-right ms-auto"></i>
+                  </a>
+                }
+                <a href="#system" class="sidebar-nav-item" (click)="scrollToSection('system', $event)">
+                  <div class="sidebar-nav-icon bg-secondary-lt text-secondary">
+                    <i class="ti ti-clock"></i>
+                  </div>
+                  <span translate>System Info</span>
+                  <i class="ti ti-chevron-right ms-auto"></i>
+                </a>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="sidebar-actions">
+                <button type="button" class="btn btn-primary w-100 mb-2" (click)="editProvider()">
+                  <i class="ti ti-edit icon"></i>
+                  <span translate>Edit Provider</span>
+                </button>
+                <button type="button" class="btn btn-outline-secondary w-100" (click)="printView()">
+                  <i class="ti ti-printer icon"></i>
+                  <span translate>Print View</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+          <!-- Provider Overview Card -->
+          <div id="overview" class="card mb-3">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="ti ti-info-circle me-2 text-azure"></i>
+                <span translate>Provider Overview</span>
+              </h3>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
                 <div class="col-12">
                   <div class="preview-field">
                     <label class="preview-label" translate>Application Description</label>
@@ -106,54 +226,52 @@
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- Contact Information Card -->
-      <div class="card mb-3">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="ti ti-user me-2 text-azure"></i>
-            <span translate>Contact Information</span>
-          </h3>
-        </div>
-        <div class="card-body">
-          <div class="row g-3">
-            <div class="col-md-6 col-lg-4">
-              <div class="preview-field">
-                <label class="preview-label" translate>Contact Person</label>
-                <div class="preview-value">{{ provider.contactPersonName }}</div>
-              </div>
+          <!-- Contact Information Card -->
+          <div id="contact" class="card mb-3">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="ti ti-user me-2 text-azure"></i>
+                <span translate>Contact Information</span>
+              </h3>
             </div>
-            <div class="col-md-6 col-lg-4">
-              <div class="preview-field">
-                <label class="preview-label" translate>Designation</label>
-                <div class="preview-value">{{ provider.designation }}</div>
-              </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-              <div class="preview-field">
-                <label class="preview-label" translate>Official Email</label>
-                <div class="preview-value">
-                  <a [href]="'mailto:' + provider.officialEmail" class="text-azure">
-                    {{ provider.officialEmail }}
-                  </a>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-6 col-lg-4">
+                  <div class="preview-field">
+                    <label class="preview-label" translate>Contact Person</label>
+                    <div class="preview-value">{{ provider.contactPersonName }}</div>
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="preview-field">
+                    <label class="preview-label" translate>Designation</label>
+                    <div class="preview-value">{{ provider.designation }}</div>
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="preview-field">
+                    <label class="preview-label" translate>Official Email</label>
+                    <div class="preview-value">
+                      <a [href]="'mailto:' + provider.officialEmail" class="text-azure">
+                        {{ provider.officialEmail }}
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- Business Information Card -->
-      <div class="card mb-3">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="ti ti-building me-2 text-azure"></i>
-            <span translate>Business Information</span>
-          </h3>
-        </div>
-        <div class="card-body">
+          <!-- Business Information Card -->
+          <div id="business" class="card mb-3">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="ti ti-building me-2 text-azure"></i>
+                <span translate>Business Information</span>
+              </h3>
+            </div>
+            <div class="card-body">
           <div class="row g-3">
             <div class="col-md-6">
               <div class="preview-field">
@@ -187,15 +305,15 @@
         </div>
       </div>
 
-      <!-- Personal Identity Card -->
-      <div class="card mb-3">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="ti ti-id me-2 text-azure"></i>
-            <span translate>Personal Identity</span>
-          </h3>
-        </div>
-        <div class="card-body">
+          <!-- Personal Identity Card -->
+          <div id="identity" class="card mb-3">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="ti ti-id me-2 text-azure"></i>
+                <span translate>Personal Identity</span>
+              </h3>
+            </div>
+            <div class="card-body">
           <div class="row g-3">
             <div class="col-md-6 col-lg-4">
               <div class="preview-field">
@@ -219,15 +337,15 @@
         </div>
       </div>
 
-      <!-- OAuth Settings Card -->
-      <div class="card mb-3">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="ti ti-key me-2 text-azure"></i>
-            <span translate>OAuth Settings</span>
-          </h3>
-        </div>
-        <div class="card-body">
+          <!-- OAuth Settings Card -->
+          <div id="oauth" class="card mb-3">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="ti ti-key me-2 text-azure"></i>
+                <span translate>OAuth Settings</span>
+              </h3>
+            </div>
+            <div class="card-body">
           <div class="row g-3">
             <div class="col-md-6 col-lg-4">
               <div class="preview-field">
@@ -255,15 +373,15 @@
         </div>
       </div>
 
-      <!-- Additional Files Card -->
-      @if (provider.additionalFiles.length > 0) {
-        <div class="card mb-3">
-          <div class="card-header">
-            <h3 class="card-title">
-              <i class="ti ti-files me-2 text-azure"></i>
-              <span translate>Additional Files</span>
-            </h3>
-          </div>
+          <!-- Additional Files Card -->
+          @if (provider.additionalFiles.length > 0) {
+            <div id="files" class="card mb-3">
+              <div class="card-header">
+                <h3 class="card-title">
+                  <i class="ti ti-files me-2 text-azure"></i>
+                  <span translate>Additional Files</span>
+                </h3>
+              </div>
           <div class="card-body">
             <div class="table-responsive">
               <table class="table table-vcenter">
@@ -289,15 +407,15 @@
         </div>
       }
 
-      <!-- Comments Card -->
-      @if (provider.comments) {
-        <div class="card mb-3">
-          <div class="card-header">
-            <h3 class="card-title">
-              <i class="ti ti-message-circle me-2 text-azure"></i>
-              <span translate>Comments</span>
-            </h3>
-          </div>
+          <!-- Comments Card -->
+          @if (provider.comments) {
+            <div id="comments" class="card mb-3">
+              <div class="card-header">
+                <h3 class="card-title">
+                  <i class="ti ti-message-circle me-2 text-azure"></i>
+                  <span translate>Comments</span>
+                </h3>
+              </div>
           <div class="card-body">
             <div class="alert alert-info mb-0">
               {{ provider.comments }}
@@ -306,15 +424,15 @@
         </div>
       }
 
-      <!-- System Information Card -->
-      <div class="card mb-3">
-        <div class="card-header">
-          <h3 class="card-title">
-            <i class="ti ti-clock me-2 text-azure"></i>
-            <span translate>System Information</span>
-          </h3>
-        </div>
-        <div class="card-body">
+          <!-- System Information Card -->
+          <div id="system" class="card mb-3">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="ti ti-clock me-2 text-azure"></i>
+                <span translate>System Information</span>
+              </h3>
+            </div>
+            <div class="card-body">
           <div class="row g-3">
             <div class="col-md-6">
               <div class="preview-field">
@@ -331,6 +449,10 @@
           </div>
         </div>
       </div>
+        </div>
+        <!-- End Main Content (col-md-9) -->
+      </div>
+      <!-- End Layout Row -->
     }
   </div>
 </div>

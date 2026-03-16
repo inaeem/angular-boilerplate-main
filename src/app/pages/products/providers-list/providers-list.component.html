@@ -1,0 +1,316 @@
+<!-- Providers List Page - Job Listing Style -->
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <div class="page-pretitle" translate>Overview</div>
+        <h2 class="page-title" translate>Provider Applications</h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="d-flex">
+          <a routerLink="/products/add" class="btn btn-primary">
+            <i class="ti ti-plus icon"></i>
+            <span translate>Register Provider</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row g-4">
+      <!-- Filters Sidebar -->
+      <div class="col-md-3">
+        <div class="subheader mb-2" translate>Filters</div>
+
+        <!-- Search -->
+        <div class="mb-3">
+          <label class="form-label" translate>Search</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Search providers..."
+            [(ngModel)]="searchQuery"
+            (input)="searchProviders()"
+            [disabled]="isLoading || hasError"
+          />
+        </div>
+
+        <!-- Status Filter -->
+        <div class="mb-3">
+          <label class="form-label" translate>Status</label>
+          <div>
+            <label class="form-check">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                [checked]="selectedStatus.includes('active')"
+                (change)="toggleStatus('active')"
+                [disabled]="isLoading"
+              />
+              <span class="form-check-label" translate>Active</span>
+            </label>
+            <label class="form-check">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                [checked]="selectedStatus.includes('pending')"
+                (change)="toggleStatus('pending')"
+                [disabled]="isLoading"
+              />
+              <span class="form-check-label" translate>Pending</span>
+            </label>
+            <label class="form-check">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                [checked]="selectedStatus.includes('suspended')"
+                (change)="toggleStatus('suspended')"
+                [disabled]="isLoading"
+              />
+              <span class="form-check-label" translate>Suspended</span>
+            </label>
+            <label class="form-check">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                [checked]="selectedStatus.includes('rejected')"
+                (change)="toggleStatus('rejected')"
+                [disabled]="isLoading"
+              />
+              <span class="form-check-label" translate>Rejected</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Grant Type Filter -->
+        <div class="mb-3">
+          <label class="form-label" translate>Grant Type</label>
+          <div>
+            <label class="form-check">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                [checked]="selectedGrantTypes.includes('authorization_code')"
+                (change)="toggleGrantType('authorization_code')"
+                [disabled]="isLoading"
+              />
+              <span class="form-check-label" translate>Authorization Code</span>
+            </label>
+            <label class="form-check">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                [checked]="selectedGrantTypes.includes('client_credentials')"
+                (change)="toggleGrantType('client_credentials')"
+                [disabled]="isLoading"
+              />
+              <span class="form-check-label" translate>Client Credentials</span>
+            </label>
+            <label class="form-check">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                [checked]="selectedGrantTypes.includes('implicit')"
+                (change)="toggleGrantType('implicit')"
+                [disabled]="isLoading"
+              />
+              <span class="form-check-label" translate>Implicit</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Certified Toggle -->
+        <div class="mb-3">
+          <label class="form-label" translate>Certification</label>
+          <div>
+            <label class="form-check form-switch">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                [checked]="certifiedOnly"
+                (change)="toggleCertified()"
+                [disabled]="isLoading"
+              />
+              <span class="form-check-label" translate>Certified only</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-4">
+          <button type="button" class="btn btn-primary w-100 mb-2" (click)="applyFilters()" [disabled]="isLoading">
+            <i class="ti ti-check icon"></i>
+            <span translate>Confirm changes</span>
+          </button>
+          <button type="button" class="btn btn-link w-100" (click)="resetFilters()" [disabled]="isLoading">
+            <span translate>Reset to defaults</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Provider Cards -->
+      <div class="col-md-9">
+        <!-- Results Count -->
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div class="text-muted">
+            @if (isLoading) {
+              <span class="placeholder col-3"></span>
+            } @else {
+              <span translate>Showing</span> <strong>{{ filteredProviders.length }}</strong> <span translate>of</span> {{ providers.length }} <span translate>providers</span>
+            }
+          </div>
+        </div>
+
+        <!-- Error State -->
+        @if (hasError) {
+          <div class="empty">
+            <div class="empty-icon text-danger">
+              <i class="ti ti-alert-triangle icon" style="font-size: 4rem"></i>
+            </div>
+            <p class="empty-title" translate>Failed to Load Providers</p>
+            <p class="empty-subtitle text-muted">{{ errorMessage }}</p>
+            <div class="empty-action">
+              <button type="button" class="btn btn-primary" (click)="retryLoading()">
+                <i class="ti ti-reload icon"></i>
+                <span translate>Retry</span>
+              </button>
+            </div>
+          </div>
+        } @else if (isLoading) {
+          <!-- Loading State -->
+          <div class="row row-cards">
+            @for (skeleton of skeletonArray; track $index) {
+              <div class="col-12">
+                <div class="card placeholder-glow">
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-auto">
+                        <div class="placeholder" style="width: 80px; height: 80px; border-radius: 4px;"></div>
+                      </div>
+                      <div class="col">
+                        <div class="placeholder col-8 mb-2"></div>
+                        <div class="placeholder col-6 mb-2"></div>
+                        <div class="placeholder col-10"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        } @else if (filteredProviders.length === 0) {
+          <!-- Empty State -->
+          <div class="empty">
+            <div class="empty-icon">
+              <i class="ti ti-apps icon"></i>
+            </div>
+            <p class="empty-title" translate>No providers found</p>
+            <p class="empty-subtitle text-muted" translate>Try adjusting your search or filter to find what you're looking for.</p>
+          </div>
+        } @else {
+          <!-- Provider Cards List -->
+          <div class="row row-cards">
+            @for (provider of filteredProviders; track provider.id) {
+              <div class="col-12">
+                <div class="card card-link card-link-pop" (click)="viewProvider(provider)" style="cursor: pointer;">
+                  <div class="card-body">
+                    <div class="row align-items-center">
+                      <!-- Logo -->
+                      <div class="col-auto">
+                        @if (provider.logo) {
+                          <span class="avatar avatar-lg" [style.background-image]="'url(' + provider.logo.dataUrl + ')'"></span>
+                        } @else {
+                          <span class="avatar avatar-lg">
+                            {{ getInitials(provider.applicationName) }}
+                          </span>
+                        }
+                      </div>
+
+                      <!-- Content -->
+                      <div class="col">
+                        <div class="row">
+                          <div class="col">
+                            <h3 class="card-title mb-1">
+                              <a href="#" class="text-reset" (click)="viewProvider(provider); $event.preventDefault()">
+                                {{ provider.applicationName }}
+                              </a>
+                            </h3>
+                            <div class="text-muted mb-2">
+                              @if (provider.contactPersonName) {
+                                <span>{{ provider.contactPersonName }}</span>
+                              }
+                              @if (provider.designation) {
+                                <span class="text-muted"> - {{ provider.designation }}</span>
+                              }
+                            </div>
+                            @if (provider.applicationDescription) {
+                              <div class="text-muted small">
+                                {{ provider.applicationDescription | slice:0:200 }}{{ provider.applicationDescription.length > 200 ? '...' : '' }}
+                              </div>
+                            }
+                          </div>
+
+                          <!-- Right Side Info -->
+                          <div class="col-auto">
+                            <div class="text-end">
+                              <div class="mb-2">
+                                <span class="badge" [class]="getStatusBadgeClass(provider.status)">
+                                  {{ provider.status | titlecase }}
+                                </span>
+                              </div>
+                              @if (provider.allowedGrant) {
+                                <div class="text-muted small mb-1">
+                                  <i class="ti ti-key icon-inline"></i>
+                                  {{ getGrantTypeLabel(provider.allowedGrant) }}
+                                </div>
+                              }
+                              @if (provider.isCertified) {
+                                <div class="text-success small">
+                                  <i class="ti ti-certificate icon-inline"></i>
+                                  <span translate>Certified</span>
+                                </div>
+                              }
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Tags -->
+                        <div class="mt-3">
+                          <div class="d-flex gap-1 flex-wrap">
+                            @if (provider.selectedPlans && provider.selectedPlans.length > 0) {
+                              @for (planName of getPlanNames(provider.selectedPlans); track planName) {
+                                <span class="badge bg-azure-lt">
+                                  {{ planName }}
+                                </span>
+                              }
+                            }
+                            @if (provider.officialEmail) {
+                              <span class="badge bg-secondary-lt">
+                                <i class="ti ti-mail icon-inline"></i>
+                                {{ provider.officialEmail }}
+                              </span>
+                            }
+                            @if (provider.additionalFiles && provider.additionalFiles.length > 0) {
+                              <span class="badge bg-info-lt">
+                                <i class="ti ti-files icon-inline"></i>
+                                {{ provider.additionalFiles.length }} {{ provider.additionalFiles.length === 1 ? 'file' : 'files' }}
+                              </span>
+                            }
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

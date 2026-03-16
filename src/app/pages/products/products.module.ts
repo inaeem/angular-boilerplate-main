@@ -8,9 +8,11 @@ import { ListComponent } from './list/list.component';
 import { AddComponent } from './add/add.component';
 import { ViewComponent } from './view/view.component';
 import { PrintComponent } from './print/print.component';
+import { ProvidersListComponent } from './providers-list/providers-list.component';
+import { CredentialsComponent } from './credentials/credentials.component';
 
 @NgModule({
-  declarations: [ListComponent, AddComponent, ViewComponent, PrintComponent],
+  declarations: [ListComponent, AddComponent, ViewComponent, PrintComponent, ProvidersListComponent, CredentialsComponent],
   imports: [CommonModule, FormsModule, TranslateModule, ProductsRoutingModule],
 })
 export class ProductsModule {}
