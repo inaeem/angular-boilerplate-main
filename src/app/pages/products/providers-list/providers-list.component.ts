@@ -157,6 +157,27 @@ export class ProvidersListComponent implements OnInit {
     this.applyFilters();
   }
 
+  filterByStatus(status: string): void {
+    if (status === 'all') {
+      this.selectedStatus = [];
+    } else {
+      this.selectedStatus = [status];
+    }
+    this.applyFilters();
+  }
+
+  getStatusCount(status: string): number {
+    return this.providers.filter((p) => p.status === status).length;
+  }
+
+  getGrantTypeCount(grantType: string): number {
+    return this.providers.filter((p) => p.allowedGrant === grantType).length;
+  }
+
+  getCertifiedCount(): number {
+    return this.providers.filter((p) => p.isCertified).length;
+  }
+
   viewProvider(provider: Provider): void {
     this._router.navigate(['/products/view', provider.id]);
   }
