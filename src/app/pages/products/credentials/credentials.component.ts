@@ -22,8 +22,10 @@ export class CredentialsComponent implements OnInit {
   hasError = false;
   errorMessage = '';
   availableProviders: Provider[] = [];
+  filteredProviders: Provider[] = [];
   isLoadingProviders = false;
   showValidationError = false;
+  searchLOB = '';
 
   // Modal state
   showCreateModal = false;
@@ -70,6 +72,7 @@ export class CredentialsComponent implements OnInit {
       .subscribe({
         next: (providers) => {
           this.availableProviders = providers;
+          this.filteredProviders = providers;
           this.isLoadingProviders = false;
         },
         error: (error) => {
@@ -77,6 +80,18 @@ export class CredentialsComponent implements OnInit {
           this.isLoadingProviders = false;
         },
       });
+  }
+
+  filterProviders(): void {
+    const search = this.searchLOB.toLowerCase().trim();
+    if (!search) {
+      this.filteredProviders = this.availableProviders;
+    } else {
+      this.filteredProviders = this.availableProviders.filter(provider =>
+        provider.applicationName.toLowerCase().includes(search) ||
+        (provider.status && provider.status.toLowerCase().includes(search))
+      );
+    }
   }
 
   loadProvider(id: number): void {
@@ -121,6 +136,8 @@ export class CredentialsComponent implements OnInit {
       description: '',
     };
     this.showValidationError = false;
+    this.searchLOB = '';
+    this.filteredProviders = this.availableProviders;
     this.showCreateModal = true;
   }
 
