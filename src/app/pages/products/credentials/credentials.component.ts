@@ -29,9 +29,7 @@ export class CredentialsComponent implements OnInit {
   showCreateModal = false;
   showDeleteModal = false;
   credentialToDelete: Credential | null = null;
-  showSecretModal = false;
-  revealedSecret: string = '';
-  createdCredentials: Credential[] = [];
+  isCreatingCredentials = false;
 
   // Form data
   formData: CreateCredentialDto = {
@@ -133,46 +131,37 @@ export class CredentialsComponent implements OnInit {
   createCredential(): void {
     if (this.formData.providerIds.length === 0) {
       this.showValidationError = true;
-      this._toastService.error('Validation Error', 'Please select at least one provider');
+      this._toastService.error('Validation Error', 'Please select at least one line of business');
       return;
     }
 
     this.showValidationError = false;
-    this.createdCredentials = [];
 
     // Create credentials for each selected provider
     const creationObservables = this.formData.providerIds.map(providerId =>
       this._credentialsService.createCredential(providerId, this.formData)
     );
 
-    // Execute all creation requests
-    this.isLoading = true;
+    // Execute all creation requests with loading state
+    this.isCreatingCredentials = true;
     import('rxjs').then(({ forkJoin }) => {
       forkJoin(creationObservables)
         .pipe(untilDestroyed(this))
         .subscribe({
           next: (credentials) => {
-            this.createdCredentials = credentials;
             credentials.forEach(credential => {
               this.credentials.push(credential);
             });
-            this.isLoading = false;
+            this.isCreatingCredentials = false;
+            this.closeCreateModal();
             this._toastService.success(
               'Credentials Created',
               `${credentials.length} credential${credentials.length > 1 ? 's have' : ' has'} been generated successfully`
             );
-            this.closeCreateModal();
-            // Show the first credential's secret in the reveal modal
-            if (credentials.length > 0) {
-              this.revealedSecret = credentials.map(c =>
-                `Provider: ${this.getProviderName(c.providerId)}\nClient Secret: ${c.clientSecret}\n`
-              ).join('\n');
-              this.showSecretModal = true;
-            }
           },
           error: (error) => {
             console.error('Error creating credentials:', error);
-            this.isLoading = false;
+            this.isCreatingCredentials = false;
             this._toastService.error('Creation Failed', 'Failed to create credentials. Please try again.');
           },
         });
@@ -227,9 +216,7 @@ export class CredentialsComponent implements OnInit {
           if (index > -1) {
             this.credentials[index] = updated;
           }
-          this._toastService.success('Secret Regenerated', 'A new client secret has been generated');
-          this.revealedSecret = updated.clientSecret;
-          this.showSecretModal = true;
+          this._toastService.success('Secret Regenerated', 'A new client secret has been generated. You can now copy it from the credential card.');
         },
         error: (error) => {
           console.error('Error regenerating secret:', error);
@@ -310,11 +297,6 @@ export class CredentialsComponent implements OnInit {
         this._toastService.error('Copy Failed', 'Failed to copy to clipboard');
       }
     );
-  }
-
-  closeSecretModal(): void {
-    this.showSecretModal = false;
-    this.revealedSecret = '';
   }
 
   goBack(): void {
