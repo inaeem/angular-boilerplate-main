@@ -25,17 +25,25 @@ export class CredentialsService {
   }
 
   /**
-   * Create new credential
+   * Create new credential for a single provider
    */
   createCredential(providerId: number, dto: CreateCredentialDto): Observable<Credential> {
+    // Generate a default name based on timestamp and random suffix
+    const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
+    const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const defaultName = `Credential_${timestamp}_${randomSuffix}`;
+
+    // Default to sandbox environment
+    const environment: 'sandbox' | 'production' = 'sandbox';
+
     const newCredential: Credential = {
       id: Math.max(...this.credentials.map((c) => c.id), 0) + 1,
-      providerId,
+      providerId: providerId,
       clientId: this.generateClientId(),
       clientSecret: this.generateClientSecret(),
-      name: dto.name,
+      name: defaultName,
       description: dto.description,
-      environment: dto.environment,
+      environment: environment,
       isActive: true,
       createdAt: new Date(),
     };

@@ -21,6 +21,9 @@ export class CredentialsComponent implements OnInit {
   isLoading = true;
   hasError = false;
   errorMessage = '';
+  availableProviders: Provider[] = [];
+  isLoadingProviders = false;
+  showValidationError = false;
 
   // Modal state
   showCreateModal = false;
@@ -28,12 +31,12 @@ export class CredentialsComponent implements OnInit {
   credentialToDelete: Credential | null = null;
   showSecretModal = false;
   revealedSecret: string = '';
+  createdCredentials: Credential[] = [];
 
   // Form data
   formData: CreateCredentialDto = {
-    name: '',
+    providerIds: [],
     description: '',
-    environment: 'sandbox',
   };
 
   // Copy states
@@ -48,6 +51,9 @@ export class CredentialsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Load all providers for the dropdown
+    this.loadAllProviders();
+
     const id = this._route.snapshot.paramMap.get('id');
     if (id) {
       this.providerId = parseInt(id, 10);
@@ -56,6 +62,23 @@ export class CredentialsComponent implements OnInit {
     } else {
       this._router.navigate(['/products']);
     }
+  }
+
+  loadAllProviders(): void {
+    this.isLoadingProviders = true;
+    this._providersService
+      .getProviders()
+      .pipe(untilDestroyed(this))
+      .subscribe({
+        next: (providers) => {
+          this.availableProviders = providers;
+          this.isLoadingProviders = false;
+        },
+        error: (error) => {
+          console.error('Error loading providers:', error);
+          this.isLoadingProviders = false;
+        },
+      });
   }
 
   loadProvider(id: number): void {
@@ -96,10 +119,10 @@ export class CredentialsComponent implements OnInit {
 
   openCreateModal(): void {
     this.formData = {
-      name: '',
+      providerIds: [],
       description: '',
-      environment: 'sandbox',
     };
+    this.showValidationError = false;
     this.showCreateModal = true;
   }
 
@@ -108,27 +131,86 @@ export class CredentialsComponent implements OnInit {
   }
 
   createCredential(): void {
-    if (!this.providerId || !this.formData.name.trim()) {
-      this._toastService.error('Validation Error', 'Please provide a name for the credential');
+    if (this.formData.providerIds.length === 0) {
+      this.showValidationError = true;
+      this._toastService.error('Validation Error', 'Please select at least one provider');
       return;
     }
 
-    this._credentialsService
-      .createCredential(this.providerId, this.formData)
-      .pipe(untilDestroyed(this))
-      .subscribe({
-        next: (credential) => {
-          this.credentials.push(credential);
-          this._toastService.success('Credential Created', 'New credentials have been generated successfully');
-          this.closeCreateModal();
-          this.revealedSecret = credential.clientSecret;
-          this.showSecretModal = true;
-        },
-        error: (error) => {
-          console.error('Error creating credential:', error);
-          this._toastService.error('Creation Failed', 'Failed to create credential. Please try again.');
-        },
-      });
+    this.showValidationError = false;
+    this.createdCredentials = [];
+
+    // Create credentials for each selected provider
+    const creationObservables = this.formData.providerIds.map(providerId =>
+      this._credentialsService.createCredential(providerId, this.formData)
+    );
+
+    // Execute all creation requests
+    this.isLoading = true;
+    import('rxjs').then(({ forkJoin }) => {
+      forkJoin(creationObservables)
+        .pipe(untilDestroyed(this))
+        .subscribe({
+          next: (credentials) => {
+            this.createdCredentials = credentials;
+            credentials.forEach(credential => {
+              this.credentials.push(credential);
+            });
+            this.isLoading = false;
+            this._toastService.success(
+              'Credentials Created',
+              `${credentials.length} credential${credentials.length > 1 ? 's have' : ' has'} been generated successfully`
+            );
+            this.closeCreateModal();
+            // Show the first credential's secret in the reveal modal
+            if (credentials.length > 0) {
+              this.revealedSecret = credentials.map(c =>
+                `Provider: ${this.getProviderName(c.providerId)}\nClient Secret: ${c.clientSecret}\n`
+              ).join('\n');
+              this.showSecretModal = true;
+            }
+          },
+          error: (error) => {
+            console.error('Error creating credentials:', error);
+            this.isLoading = false;
+            this._toastService.error('Creation Failed', 'Failed to create credentials. Please try again.');
+          },
+        });
+    });
+  }
+
+  getProviderName(providerId: number): string {
+    const provider = this.availableProviders.find(p => p.id === providerId);
+    return provider ? provider.applicationName : `Provider ${providerId}`;
+  }
+
+  // Provider selection methods
+  toggleProvider(providerId: number): void {
+    const index = this.formData.providerIds.indexOf(providerId);
+    if (index > -1) {
+      this.formData.providerIds.splice(index, 1);
+    } else {
+      this.formData.providerIds.push(providerId);
+    }
+    this.showValidationError = false;
+  }
+
+  isProviderSelected(providerId: number): boolean {
+    return this.formData.providerIds.includes(providerId);
+  }
+
+  toggleAllProviders(): void {
+    if (this.areAllProvidersSelected()) {
+      this.formData.providerIds = [];
+    } else {
+      this.formData.providerIds = this.availableProviders.map(p => p.id);
+    }
+    this.showValidationError = false;
+  }
+
+  areAllProvidersSelected(): boolean {
+    return this.availableProviders.length > 0 &&
+           this.formData.providerIds.length === this.availableProviders.length;
   }
 
   regenerateSecret(credential: Credential): void {

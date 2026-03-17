@@ -13,7 +13,6 @@ export interface Credential {
 }
 
 export interface CreateCredentialDto {
-  name: string;
+  providerIds: number[];
   description?: string;
-  environment: 'sandbox' | 'production';
 }
