@@ -52,35 +52,9 @@
         <!-- Sticky Sidebar Navigation -->
         <div class="col-md-3">
           <div class="card card-stacked sticky-top register-sidebar" style="top: 1rem;">
-            <!-- Progress Header with Gradient -->
-            <div class="register-progress-header">
-              <div class="progress-circle-wrapper">
-                <svg class="progress-ring" width="120" height="120">
-                  <circle class="progress-ring-circle-bg" stroke="#e0e0e0" stroke-width="8" fill="transparent" r="52" cx="60" cy="60"/>
-                  <circle
-                    class="progress-ring-circle"
-                    stroke="url(#gradient)"
-                    stroke-width="8"
-                    fill="transparent"
-                    r="52"
-                    cx="60"
-                    cy="60"
-                    [style.stroke-dasharray]="326.56"
-                    [style.stroke-dashoffset]="326.56 - (326.56 * getProgress() / 100)"
-                  />
-                  <defs>
-                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
-                      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-                <div class="progress-circle-content">
-                  <div class="progress-percentage">{{ getProgress() | number: '1.0-0' }}%</div>
-                  <div class="progress-label" translate>Complete</div>
-                </div>
-              </div>
-              <h4 class="register-title" translate>Registration Progress</h4>
+            <!-- Simple Header -->
+            <div class="register-header">
+              <h4 class="register-title" translate>Provider Registration</h4>
               <p class="register-subtitle">
                 <span translate>Step</span> {{ currentStep }} <span translate>of</span> {{ totalSteps }}
               </p>

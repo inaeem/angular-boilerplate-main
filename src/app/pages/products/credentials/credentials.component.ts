@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { forkJoin } from 'rxjs';
 import { CredentialsService } from '../services/credentials.service';
 import { ProvidersService } from '../services/providers.service';
 import { Credential, CreateCredentialDto } from '../entities/credential.entity';
@@ -161,28 +162,26 @@ export class CredentialsComponent implements OnInit {
 
     // Execute all creation requests with loading state
     this.isCreatingCredentials = true;
-    import('rxjs').then(({ forkJoin }) => {
-      forkJoin(creationObservables)
-        .pipe(untilDestroyed(this))
-        .subscribe({
-          next: (credentials) => {
-            credentials.forEach(credential => {
-              this.credentials.push(credential);
-            });
-            this.isCreatingCredentials = false;
-            this.closeCreateModal();
-            this._toastService.success(
-              'Credentials Created',
-              `${credentials.length} credential${credentials.length > 1 ? 's have' : ' has'} been generated successfully`
-            );
-          },
-          error: (error) => {
-            console.error('Error creating credentials:', error);
-            this.isCreatingCredentials = false;
-            this._toastService.error('Creation Failed', 'Failed to create credentials. Please try again.');
-          },
-        });
-    });
+    forkJoin(creationObservables)
+      .pipe(untilDestroyed(this))
+      .subscribe({
+        next: (credentials) => {
+          credentials.forEach(credential => {
+            this.credentials.push(credential);
+          });
+          this.isCreatingCredentials = false;
+          this.closeCreateModal();
+          this._toastService.success(
+            'Credentials Created',
+            `${credentials.length} credential${credentials.length > 1 ? 's have' : ' has'} been generated successfully`
+          );
+        },
+        error: (error) => {
+          console.error('Error creating credentials:', error);
+          this.isCreatingCredentials = false;
+          this._toastService.error('Creation Failed', 'Failed to create credentials. Please try again.');
+        },
+      });
   }
 
   getProviderName(providerId: number): string {
