@@ -1,9 +1,14 @@
 <div class="page page-center">
   <div class="container container-normal py-5">
+    <!-- Language Selector - Top Right -->
+    <div class="d-flex justify-content-end mb-3">
+      <app-language-selector></app-language-selector>
+    </div>
+
     <!-- Header -->
     <div class="text-center mb-5">
-      <h1 class="mb-2">Welcome to Provider Portal</h1>
-      <p class="text-muted">Choose your login portal to get started</p>
+      <h1 class="mb-2" translate>login.welcome</h1>
+      <p class="text-muted" translate>login.subtitle</p>
     </div>
 
     <!-- Login Options -->
@@ -15,10 +20,8 @@
             <div class="login-portal-icon mb-3">
               <i class="ti ti-shield-lock"></i>
             </div>
-            <h3 class="card-title mb-2">Admin Portal</h3>
-            <p class="text-muted mb-4">
-              Access administrative dashboard to manage providers, users, and system configurations.
-            </p>
+            <h3 class="card-title mb-2" translate>login.admin.title</h3>
+            <p class="text-muted mb-4" translate>login.admin.description</p>
             <div class="mt-auto">
               <button
                 type="button"
@@ -26,10 +29,10 @@
                 (click)="login('admin')"
                 [disabled]="isLoading">
                 <i class="ti ti-login icon"></i>
-                <span *ngIf="!isLoading || selectedPortal !== 'admin'">Login as Admin</span>
+                <span *ngIf="!isLoading || selectedPortal !== 'admin'" translate>login.admin.button</span>
                 <span *ngIf="isLoading && selectedPortal === 'admin'">
                   <span class="spinner-border spinner-border-sm me-2"></span>
-                  Logging in...
+                  <span translate>login.loading</span>
                 </span>
               </button>
             </div>
@@ -37,7 +40,7 @@
           <div class="card-footer">
             <div class="text-muted small">
               <i class="ti ti-info-circle icon-inline"></i>
-              For system administrators only
+              <span translate>login.admin.footer</span>
             </div>
           </div>
         </div>
@@ -50,10 +53,8 @@
             <div class="login-portal-icon mb-3">
               <i class="ti ti-building"></i>
             </div>
-            <h3 class="card-title mb-2">Provider Portal</h3>
-            <p class="text-muted mb-4">
-              Manage your provider applications, view credentials, access sandbox environment, and monitor API usage.
-            </p>
+            <h3 class="card-title mb-2" translate>login.provider.title</h3>
+            <p class="text-muted mb-4" translate>login.provider.description</p>
             <div class="mt-auto">
               <button
                 type="button"
@@ -61,10 +62,10 @@
                 (click)="login('provider')"
                 [disabled]="isLoading">
                 <i class="ti ti-login icon"></i>
-                <span *ngIf="!isLoading || selectedPortal !== 'provider'">Login as Provider</span>
+                <span *ngIf="!isLoading || selectedPortal !== 'provider'" translate>login.provider.button</span>
                 <span *ngIf="isLoading && selectedPortal === 'provider'">
                   <span class="spinner-border spinner-border-sm me-2"></span>
-                  Logging in...
+                  <span translate>login.loading</span>
                 </span>
               </button>
             </div>
@@ -72,7 +73,7 @@
           <div class="card-footer">
             <div class="text-muted small">
               <i class="ti ti-info-circle icon-inline"></i>
-              For registered providers
+              <span translate>login.provider.footer</span>
             </div>
           </div>
         </div>
@@ -85,10 +86,8 @@
             <div class="login-portal-icon mb-3">
               <i class="ti ti-code"></i>
             </div>
-            <h3 class="card-title mb-2">Developer Portal</h3>
-            <p class="text-muted mb-4">
-              Access API documentation, test endpoints, view integration guides, and manage API keys.
-            </p>
+            <h3 class="card-title mb-2" translate>login.developer.title</h3>
+            <p class="text-muted mb-4" translate>login.developer.description</p>
             <div class="mt-auto">
               <button
                 type="button"
@@ -96,10 +95,10 @@
                 (click)="login('developer')"
                 [disabled]="isLoading">
                 <i class="ti ti-login icon"></i>
-                <span *ngIf="!isLoading || selectedPortal !== 'developer'">Login as Developer</span>
+                <span *ngIf="!isLoading || selectedPortal !== 'developer'" translate>login.developer.button</span>
                 <span *ngIf="isLoading && selectedPortal === 'developer'">
                   <span class="spinner-border spinner-border-sm me-2"></span>
-                  Logging in...
+                  <span translate>login.loading</span>
                 </span>
               </button>
             </div>
@@ -107,7 +106,7 @@
           <div class="card-footer">
             <div class="text-muted small">
               <i class="ti ti-info-circle icon-inline"></i>
-              For developers and integrators
+              <span translate>login.developer.footer</span>
             </div>
           </div>
         </div>

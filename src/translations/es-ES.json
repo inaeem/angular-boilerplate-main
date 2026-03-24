@@ -7,5 +7,28 @@
   "Username": "Nombre de usuario",
   "Password": "Contraseña",
   "Angular Boiler Plate V18": "Modelo repetitivo angular V18",
-  "Dashboard": "Panel"
+  "Dashboard": "Panel",
+
+  "login.welcome": "Bienvenido a {{portalName}}",
+  "login.subtitle": "Elija su portal de inicio de sesión para comenzar",
+
+  "login.admin.title": "Portal de Administración",
+  "login.admin.description": "Acceda al panel administrativo para gestionar proveedores, usuarios y configuraciones del sistema.",
+  "login.admin.button": "Iniciar como {{role}}",
+  "login.admin.footer": "Solo para administradores del sistema",
+
+  "login.provider.title": "Portal de Proveedores",
+  "login.provider.description": "Gestione sus aplicaciones de proveedor, vea credenciales, acceda al entorno sandbox y monitoree el uso de API.",
+  "login.provider.button": "Iniciar como {{role}}",
+  "login.provider.footer": "Para proveedores registrados",
+
+  "login.developer.title": "Portal de Desarrolladores",
+  "login.developer.description": "Acceda a la documentación de API, pruebe endpoints, vea guías de integración y gestione claves API.",
+  "login.developer.button": "Iniciar como {{role}}",
+  "login.developer.footer": "Para desarrolladores e integradores",
+
+  "login.loading": "Iniciando sesión como {{role}}...",
+  "login.button.generic": "Iniciar como {{role}}",
+  "login.welcome.user": "¡Bienvenido de nuevo, {{username}}!",
+  "login.last.login": "Último acceso: {{date}} a las {{time}}"
 }

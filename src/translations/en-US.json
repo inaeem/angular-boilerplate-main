@@ -364,5 +364,28 @@
   "Fix bug in user module": "Fix bug in user module",
   "Jane Doe": "Jane Doe",
   "created new task in project": "created new task in project",
-  "Dashboard Redesign": "Dashboard Redesign"
+  "Dashboard Redesign": "Dashboard Redesign",
+
+  "login.welcome": "Welcome to {{portalName}}",
+  "login.subtitle": "Choose your login portal to get started",
+
+  "login.admin.title": "Admin Portal",
+  "login.admin.description": "Access administrative dashboard to manage providers, users, and system configurations.",
+  "login.admin.button": "Login as {{role}}",
+  "login.admin.footer": "For system administrators only",
+
+  "login.provider.title": "Provider Portal",
+  "login.provider.description": "Manage your provider applications, view credentials, access sandbox environment, and monitor API usage.",
+  "login.provider.button": "Login as {{role}}",
+  "login.provider.footer": "For registered providers",
+
+  "login.developer.title": "Developer Portal",
+  "login.developer.description": "Access API documentation, test endpoints, view integration guides, and manage API keys.",
+  "login.developer.button": "Login as {{role}}",
+  "login.developer.footer": "For developers and integrators",
+
+  "login.loading": "Logging in as {{role}}...",
+  "login.button.generic": "Login as {{role}}",
+  "login.welcome.user": "Welcome back, {{username}}!",
+  "login.last.login": "Last login: {{date}} at {{time}}"
 }
