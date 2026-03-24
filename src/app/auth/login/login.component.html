@@ -1,71 +1,117 @@
 <div class="page page-center">
-  <div class="container container-tight py-4">
-    <div class="text-center mb-4">
-      <a href="." class="navbar-brand navbar-brand-autodark">
-        <img src="images/placeholder.png" height="36" alt="Logo" />
-      </a>
+  <div class="container container-normal py-5">
+    <!-- Header -->
+    <div class="text-center mb-5">
+      <h1 class="mb-2">Welcome to Provider Portal</h1>
+      <p class="text-muted">Choose your login portal to get started</p>
     </div>
-    <div class="card card-md">
-      <div class="card-body">
-        <h2 class="h2 text-center mb-4" translate>Login to your account</h2>
-        @if (isLoading) {
-          <div class="text-center">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
+
+    <!-- Login Options -->
+    <div class="row row-cards">
+      <!-- Portal 1: Admin Portal -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card login-portal-card">
+          <div class="card-body text-center">
+            <div class="login-portal-icon mb-3">
+              <i class="ti ti-shield-lock"></i>
             </div>
-            <p class="text-muted mt-2" translate>Logging in...</p>
-          </div>
-        } @else {
-          <form (ngSubmit)="login()">
-            <div class="mb-3">
-              <label class="form-label" translate>Username</label>
-              <input
-                type="text"
-                class="form-control"
-                [(ngModel)]="username"
-                name="username"
-                placeholder="{{ 'Enter any username' | translate }}"
-                autocomplete="username"
-              />
-              <small class="form-hint">Enter any username (e.g., 'demo')</small>
-            </div>
-            <div class="mb-2">
-              <label class="form-label" translate>
-                Password
-              </label>
-              <input
-                type="password"
-                class="form-control"
-                [(ngModel)]="password"
-                name="password"
-                placeholder="{{ 'Enter any password' | translate }}"
-                autocomplete="current-password"
-              />
-              <small class="form-hint">Enter any password</small>
-            </div>
-            <div class="mb-2">
-              <label class="form-check">
-                <input type="checkbox" class="form-check-input" checked />
-                <span class="form-check-label" translate>Remember me on this device</span>
-              </label>
-            </div>
-            <div class="form-footer">
-              <button type="submit" class="btn btn-primary w-100">
+            <h3 class="card-title mb-2">Admin Portal</h3>
+            <p class="text-muted mb-4">
+              Access administrative dashboard to manage providers, users, and system configurations.
+            </p>
+            <div class="mt-auto">
+              <button
+                type="button"
+                class="btn btn-primary w-100"
+                (click)="login('admin')"
+                [disabled]="isLoading">
                 <i class="ti ti-login icon"></i>
-                {{ 'Sign in' | translate }}
+                <span *ngIf="!isLoading || selectedPortal !== 'admin'">Login as Admin</span>
+                <span *ngIf="isLoading && selectedPortal === 'admin'">
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                  Logging in...
+                </span>
               </button>
             </div>
-          </form>
-        }
-      </div>
-      <div class="card-footer text-center py-3">
-        <div class="text-muted">
-          <small translate>Demo mode: Use any username and password to login</small>
+          </div>
+          <div class="card-footer">
+            <div class="text-muted small">
+              <i class="ti ti-info-circle icon-inline"></i>
+              For system administrators only
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="text-center mt-3">
-      <app-language-selector [openAbove]="true"></app-language-selector>
+
+      <!-- Portal 2: Provider Portal -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card login-portal-card">
+          <div class="card-body text-center">
+            <div class="login-portal-icon mb-3">
+              <i class="ti ti-building"></i>
+            </div>
+            <h3 class="card-title mb-2">Provider Portal</h3>
+            <p class="text-muted mb-4">
+              Manage your provider applications, view credentials, access sandbox environment, and monitor API usage.
+            </p>
+            <div class="mt-auto">
+              <button
+                type="button"
+                class="btn btn-primary w-100"
+                (click)="login('provider')"
+                [disabled]="isLoading">
+                <i class="ti ti-login icon"></i>
+                <span *ngIf="!isLoading || selectedPortal !== 'provider'">Login as Provider</span>
+                <span *ngIf="isLoading && selectedPortal === 'provider'">
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                  Logging in...
+                </span>
+              </button>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="text-muted small">
+              <i class="ti ti-info-circle icon-inline"></i>
+              For registered providers
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Portal 3: Developer Portal -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card login-portal-card">
+          <div class="card-body text-center">
+            <div class="login-portal-icon mb-3">
+              <i class="ti ti-code"></i>
+            </div>
+            <h3 class="card-title mb-2">Developer Portal</h3>
+            <p class="text-muted mb-4">
+              Access API documentation, test endpoints, view integration guides, and manage API keys.
+            </p>
+            <div class="mt-auto">
+              <button
+                type="button"
+                class="btn btn-primary w-100"
+                (click)="login('developer')"
+                [disabled]="isLoading">
+                <i class="ti ti-login icon"></i>
+                <span *ngIf="!isLoading || selectedPortal !== 'developer'">Login as Developer</span>
+                <span *ngIf="isLoading && selectedPortal === 'developer'">
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                  Logging in...
+                </span>
+              </button>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="text-muted small">
+              <i class="ti ti-info-circle icon-inline"></i>
+              For developers and integrators
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

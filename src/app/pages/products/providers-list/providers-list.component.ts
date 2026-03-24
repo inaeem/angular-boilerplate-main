@@ -246,4 +246,45 @@ export class ProvidersListComponent implements OnInit {
       `;
     }
   }
+
+  /**
+   * View provider credentials
+   */
+  viewCredentials(provider: Provider): void {
+    // TODO: Implement credentials modal or navigate to credentials page
+    this._toastService.info('View Credentials', `Viewing credentials for ${provider.applicationName}`);
+    console.log('View credentials for provider:', provider);
+    // You can implement a modal dialog here or navigate to a credentials page
+    // Example: this._router.navigate(['/products/credentials', provider.id]);
+  }
+
+  /**
+   * Deactivate a provider
+   */
+  deactivateProvider(provider: Provider): void {
+    if (provider.status === 'suspended' || provider.status === 'rejected') {
+      this._toastService.warning('Deactivate Provider', 'This provider is already inactive');
+      return;
+    }
+
+    // TODO: Implement confirmation dialog
+    const confirmed = confirm(`Are you sure you want to deactivate "${provider.applicationName}"?`);
+
+    if (confirmed) {
+      // Update provider status to suspended
+      this._providersService
+        .updateProvider(provider.id, { ...provider, status: 'suspended' })
+        .pipe(untilDestroyed(this))
+        .subscribe({
+          next: () => {
+            this._toastService.success('Provider Deactivated', `${provider.applicationName} has been deactivated`);
+            this.loadProviders(); // Reload the list
+          },
+          error: (error) => {
+            console.error('Error deactivating provider:', error);
+            this._toastService.error('Error', 'Failed to deactivate provider. Please try again.');
+          },
+        });
+    }
+  }
 }

@@ -200,6 +200,21 @@
                         </div>
                       </div>
                     }
+                    @if (provider.sandboxUrl) {
+                      <div class="col-12">
+                        <div class="d-flex align-items-center">
+                          <i class="ti ti-browser icon-sm me-2 text-info"></i>
+                          <a
+                            [href]="provider.sandboxUrl"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="small text-info"
+                            (click)="$event.stopPropagation()">
+                            Sandbox Environment
+                          </a>
+                        </div>
+                      </div>
+                    }
                   </div>
                 </div>
 
@@ -225,16 +240,21 @@
                 </div>
 
                 <!-- Actions -->
-                <div class="d-flex gap-1 mb-2">
-                  <button type="button" class="btn btn-sm btn-azure flex-fill" (click)="viewProvider(provider)">
-                    <i class="ti ti-eye icon"></i>
-                    <span translate>View</span>
+                <div class="d-flex gap-2 mt-2">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-primary flex-fill"
+                    (click)="viewCredentials(provider); $event.stopPropagation()">
+                    <i class="ti ti-key"></i>
+                    View Credentials
                   </button>
-                  <button type="button" class="btn btn-sm btn-outline-azure" (click)="editProvider(provider)">
-                    <i class="ti ti-edit icon"></i>
-                  </button>
-                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="deleteProvider(provider)">
-                    <i class="ti ti-trash icon"></i>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger flex-fill"
+                    (click)="deactivateProvider(provider); $event.stopPropagation()"
+                    [disabled]="provider.status === 'suspended' || provider.status === 'rejected'">
+                    <i class="ti ti-ban"></i>
+                    Deactivate
                   </button>
                 </div>
 

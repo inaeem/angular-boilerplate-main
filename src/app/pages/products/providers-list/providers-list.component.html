@@ -248,7 +248,7 @@
           <div class="row row-cards">
             @for (provider of filteredProviders; track provider.id) {
               <div class="col-12">
-                <div class="card card-link card-link-pop" (click)="viewProvider(provider)" style="cursor: pointer;">
+                <div class="card">
                   <div class="card-body">
                     <div class="row align-items-center">
                       <!-- Logo -->
@@ -266,11 +266,14 @@
                       <div class="col">
                         <div class="row">
                           <div class="col">
-                            <h3 class="card-title mb-1">
-                              <a href="#" class="text-reset" (click)="viewProvider(provider); $event.preventDefault()">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                              <h3 class="card-title mb-0">
                                 {{ provider.applicationName }}
-                              </a>
-                            </h3>
+                              </h3>
+                              <span class="badge" [class]="getStatusBadgeClass(provider.status)">
+                                {{ provider.status | titlecase }}
+                              </span>
+                            </div>
                             <div class="text-muted mb-2">
                               @if (provider.contactPersonName) {
                                 <span>{{ provider.contactPersonName }}</span>
@@ -280,58 +283,76 @@
                               }
                             </div>
                             @if (provider.applicationDescription) {
-                              <div class="text-muted small">
+                              <div class="text-muted small mb-3">
                                 {{ provider.applicationDescription | slice:0:200 }}{{ provider.applicationDescription.length > 200 ? '...' : '' }}
                               </div>
                             }
-                          </div>
 
-                          <!-- Right Side Info -->
-                          <div class="col-auto">
-                            <div class="text-end">
-                              <div class="mb-2">
-                                <span class="badge" [class]="getStatusBadgeClass(provider.status)">
-                                  {{ provider.status | titlecase }}
+                            <!-- Tags & Links -->
+                            <div class="d-flex gap-1 flex-wrap mb-3">
+                              @if (provider.selectedPlans && provider.selectedPlans.length > 0) {
+                                @for (planName of getPlanNames(provider.selectedPlans); track planName) {
+                                  <span class="badge bg-azure-lt">
+                                    {{ planName }}
+                                  </span>
+                                }
+                              }
+                              @if (provider.officialEmail) {
+                                <span class="badge bg-secondary-lt">
+                                  <i class="ti ti-mail icon-inline"></i>
+                                  {{ provider.officialEmail }}
                                 </span>
-                              </div>
+                              }
                               @if (provider.allowedGrant) {
-                                <div class="text-muted small mb-1">
+                                <span class="badge bg-purple-lt">
                                   <i class="ti ti-key icon-inline"></i>
                                   {{ getGrantTypeLabel(provider.allowedGrant) }}
-                                </div>
-                              }
-                              @if (provider.isCertified) {
-                                <div class="text-success small">
-                                  <i class="ti ti-certificate icon-inline"></i>
-                                  <span translate>Certified</span>
-                                </div>
-                              }
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- Tags -->
-                        <div class="mt-3">
-                          <div class="d-flex gap-1 flex-wrap">
-                            @if (provider.selectedPlans && provider.selectedPlans.length > 0) {
-                              @for (planName of getPlanNames(provider.selectedPlans); track planName) {
-                                <span class="badge bg-azure-lt">
-                                  {{ planName }}
                                 </span>
                               }
-                            }
-                            @if (provider.officialEmail) {
-                              <span class="badge bg-secondary-lt">
-                                <i class="ti ti-mail icon-inline"></i>
-                                {{ provider.officialEmail }}
-                              </span>
-                            }
-                            @if (provider.additionalFiles && provider.additionalFiles.length > 0) {
-                              <span class="badge bg-info-lt">
-                                <i class="ti ti-files icon-inline"></i>
-                                {{ provider.additionalFiles.length }} {{ provider.additionalFiles.length === 1 ? 'file' : 'files' }}
-                              </span>
-                            }
+                              @if (provider.isCertified) {
+                                <span class="badge bg-success-lt">
+                                  <i class="ti ti-certificate icon-inline"></i>
+                                  <span translate>Certified</span>
+                                </span>
+                              }
+                              @if (provider.sandboxUrl) {
+                                <a
+                                  [href]="provider.sandboxUrl"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  class="badge bg-info-lt text-info"
+                                  (click)="$event.stopPropagation()"
+                                  title="Open Sandbox Environment">
+                                  <i class="ti ti-browser icon-inline"></i>
+                                  <span translate>Sandbox</span>
+                                </a>
+                              }
+                              @if (provider.additionalFiles && provider.additionalFiles.length > 0) {
+                                <span class="badge bg-secondary-lt">
+                                  <i class="ti ti-files icon-inline"></i>
+                                  {{ provider.additionalFiles.length }} {{ provider.additionalFiles.length === 1 ? 'file' : 'files' }}
+                                </span>
+                              }
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-2">
+                              <button
+                                type="button"
+                                class="btn btn-sm btn-primary flex-fill"
+                                (click)="viewCredentials(provider); $event.stopPropagation()">
+                                <i class="ti ti-key"></i>
+                                View Credentials
+                              </button>
+                              <button
+                                type="button"
+                                class="btn btn-sm btn-outline-danger flex-fill"
+                                (click)="deactivateProvider(provider); $event.stopPropagation()"
+                                [disabled]="provider.status === 'suspended' || provider.status === 'rejected'">
+                                <i class="ti ti-ban"></i>
+                                Deactivate
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>

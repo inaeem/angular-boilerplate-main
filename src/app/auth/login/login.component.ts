@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
-
-import { environment } from '@env/environment';
+import { Router } from '@angular/router';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AuthenticationService } from '@app/auth';
-import { ActivatedRoute, Router } from '@angular/router';
+
+import { environment } from '@env/environment';
+
+type PortalType = 'admin' | 'provider' | 'developer';
 
 @UntilDestroy()
 @Component({
@@ -15,43 +17,41 @@ import { ActivatedRoute, Router } from '@angular/router';
 export class LoginComponent {
   version: string | null = environment.version;
   isLoading = false;
-  username = '';
-  password = '';
+  selectedPortal: PortalType | null = null;
 
   constructor(
     private readonly _router: Router,
-    private readonly _route: ActivatedRoute,
     private readonly _authService: AuthenticationService,
   ) {}
 
   /**
-   * Performs dummy login with any username/password.
+   * Login with selected portal type
    */
-  login() {
+  login(portalType: PortalType): void {
     this.isLoading = true;
+    this.selectedPortal = portalType;
 
-    // Simple dummy login - accepts any username/password
+    // Simulate login with the portal type as username
     this._authService
       .login({
-        username: this.username || 'demo',
-        password: this.password || 'password',
+        username: portalType,
+        password: 'portal',
         remember: true,
       })
       .pipe(untilDestroyed(this))
       .subscribe({
         next: (credentials) => {
-          this.isLoading = false;
           if (credentials) {
-            console.log('Login successful', credentials);
-            // Navigate to the redirect URL or dashboard
-            const redirect = this._route.snapshot.queryParams['redirect'] || '/dashboard';
-            this._router.navigate([redirect], { replaceUrl: true }).then(() => {
-              console.log('Navigated to', redirect);
+            console.log(`Logged in as ${portalType}`, credentials);
+            // Navigate to dashboard
+            this._router.navigate(['/dashboard'], { replaceUrl: true }).then(() => {
+              console.log('Navigated to dashboard');
             });
           }
         },
         error: (error) => {
           this.isLoading = false;
+          this.selectedPortal = null;
           console.error('Login error:', error);
         },
       });
