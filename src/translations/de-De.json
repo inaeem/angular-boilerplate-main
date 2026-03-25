@@ -7,5 +7,28 @@
   "Username": "Nutzername",
   "Password": "Passwort",
   "Angular Boiler Plate V18": "Eckige Kesselplatte V18",
-  "Dashboard": "Armaturenbrett"
+  "Dashboard": "Armaturenbrett",
+
+  "login.welcome": "Willkommen bei {{portalName}}",
+  "login.subtitle": "Wählen Sie Ihr Anmeldeportal, um zu beginnen",
+
+  "login.admin.title": "Administrator-Portal",
+  "login.admin.description": "Greifen Sie auf das administrative Dashboard zu, um Anbieter, Benutzer und Systemkonfigurationen zu verwalten.",
+  "login.admin.button": "Als {{role}} anmelden",
+  "login.admin.footer": "Nur für Systemadministratoren",
+
+  "login.provider.title": "Anbieter-Portal",
+  "login.provider.description": "Verwalten Sie Ihre Anbieteranwendungen, sehen Sie Anmeldeinformationen ein, greifen Sie auf die Sandbox-Umgebung zu und überwachen Sie die API-Nutzung.",
+  "login.provider.button": "Als {{role}} anmelden",
+  "login.provider.footer": "Für registrierte Anbieter",
+
+  "login.developer.title": "Entwickler-Portal",
+  "login.developer.description": "Greifen Sie auf API-Dokumentation zu, testen Sie Endpunkte, sehen Sie Integrationsanleitungen ein und verwalten Sie API-Schlüssel.",
+  "login.developer.button": "Als {{role}} anmelden",
+  "login.developer.footer": "Für Entwickler und Integratoren",
+
+  "login.loading": "Anmeldung als {{role}}...",
+  "login.button.generic": "Als {{role}} anmelden",
+  "login.welcome.user": "Willkommen zurück, {{username}}!",
+  "login.last.login": "Letzte Anmeldung: {{date}} um {{time}}"
 }

@@ -105,3 +105,27 @@ export enum ProviderStatus {
   ACTIVE = 'active',
   SUSPENDED = 'suspended',
 }
+
+/**
+ * LOB Status Interface
+ * Tracks the status of each Line of Business (Plan) for a provider
+ */
+export interface LOBStatus {
+  planId: number;
+  isActive: boolean;
+  deactivatedAt?: Date;
+  deactivationReason?: string;
+}
+
+/**
+ * Deactivation Request Interface
+ * Used when deactivating a provider or specific LOBs
+ */
+export interface DeactivationRequest {
+  providerId: number;
+  deactivateEntireProvider: boolean;
+  selectedLOBs: number[]; // Plan IDs to deactivate
+  reason: string;
+  deactivatedBy?: string;
+  deactivatedAt: Date;
+}

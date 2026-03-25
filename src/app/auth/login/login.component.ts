@@ -7,6 +7,11 @@ import { environment } from '@env/environment';
 
 type PortalType = 'admin' | 'provider' | 'developer';
 
+interface PortalConfig {
+  type: PortalType;
+  role: string;
+}
+
 @UntilDestroy()
 @Component({
   selector: 'app-login',
@@ -18,11 +23,33 @@ export class LoginComponent {
   version: string | null = environment.version;
   isLoading = false;
   selectedPortal: PortalType | null = null;
+  portalName = 'Multi-Portal System';
+
+  // Portal configurations with role names
+  portals: Record<PortalType, PortalConfig> = {
+    admin: { type: 'admin', role: 'Admin' },
+    provider: { type: 'provider', role: 'Provider' },
+    developer: { type: 'developer', role: 'Developer' },
+  };
 
   constructor(
     private readonly _router: Router,
     private readonly _authService: AuthenticationService,
   ) {}
+
+  /**
+   * Get translation parameters for portal name
+   */
+  getWelcomeParams(): { portalName: string } {
+    return { portalName: this.portalName };
+  }
+
+  /**
+   * Get translation parameters for a specific portal button
+   */
+  getButtonParams(portalType: PortalType): { role: string } {
+    return { role: this.portals[portalType].role };
+  }
 
   /**
    * Login with selected portal type

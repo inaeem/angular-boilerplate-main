@@ -7,5 +7,28 @@
   "Username": "Nome utente",
   "Password": "Parola d'ordine",
   "Angular Boiler Plate V18": "Piastra caldaia angolare V18",
-  "Dashboard": "Armaturenbrett"
+  "Dashboard": "Cruscotto",
+
+  "login.welcome": "Benvenuto su {{portalName}}",
+  "login.subtitle": "Scegli il tuo portale di accesso per iniziare",
+
+  "login.admin.title": "Portale Amministratore",
+  "login.admin.description": "Accedi al dashboard amministrativo per gestire fornitori, utenti e configurazioni di sistema.",
+  "login.admin.button": "Accedi come {{role}}",
+  "login.admin.footer": "Solo per amministratori di sistema",
+
+  "login.provider.title": "Portale Fornitore",
+  "login.provider.description": "Gestisci le tue applicazioni fornitore, visualizza le credenziali, accedi all'ambiente sandbox e monitora l'utilizzo delle API.",
+  "login.provider.button": "Accedi come {{role}}",
+  "login.provider.footer": "Per fornitori registrati",
+
+  "login.developer.title": "Portale Sviluppatore",
+  "login.developer.description": "Accedi alla documentazione API, testa gli endpoint, visualizza le guide di integrazione e gestisci le chiavi API.",
+  "login.developer.button": "Accedi come {{role}}",
+  "login.developer.footer": "Per sviluppatori e integratori",
+
+  "login.loading": "Accesso come {{role}}...",
+  "login.button.generic": "Accedi come {{role}}",
+  "login.welcome.user": "Bentornato, {{username}}!",
+  "login.last.login": "Ultimo accesso: {{date}} alle {{time}}"
 }

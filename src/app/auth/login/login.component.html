@@ -7,7 +7,7 @@
 
     <!-- Header -->
     <div class="text-center mb-5">
-      <h1 class="mb-2" translate>login.welcome</h1>
+      <h1 class="mb-2" [translate]="'login.welcome'" [translateParams]="getWelcomeParams()"></h1>
       <p class="text-muted" translate>login.subtitle</p>
     </div>
 
@@ -29,10 +29,10 @@
                 (click)="login('admin')"
                 [disabled]="isLoading">
                 <i class="ti ti-login icon"></i>
-                <span *ngIf="!isLoading || selectedPortal !== 'admin'" translate>login.admin.button</span>
+                <span *ngIf="!isLoading || selectedPortal !== 'admin'" [translate]="'login.admin.button'" [translateParams]="getButtonParams('admin')"></span>
                 <span *ngIf="isLoading && selectedPortal === 'admin'">
                   <span class="spinner-border spinner-border-sm me-2"></span>
-                  <span translate>login.loading</span>
+                  <span [translate]="'login.loading'" [translateParams]="getButtonParams('admin')"></span>
                 </span>
               </button>
             </div>
@@ -62,10 +62,10 @@
                 (click)="login('provider')"
                 [disabled]="isLoading">
                 <i class="ti ti-login icon"></i>
-                <span *ngIf="!isLoading || selectedPortal !== 'provider'" translate>login.provider.button</span>
+                <span *ngIf="!isLoading || selectedPortal !== 'provider'" [translate]="'login.provider.button'" [translateParams]="getButtonParams('provider')"></span>
                 <span *ngIf="isLoading && selectedPortal === 'provider'">
                   <span class="spinner-border spinner-border-sm me-2"></span>
-                  <span translate>login.loading</span>
+                  <span [translate]="'login.loading'" [translateParams]="getButtonParams('provider')"></span>
                 </span>
               </button>
             </div>
@@ -95,10 +95,10 @@
                 (click)="login('developer')"
                 [disabled]="isLoading">
                 <i class="ti ti-login icon"></i>
-                <span *ngIf="!isLoading || selectedPortal !== 'developer'" translate>login.developer.button</span>
+                <span *ngIf="!isLoading || selectedPortal !== 'developer'" [translate]="'login.developer.button'" [translateParams]="getButtonParams('developer')"></span>
                 <span *ngIf="isLoading && selectedPortal === 'developer'">
                   <span class="spinner-border spinner-border-sm me-2"></span>
-                  <span translate>login.loading</span>
+                  <span [translate]="'login.loading'" [translateParams]="getButtonParams('developer')"></span>
                 </span>
               </button>
             </div>

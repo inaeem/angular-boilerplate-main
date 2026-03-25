@@ -7,5 +7,28 @@
   "Username": "Nom d'utilisateur",
   "Password": "Mot de passe",
   "Angular Boiler Plate V18": "Plaque de chaudière angulaire V18",
-  "Dashboard": "Tableau de bord"
+  "Dashboard": "Tableau de bord",
+
+  "login.welcome": "Bienvenue sur {{portalName}}",
+  "login.subtitle": "Choisissez votre portail de connexion pour commencer",
+
+  "login.admin.title": "Portail Administrateur",
+  "login.admin.description": "Accédez au tableau de bord administratif pour gérer les fournisseurs, les utilisateurs et les configurations système.",
+  "login.admin.button": "Se connecter en tant que {{role}}",
+  "login.admin.footer": "Réservé aux administrateurs système",
+
+  "login.provider.title": "Portail Fournisseur",
+  "login.provider.description": "Gérez vos applications fournisseur, consultez les identifiants, accédez à l'environnement sandbox et surveillez l'utilisation de l'API.",
+  "login.provider.button": "Se connecter en tant que {{role}}",
+  "login.provider.footer": "Pour les fournisseurs enregistrés",
+
+  "login.developer.title": "Portail Développeur",
+  "login.developer.description": "Accédez à la documentation API, testez les endpoints, consultez les guides d'intégration et gérez les clés API.",
+  "login.developer.button": "Se connecter en tant que {{role}}",
+  "login.developer.footer": "Pour les développeurs et intégrateurs",
+
+  "login.loading": "Connexion en tant que {{role}}...",
+  "login.button.generic": "Se connecter en tant que {{role}}",
+  "login.welcome.user": "Bon retour, {{username}}!",
+  "login.last.login": "Dernière connexion: {{date}} à {{time}}"
 }

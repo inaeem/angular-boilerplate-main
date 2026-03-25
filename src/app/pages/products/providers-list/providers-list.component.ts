@@ -267,24 +267,7 @@ export class ProvidersListComponent implements OnInit {
       return;
     }
 
-    // TODO: Implement confirmation dialog
-    const confirmed = confirm(`Are you sure you want to deactivate "${provider.applicationName}"?`);
-
-    if (confirmed) {
-      // Update provider status to suspended
-      this._providersService
-        .updateProvider(provider.id, { ...provider, status: 'suspended' })
-        .pipe(untilDestroyed(this))
-        .subscribe({
-          next: () => {
-            this._toastService.success('Provider Deactivated', `${provider.applicationName} has been deactivated`);
-            this.loadProviders(); // Reload the list
-          },
-          error: (error) => {
-            console.error('Error deactivating provider:', error);
-            this._toastService.error('Error', 'Failed to deactivate provider. Please try again.');
-          },
-        });
-    }
+    // Navigate to view page where the deactivation modal will be opened
+    this._router.navigate(['/products/view', provider.id]);
   }
 }
