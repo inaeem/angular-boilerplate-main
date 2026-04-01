@@ -276,6 +276,13 @@
   </div>
 </div>
 
+<!-- Deactivate Provider Component -->
+<app-deactivate-provider
+  [provider]="providerToDeactivate"
+  [trigger]="deactivateTrigger"
+  (deactivated)="onProviderDeactivated()">
+</app-deactivate-provider>
+
 <!-- Delete Confirmation Modal -->
 @if (showDeleteModal && providerToDelete) {
   <div class="modal modal-blur fade show" style="display: block" tabindex="-1" role="dialog">

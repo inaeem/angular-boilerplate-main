@@ -7,6 +7,7 @@ import { Provider } from '../entities/provider.entity';
 import { Plan } from '../entities';
 import { ToastService } from '@shared/services/toast.service';
 
+
 @UntilDestroy()
 @Component({
   selector: 'app-list',
@@ -35,6 +36,10 @@ export class ListComponent implements OnInit {
 
   // Plans data
   plans: Plan[] = [];
+
+  // Deactivation
+  providerToDeactivate: Provider | null = null;
+  deactivateTrigger = 0;
 
   constructor(
     private readonly _providersService: ProvidersService,
@@ -274,29 +279,11 @@ export class ListComponent implements OnInit {
    * Deactivate a provider
    */
   deactivateProvider(provider: Provider): void {
-    if (provider.status === 'suspended' || provider.status === 'rejected') {
-      this._toastService.warning('Deactivate Provider', 'This provider is already inactive');
-      return;
-    }
+    this.providerToDeactivate = provider;
+    this.deactivateTrigger++;
+  }
 
-    // TODO: Implement confirmation dialog
-    const confirmed = confirm(`Are you sure you want to deactivate "${provider.applicationName}"?`);
-
-    if (confirmed) {
-      // Update provider status to suspended
-      this._providersService
-        .updateProvider(provider.id, { ...provider, status: 'suspended' })
-        .pipe(untilDestroyed(this))
-        .subscribe({
-          next: () => {
-            this._toastService.success('Provider Deactivated', `${provider.applicationName} has been deactivated`);
-            this.loadProviders(); // Reload the list
-          },
-          error: (error) => {
-            console.error('Error deactivating provider:', error);
-            this._toastService.error('Error', 'Failed to deactivate provider. Please try again.');
-          },
-        });
-    }
+  onProviderDeactivated(): void {
+    this.loadProviders();
   }
 }

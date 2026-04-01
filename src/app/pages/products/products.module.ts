@@ -10,9 +10,10 @@ import { ViewComponent } from './view/view.component';
 import { PrintComponent } from './print/print.component';
 import { ProvidersListComponent } from './providers-list/providers-list.component';
 import { CredentialsComponent } from './credentials/credentials.component';
+import { DeactivateProviderComponent } from '@shared/components';
 
 @NgModule({
-  declarations: [ListComponent, AddComponent, ViewComponent, PrintComponent, ProvidersListComponent, CredentialsComponent],
+  declarations: [ListComponent, AddComponent, ViewComponent, PrintComponent, ProvidersListComponent, CredentialsComponent, DeactivateProviderComponent],
   imports: [CommonModule, FormsModule, TranslateModule, ProductsRoutingModule],
 })
 export class ProductsModule {}
