@@ -1,0 +1,156 @@
+// Enhanced Sidebar Styling
+.sidebar-card {
+  border: 1px solid var(--tblr-border-color);
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+
+  .card-body {
+    padding: 1.5rem;
+  }
+}
+
+.sidebar-section-title {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--tblr-muted);
+  margin-bottom: 0.75rem;
+  padding: 0 0.5rem;
+}
+
+.sidebar-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 0.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+
+  i {
+    font-size: 1rem;
+  }
+}
+
+.list-group-flush {
+  .list-group-item {
+    padding: 0.75rem 0.5rem;
+    border: none;
+    border-radius: 0.375rem;
+    margin-bottom: 0.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: var(--tblr-bg-surface);
+    }
+
+    &.active,
+    &:active {
+      background: rgba(32, 107, 196, 0.08);
+      color: var(--tblr-azure);
+      font-weight: 500;
+    }
+  }
+}
+
+.sidebar-checkbox-item {
+  cursor: pointer;
+
+  &.active {
+    background: rgba(32, 107, 196, 0.05);
+  }
+
+  .form-check-input {
+    cursor: pointer;
+  }
+}
+
+.input-icon {
+  position: relative;
+
+  .input-icon-addon {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    color: var(--tblr-muted);
+    pointer-events: none;
+  }
+
+  .form-control {
+    padding-left: 2.5rem;
+  }
+}
+
+// Provider Cards
+.icon-inline {
+  width: 1em;
+  height: 1em;
+  vertical-align: text-top;
+}
+
+.avatar {
+  background-size: cover;
+  background-position: center;
+}
+
+// Badge enhancements
+.badge {
+  font-size: 0.6875rem;
+  padding: 0.25em 0.5em;
+  font-weight: 600;
+}
+
+// Button styling
+.btn {
+  i {
+    margin-right: 0.375rem;
+  }
+}
+
+// Form validation
+.is-invalid {
+  border-color: var(--tblr-danger) !important;
+}
+
+.invalid-feedback {
+  display: block;
+}
+
+.form-hint {
+  font-size: 0.75rem;
+  color: var(--tblr-muted);
+  margin-top: 0.25rem;
+}
+
+.required::after {
+  content: ' *';
+  color: var(--tblr-danger);
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .sidebar-card {
+    margin-bottom: 1.5rem;
+
+    .card-body {
+      padding: 1rem;
+    }
+  }
+
+  .sidebar-icon {
+    width: 28px;
+    height: 28px;
+    margin-right: 0.5rem;
+
+    i {
+      font-size: 0.875rem;
+    }
+  }
+}

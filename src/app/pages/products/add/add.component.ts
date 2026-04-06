@@ -17,6 +17,14 @@ interface UploadedFile {
 
 interface ProviderFormData {
   // Step 1: Application Information
+  providerType: 'individual' | 'group' | '';
+  providerGroupName: string;
+  groupRegistrationNumber: string;
+  groupType: string;
+  numberOfProviders: number | null;
+  numberOfLocations: number | null;
+  complianceOfficerName: string;
+  complianceOfficerEmail: string;
   applicationName: string;
   applicationDescription: string;
   businessUrl: string;
@@ -69,8 +77,40 @@ export class AddComponent implements OnInit {
   // Temporary inputs for arrays
   tempRedirectUrl = '';
 
+  providerTypes = [
+    {
+      value: 'individual',
+      label: 'Individual Provider',
+      icon: 'ti-user',
+      description: 'Register as a single provider operating independently. Best suited for solo practitioners, freelancers, or small businesses with a single point of contact.',
+    },
+    {
+      value: 'group',
+      label: 'Provider Group',
+      icon: 'ti-users-group',
+      description: 'Register as a group or organization representing multiple providers under one entity. Ideal for clinics, agencies, or enterprises managing multiple service lines.',
+    },
+  ];
+
+  groupTypes = [
+    { value: 'clinic', label: 'Clinic / Medical Practice' },
+    { value: 'agency', label: 'Agency / Brokerage' },
+    { value: 'enterprise', label: 'Enterprise / Corporation' },
+    { value: 'cooperative', label: 'Cooperative / Consortium' },
+    { value: 'franchise', label: 'Franchise Network' },
+    { value: 'other', label: 'Other' },
+  ];
+
   formData: ProviderFormData = {
     // Step 1
+    providerType: '',
+    providerGroupName: '',
+    groupRegistrationNumber: '',
+    groupType: '',
+    numberOfProviders: null,
+    numberOfLocations: null,
+    complianceOfficerName: '',
+    complianceOfficerEmail: '',
     applicationName: '',
     applicationDescription: '',
     businessUrl: '',
@@ -159,6 +199,14 @@ export class AddComponent implements OnInit {
             // Map product data to form data
             this.formData = {
               // Step 1: Application Information
+              providerType: 'individual',
+              providerGroupName: '',
+              groupRegistrationNumber: '',
+              groupType: '',
+              numberOfProviders: null,
+              numberOfLocations: null,
+              complianceOfficerName: '',
+              complianceOfficerEmail: '',
               applicationName: product.name || '',
               applicationDescription: product.description || '',
               businessUrl: product.category || '',
@@ -269,7 +317,20 @@ export class AddComponent implements OnInit {
     switch (step) {
       case 1:
         // Step 1: Application Information
+        const providerTypeValid = !!this.formData.providerType;
+        const isGroup = this.formData.providerType === 'group';
+        const groupFieldsValid = !isGroup || !!(
+          this.formData.providerGroupName && this.formData.providerGroupName.trim().length >= 3 &&
+          this.formData.groupRegistrationNumber && this.formData.groupRegistrationNumber.trim().length >= 3 &&
+          this.formData.groupType &&
+          this.formData.numberOfProviders !== null && this.formData.numberOfProviders >= 2 &&
+          this.formData.numberOfLocations !== null && this.formData.numberOfLocations >= 1 &&
+          this.formData.complianceOfficerName && this.formData.complianceOfficerName.trim().length >= 2 &&
+          this.formData.complianceOfficerEmail && this.isValidEmail(this.formData.complianceOfficerEmail)
+        );
         return !!(
+          providerTypeValid &&
+          groupFieldsValid &&
           this.formData.applicationName &&
           this.formData.applicationName.trim().length >= 3 &&
           this.formData.applicationDescription &&
@@ -282,7 +343,7 @@ export class AddComponent implements OnInit {
           this.formData.officialEmail &&
           this.isValidEmail(this.formData.officialEmail) &&
           this.formData.logo &&
-          this.formData.selectedPlans.length > 0 // Changed to check array length
+          this.formData.selectedPlans.length > 0
         );
       case 2:
         // Step 2: Personal Information
@@ -317,6 +378,32 @@ export class AddComponent implements OnInit {
 
     switch (step) {
       case 1:
+        if (!this.formData.providerType) {
+          errors.push('Provider type must be selected');
+        }
+        if (this.formData.providerType === 'group') {
+          if (!this.formData.providerGroupName || this.formData.providerGroupName.trim().length < 3) {
+            errors.push('Provider group name must be at least 3 characters');
+          }
+          if (!this.formData.groupRegistrationNumber || this.formData.groupRegistrationNumber.trim().length < 3) {
+            errors.push('Group registration number is required');
+          }
+          if (!this.formData.groupType) {
+            errors.push('Group type must be selected');
+          }
+          if (this.formData.numberOfProviders === null || this.formData.numberOfProviders < 2) {
+            errors.push('Number of providers must be at least 2');
+          }
+          if (this.formData.numberOfLocations === null || this.formData.numberOfLocations < 1) {
+            errors.push('Number of locations must be at least 1');
+          }
+          if (!this.formData.complianceOfficerName || this.formData.complianceOfficerName.trim().length < 2) {
+            errors.push('Compliance officer name is required');
+          }
+          if (!this.formData.complianceOfficerEmail || !this.isValidEmail(this.formData.complianceOfficerEmail)) {
+            errors.push('A valid compliance officer email is required');
+          }
+        }
         if (!this.formData.applicationName || this.formData.applicationName.trim().length < 3) {
           errors.push('Application name must be at least 3 characters');
         }
@@ -415,6 +502,28 @@ export class AddComponent implements OnInit {
     if (!currentStepAttempted) return false;
 
     switch (field) {
+      case 'providerType':
+        return !this.formData.providerType;
+      case 'providerGroupName':
+        return this.formData.providerType === 'group' &&
+          (!this.formData.providerGroupName || this.formData.providerGroupName.trim().length < 3);
+      case 'groupRegistrationNumber':
+        return this.formData.providerType === 'group' &&
+          (!this.formData.groupRegistrationNumber || this.formData.groupRegistrationNumber.trim().length < 3);
+      case 'groupType':
+        return this.formData.providerType === 'group' && !this.formData.groupType;
+      case 'numberOfProviders':
+        return this.formData.providerType === 'group' &&
+          (this.formData.numberOfProviders === null || this.formData.numberOfProviders < 2);
+      case 'numberOfLocations':
+        return this.formData.providerType === 'group' &&
+          (this.formData.numberOfLocations === null || this.formData.numberOfLocations < 1);
+      case 'complianceOfficerName':
+        return this.formData.providerType === 'group' &&
+          (!this.formData.complianceOfficerName || this.formData.complianceOfficerName.trim().length < 2);
+      case 'complianceOfficerEmail':
+        return this.formData.providerType === 'group' &&
+          (!this.formData.complianceOfficerEmail || !this.isValidEmail(this.formData.complianceOfficerEmail));
       case 'applicationName':
         return !this.formData.applicationName || this.formData.applicationName.trim().length < 3;
       case 'applicationDescription':
