@@ -193,6 +193,195 @@
               </h3>
 
               <form [formGroup]="providerForm">
+                <!-- Provider Type Selection -->
+                <div class="mb-4">
+                  <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">
+                    <i class="ti ti-category me-2"></i>
+                    <span translate>Provider Type</span>
+                  </h6>
+                  <p class="text-muted small mb-3" translate>
+                    Choose how you would like to register. This determines how your provider profile will be set up and managed.
+                  </p>
+                  <div class="row g-3 mb-3">
+                    @for (type of providerTypes; track type.value) {
+                      <div class="col-md-6">
+                        <label
+                          class="provider-type-card"
+                          [class.selected]="providerForm.get('providerType')?.value === type.value"
+                          [class.is-invalid]="hasFieldError('providerType')"
+                          [for]="'providerType-' + type.value"
+                        >
+                          <input
+                            type="radio"
+                            class="provider-type-radio"
+                            [id]="'providerType-' + type.value"
+                            [value]="type.value"
+                            formControlName="providerType"
+                          />
+                          <div class="provider-type-icon">
+                            <i class="ti {{ type.icon }}"></i>
+                          </div>
+                          <div class="provider-type-content">
+                            <div class="provider-type-label">{{ type.label | translate }}</div>
+                            <div class="provider-type-description">{{ type.description | translate }}</div>
+                          </div>
+                          <div class="provider-type-check">
+                            <i class="ti ti-circle-check"></i>
+                          </div>
+                        </label>
+                      </div>
+                    }
+                  </div>
+                  @if (hasFieldError('providerType')) {
+                    <div class="text-danger small" translate>Please select a provider type to continue</div>
+                  }
+
+                  <!-- Provider Group Fields (conditional) -->
+                  @if (providerForm.get('providerType')?.value === 'group') {
+                    <div class="group-fields-panel mt-3">
+                      <div class="group-fields-header mb-3">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                          <i class="ti ti-building-community text-purple"></i>
+                          <h6 class="mb-0 fw-bold" translate>Group Organization Details</h6>
+                        </div>
+                        <p class="text-muted small mb-0" translate>
+                          As a provider group, we need additional details about your organization structure, registration, and compliance contacts to properly set up your multi-provider account.
+                        </p>
+                      </div>
+
+                      <div class="row g-3">
+                        <!-- Group Name -->
+                        <div class="col-md-6">
+                          <label class="form-label required" translate>Group / Organization Name</label>
+                          <input
+                            type="text"
+                            class="form-control"
+                            formControlName="providerGroupName"
+                            [placeholder]="'e.g., Apex Healthcare Partners' | translate"
+                            [class.is-invalid]="hasFieldError('providerGroupName')"
+                          />
+                          @if (hasFieldError('providerGroupName')) {
+                            <div class="invalid-feedback" translate>Provider group name must be at least 3 characters</div>
+                          }
+                          <small class="form-hint" translate>The umbrella name all providers within your group will be listed under</small>
+                        </div>
+
+                        <!-- Group Registration Number -->
+                        <div class="col-md-6">
+                          <label class="form-label required" translate>Group Registration / Tax ID Number</label>
+                          <input
+                            type="text"
+                            class="form-control"
+                            formControlName="groupRegistrationNumber"
+                            [placeholder]="'e.g., EIN 12-3456789 or REG-2024-0001' | translate"
+                            [class.is-invalid]="hasFieldError('groupRegistrationNumber')"
+                          />
+                          @if (hasFieldError('groupRegistrationNumber')) {
+                            <div class="invalid-feedback" translate>Group registration number is required (minimum 3 characters)</div>
+                          }
+                          <small class="form-hint" translate>Your organization's official registration or tax identification number</small>
+                        </div>
+
+                        <!-- Group Type -->
+                        <div class="col-md-6">
+                          <label class="form-label required" translate>Group Type</label>
+                          <select
+                            class="form-select"
+                            formControlName="groupType"
+                            [class.is-invalid]="hasFieldError('groupType')"
+                          >
+                            <option value="" disabled translate>Select your organization type...</option>
+                            @for (gt of groupTypes; track gt.value) {
+                              <option [value]="gt.value">{{ gt.label | translate }}</option>
+                            }
+                          </select>
+                          @if (hasFieldError('groupType')) {
+                            <div class="invalid-feedback" translate>Please select a group type</div>
+                          }
+                          <small class="form-hint" translate>Helps us tailor API permissions and compliance requirements for your sector</small>
+                        </div>
+
+                        <!-- Number of Providers -->
+                        <div class="col-md-3">
+                          <label class="form-label required" translate>Number of Providers</label>
+                          <input
+                            type="number"
+                            class="form-control"
+                            formControlName="numberOfProviders"
+                            [placeholder]="'Min. 2'"
+                            min="2"
+                            [class.is-invalid]="hasFieldError('numberOfProviders')"
+                          />
+                          @if (hasFieldError('numberOfProviders')) {
+                            <div class="invalid-feedback" translate>Must have at least 2 providers in a group</div>
+                          }
+                          <small class="form-hint" translate>Total providers under this group</small>
+                        </div>
+
+                        <!-- Number of Locations -->
+                        <div class="col-md-3">
+                          <label class="form-label required" translate>Number of Locations</label>
+                          <input
+                            type="number"
+                            class="form-control"
+                            formControlName="numberOfLocations"
+                            [placeholder]="'Min. 1'"
+                            min="1"
+                            [class.is-invalid]="hasFieldError('numberOfLocations')"
+                          />
+                          @if (hasFieldError('numberOfLocations')) {
+                            <div class="invalid-feedback" translate>Must have at least 1 location</div>
+                          }
+                          <small class="form-hint" translate>Offices, branches, or sites</small>
+                        </div>
+
+                        <!-- Compliance Officer Section -->
+                        <div class="col-12">
+                          <div class="compliance-officer-section">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                              <i class="ti ti-shield-check text-green"></i>
+                              <span class="fw-semibold small" translate>Compliance Officer</span>
+                            </div>
+                            <p class="text-muted small mb-3" translate>
+                              Provider groups are required to designate a compliance officer responsible for ensuring all members adhere to platform policies, data governance, and regulatory requirements.
+                            </p>
+                            <div class="row g-3">
+                              <div class="col-md-6">
+                                <label class="form-label required" translate>Full Name</label>
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  formControlName="complianceOfficerName"
+                                  [placeholder]="'Compliance officer full name' | translate"
+                                  [class.is-invalid]="hasFieldError('complianceOfficerName')"
+                                />
+                                @if (hasFieldError('complianceOfficerName')) {
+                                  <div class="invalid-feedback" translate>Compliance officer name is required</div>
+                                }
+                              </div>
+                              <div class="col-md-6">
+                                <label class="form-label required" translate>Email Address</label>
+                                <input
+                                  type="email"
+                                  class="form-control"
+                                  formControlName="complianceOfficerEmail"
+                                  [placeholder]="'compliance@organization.com' | translate"
+                                  [class.is-invalid]="hasFieldError('complianceOfficerEmail')"
+                                />
+                                @if (hasFieldError('complianceOfficerEmail')) {
+                                  <div class="invalid-feedback" translate>A valid email address is required</div>
+                                }
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+
+                <div class="divider"></div>
+
                 <!-- Application Details Group -->
                 <div class="mb-4">
                   <h6 class="text-muted text-uppercase mb-3" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">
@@ -242,10 +431,10 @@
                             class="form-control"
                             accept="image/*"
                             (change)="onLogoFileSelected($event)"
-                            [class.is-invalid]="!logoFile && providerForm.get('selectedPlans')!.touched"
+                            [class.is-invalid]="!logoFile && stepSubmitted"
                             #logoInput
                           />
-                          @if (!logoFile && providerForm.get('selectedPlans')!.touched) {
+                          @if (!logoFile && stepSubmitted) {
                             <div class="invalid-feedback d-block" translate>Logo file is required</div>
                           }
                           <small class="form-hint" translate>PNG, JPG, GIF. Max: 5MB</small>
@@ -308,7 +497,7 @@
                             <span translate>No plans available</span>
                           </div>
                         } @else {
-                          <div class="plans-vertical" [class.is-invalid]="selectedPlans.invalid && selectedPlans.touched">
+                          <div class="plans-vertical" [class.is-invalid]="selectedPlans.invalid && stepSubmitted">
                             @for (plan of plans; track plan.id) {
                               <label
                                 class="plan-option-vertical"
@@ -331,7 +520,7 @@
                           </div>
                         }
 
-                        @if (selectedPlans.invalid && selectedPlans.touched) {
+                        @if (selectedPlans.invalid && stepSubmitted) {
                           <div class="text-danger small mt-2" translate>At least one plan must be selected</div>
                         }
                         <small class="form-hint" translate>Select one or more plans for your application</small>
@@ -351,7 +540,7 @@
                           <div class="plan-dropdown-wrapper">
                             <div
                               class="plan-dropdown-trigger"
-                              [class.is-invalid]="selectedPlans.invalid && selectedPlans.touched"
+                              [class.is-invalid]="selectedPlans.invalid && stepSubmitted"
                               [class.active]="isPlansDropdownOpen"
                               (click)="togglePlansDropdown()"
                             >
@@ -397,7 +586,7 @@
                             }
                           </div>
 
-                          @if (selectedPlans.invalid && selectedPlans.touched) {
+                          @if (selectedPlans.invalid && stepSubmitted) {
                             <div class="text-danger small mt-2" translate>At least one plan must be selected</div>
                           }
                           <small class="form-hint" translate>Click to select one or more plans</small>

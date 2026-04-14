@@ -30,6 +30,7 @@ export class AddReactiveComponent implements OnInit {
   providerId: number | null = null;
   isLoading = false;
   isLoadingPlans = false;
+  stepSubmitted = false;
 
   // Plan selection UI mode
   planSelectionMode: 'grid' | 'dropdown' = 'grid';
@@ -45,6 +46,30 @@ export class AddReactiveComponent implements OnInit {
   grantTypes = [
     { value: 'implicit', label: 'Implicit Grant' },
     { value: 'authorization', label: 'Authorization Code Grant' },
+  ];
+
+  providerTypes = [
+    {
+      value: 'individual',
+      label: 'Individual Provider',
+      icon: 'ti-user',
+      description: 'Register as a single provider operating independently. Best suited for solo practitioners, freelancers, or small businesses with a single point of contact.',
+    },
+    {
+      value: 'group',
+      label: 'Provider Group',
+      icon: 'ti-users-group',
+      description: 'Register as a group or organization representing multiple providers under one entity. Ideal for clinics, agencies, or enterprises managing multiple service lines.',
+    },
+  ];
+
+  groupTypes = [
+    { value: 'clinic', label: 'Clinic / Medical Practice' },
+    { value: 'agency', label: 'Agency / Brokerage' },
+    { value: 'enterprise', label: 'Enterprise / Corporation' },
+    { value: 'cooperative', label: 'Cooperative / Consortium' },
+    { value: 'franchise', label: 'Franchise Network' },
+    { value: 'other', label: 'Other' },
   ];
 
   // Reactive form
@@ -76,6 +101,16 @@ export class AddReactiveComponent implements OnInit {
 
   private initForm(): void {
     this.providerForm = this._fb.group({
+      // Step 1: Provider Type Selection
+      providerType: ['', [Validators.required]],
+      providerGroupName: [''],
+      groupRegistrationNumber: [''],
+      groupType: [''],
+      numberOfProviders: [null as number | null],
+      numberOfLocations: [null as number | null],
+      complianceOfficerName: [''],
+      complianceOfficerEmail: [''],
+
       // Step 1: Application Information
       applicationName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
       applicationDescription: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(500)]],
@@ -105,6 +140,36 @@ export class AddReactiveComponent implements OnInit {
     this.providerForm.get('dateOfBirth')!.valueChanges
       .pipe(untilDestroyed(this))
       .subscribe(dob => this.calculateAge(dob));
+
+    // Swap group-field validators when provider type changes
+    this.providerForm.get('providerType')!.valueChanges
+      .pipe(untilDestroyed(this))
+      .subscribe(type => this.updateGroupValidators(type === 'group'));
+  }
+
+  private updateGroupValidators(isGroup: boolean): void {
+    const validatorMap: Record<string, any[]> = {
+      providerGroupName: [Validators.required, Validators.minLength(3)],
+      groupRegistrationNumber: [Validators.required, Validators.minLength(3)],
+      groupType: [Validators.required],
+      numberOfProviders: [Validators.required, Validators.min(2)],
+      numberOfLocations: [Validators.required, Validators.min(1)],
+      complianceOfficerName: [Validators.required, Validators.minLength(2)],
+      complianceOfficerEmail: [Validators.required, Validators.email],
+    };
+
+    Object.keys(validatorMap).forEach(field => {
+      const control = this.providerForm.get(field);
+      if (!control) return;
+      if (isGroup) {
+        control.setValidators(validatorMap[field]);
+      } else {
+        control.clearValidators();
+        const resetValue = field === 'numberOfProviders' || field === 'numberOfLocations' ? null : '';
+        control.setValue(resetValue, { emitEvent: false });
+      }
+      control.updateValueAndValidity({ emitEvent: false });
+    });
   }
 
   // ─── Form Accessors ────────────────────────────────────────────
@@ -160,7 +225,9 @@ export class AddReactiveComponent implements OnInit {
   private getStepFields(step: number): string[] {
     switch (step) {
       case 1:
-        return ['applicationName', 'applicationDescription', 'businessUrl', 'registeredBusinessAddress',
+        return ['providerType', 'providerGroupName', 'groupRegistrationNumber', 'groupType',
+                'numberOfProviders', 'numberOfLocations', 'complianceOfficerName', 'complianceOfficerEmail',
+                'applicationName', 'applicationDescription', 'businessUrl', 'registeredBusinessAddress',
                 'contactPersonName', 'designation', 'officialEmail', 'selectedPlans'];
       case 2:
         return ['licenseNumber', 'dateOfBirth', 'age'];
@@ -292,7 +359,7 @@ export class AddReactiveComponent implements OnInit {
   // ─── Step Navigation ───────────────────────────────────────────
 
   nextStep(): void {
-    this.markStepAsTouched(this.currentStep);
+    this.stepSubmitted = true;
 
     if (!this.isStepValid(this.currentStep)) {
       const errors = this.getStepErrors(this.currentStep);
@@ -304,6 +371,7 @@ export class AddReactiveComponent implements OnInit {
     }
 
     if (this.currentStep < this.totalSteps) {
+      this.stepSubmitted = false;
       this.currentStep++;
       window.scrollTo(0, 0);
     }
@@ -311,6 +379,7 @@ export class AddReactiveComponent implements OnInit {
 
   previousStep(): void {
     if (this.currentStep > 1) {
+      this.stepSubmitted = false;
       this.currentStep--;
       window.scrollTo(0, 0);
     }
@@ -318,6 +387,7 @@ export class AddReactiveComponent implements OnInit {
 
   goToStep(step: number): void {
     if (step >= 1 && step <= this.totalSteps) {
+      this.stepSubmitted = false;
       this.currentStep = step;
       window.scrollTo(0, 0);
     }
@@ -579,12 +649,7 @@ export class AddReactiveComponent implements OnInit {
   // ─── Submit ────────────────────────────────────────────────────
 
   submitProvider(): void {
-    // Mark all fields as touched
-    this.providerForm.markAllAsTouched();
-    this.markStepAsTouched(1);
-    this.markStepAsTouched(2);
-    this.markStepAsTouched(3);
-    this.markStepAsTouched(4);
+    this.stepSubmitted = true;
 
     if (!this.isStepValid(4)) {
       const errors = this.getStepErrors(4);
@@ -722,12 +787,12 @@ export class AddReactiveComponent implements OnInit {
 
   hasFieldError(controlName: string): boolean {
     const control = this.providerForm.get(controlName);
-    return !!(control && control.invalid && control.touched);
+    return !!(this.stepSubmitted && control && control.invalid);
   }
 
   getFieldError(controlName: string): string {
     const control = this.providerForm.get(controlName);
-    if (!control || !control.errors || !control.touched) return '';
+    if (!this.stepSubmitted || !control || !control.errors) return '';
 
     if (control.errors['required']) return this._translateService.instant('This field is required');
     if (control.errors['minlength']) {

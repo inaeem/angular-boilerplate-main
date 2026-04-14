@@ -1,5 +1,12 @@
 // Tabler.io Default Styles with Azure Primary Color
 
+// Horizontal divider
+.divider {
+  height: 1px;
+  background: var(--tblr-border-color);
+  margin: 1rem 0;
+}
+
 // Override primary color to azure
 :host {
   --tblr-primary: #206bc4;
