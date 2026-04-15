@@ -86,7 +86,7 @@
               <!-- Quick Stats -->
               <div class="sidebar-stats">
                 <div class="sidebar-stat-item">
-                  <div class="sidebar-stat-icon bg-azure-lt">
+                  <div class="sidebar-stat-icon">
                     <i class="ti ti-calendar"></i>
                   </div>
                   <div class="sidebar-stat-content">
@@ -95,7 +95,7 @@
                   </div>
                 </div>
                 <div class="sidebar-stat-item">
-                  <div class="sidebar-stat-icon bg-green-lt">
+                  <div class="sidebar-stat-icon">
                     <i class="ti ti-file"></i>
                   </div>
                   <div class="sidebar-stat-content">
@@ -105,7 +105,7 @@
                 </div>
                 @if (provider.additionalFiles && provider.additionalFiles.length > 0) {
                   <div class="sidebar-stat-item">
-                    <div class="sidebar-stat-icon bg-orange-lt">
+                    <div class="sidebar-stat-icon">
                       <i class="ti ti-files"></i>
                     </div>
                     <div class="sidebar-stat-content">
@@ -120,65 +120,80 @@
               <div class="sidebar-nav">
                 <div class="sidebar-nav-title" translate>Navigation</div>
                 <a href="#overview" class="sidebar-nav-item" (click)="scrollToSection('overview', $event)">
-                  <div class="sidebar-nav-icon bg-azure-lt text-azure">
+                  <div class="sidebar-nav-icon">
                     <i class="ti ti-info-circle"></i>
                   </div>
-                  <span translate>Overview</span>
-                  <i class="ti ti-chevron-right ms-auto"></i>
+                  <div class="sidebar-nav-content">
+                    <div class="sidebar-nav-label" translate>Overview</div>
+                    <div class="sidebar-nav-desc" translate>Basic provider details</div>
+                  </div>
                 </a>
                 <a href="#contact" class="sidebar-nav-item" (click)="scrollToSection('contact', $event)">
-                  <div class="sidebar-nav-icon bg-purple-lt text-purple">
+                  <div class="sidebar-nav-icon">
                     <i class="ti ti-user"></i>
                   </div>
-                  <span translate>Contact</span>
-                  <i class="ti ti-chevron-right ms-auto"></i>
+                  <div class="sidebar-nav-content">
+                    <div class="sidebar-nav-label" translate>Contact</div>
+                    <div class="sidebar-nav-desc" translate>Contact person details</div>
+                  </div>
                 </a>
                 <a href="#business" class="sidebar-nav-item" (click)="scrollToSection('business', $event)">
-                  <div class="sidebar-nav-icon bg-teal-lt text-teal">
+                  <div class="sidebar-nav-icon">
                     <i class="ti ti-building"></i>
                   </div>
-                  <span translate>Business</span>
-                  <i class="ti ti-chevron-right ms-auto"></i>
+                  <div class="sidebar-nav-content">
+                    <div class="sidebar-nav-label" translate>Business</div>
+                    <div class="sidebar-nav-desc" translate>Business information</div>
+                  </div>
                 </a>
                 <a href="#identity" class="sidebar-nav-item" (click)="scrollToSection('identity', $event)">
-                  <div class="sidebar-nav-icon bg-pink-lt text-pink">
+                  <div class="sidebar-nav-icon">
                     <i class="ti ti-id"></i>
                   </div>
-                  <span translate>Identity</span>
-                  <i class="ti ti-chevron-right ms-auto"></i>
+                  <div class="sidebar-nav-content">
+                    <div class="sidebar-nav-label" translate>Identity</div>
+                    <div class="sidebar-nav-desc" translate>Personal identity info</div>
+                  </div>
                 </a>
                 <a href="#oauth" class="sidebar-nav-item" (click)="scrollToSection('oauth', $event)">
-                  <div class="sidebar-nav-icon bg-yellow-lt text-yellow">
+                  <div class="sidebar-nav-icon">
                     <i class="ti ti-key"></i>
                   </div>
-                  <span translate>OAuth</span>
-                  <i class="ti ti-chevron-right ms-auto"></i>
+                  <div class="sidebar-nav-content">
+                    <div class="sidebar-nav-label" translate>OAuth</div>
+                    <div class="sidebar-nav-desc" translate>OAuth configuration</div>
+                  </div>
                 </a>
                 @if (provider.additionalFiles && provider.additionalFiles.length > 0) {
                   <a href="#files" class="sidebar-nav-item" (click)="scrollToSection('files', $event)">
-                    <div class="sidebar-nav-icon bg-orange-lt text-orange">
+                    <div class="sidebar-nav-icon">
                       <i class="ti ti-files"></i>
                     </div>
-                    <span translate>Files</span>
-                    <span class="badge bg-orange-lt text-orange ms-auto me-2">{{ provider.additionalFiles.length }}</span>
-                    <i class="ti ti-chevron-right"></i>
+                    <div class="sidebar-nav-content">
+                      <div class="sidebar-nav-label" translate>Files</div>
+                      <div class="sidebar-nav-desc">{{ provider.additionalFiles.length }} <span translate>uploaded</span></div>
+                    </div>
                   </a>
                 }
                 @if (provider.comments) {
                   <a href="#comments" class="sidebar-nav-item" (click)="scrollToSection('comments', $event)">
-                    <div class="sidebar-nav-icon bg-cyan-lt text-cyan">
+                    <div class="sidebar-nav-icon">
                       <i class="ti ti-message-circle"></i>
                     </div>
-                    <span translate>Comments</span>
-                    <i class="ti ti-chevron-right ms-auto"></i>
+                    <div class="sidebar-nav-content">
+                      <div class="sidebar-nav-label" translate>Comments</div>
+                      <div class="sidebar-nav-desc" translate>Additional notes</div>
+                    </div>
                   </a>
                 }
                 <a href="#system" class="sidebar-nav-item" (click)="scrollToSection('system', $event)">
-                  <div class="sidebar-nav-icon bg-secondary-lt text-secondary">
+                  <div class="sidebar-nav-icon">
                     <i class="ti ti-clock"></i>
                   </div>
-                  <span translate>System Info</span>
-                  <i class="ti ti-chevron-right ms-auto"></i>
+                  <div class="sidebar-nav-content">
+                    <div class="sidebar-nav-label" translate>System Info</div>
+                    <div class="sidebar-nav-desc" translate>Timestamps and metadata</div>
+                  </div>
                 </a>
               </div>
 
