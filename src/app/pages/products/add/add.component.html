@@ -1222,10 +1222,11 @@
                           type="file"
                           class="form-control"
                           multiple
+                          accept=".pdf,application/pdf"
                           (change)="onAdditionalFilesSelected($event)"
                           #additionalFilesInput
                         />
-                        <small class="form-hint" translate>Upload certificates, legal documents, or other supporting files (Max: 10MB per file)</small>
+                        <small class="form-hint" translate>Upload certificates, legal documents, or other supporting files. PDF only (Max: 10MB per file)</small>
                       </div>
 
                       <!-- Uploaded Files Preview -->

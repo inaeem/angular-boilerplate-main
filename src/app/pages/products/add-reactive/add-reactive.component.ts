@@ -530,22 +530,34 @@ export class AddReactiveComponent implements OnInit {
 
   // ─── Additional Files Upload ───────────────────────────────────
 
-  onAdditionalFilesSelected(event: Event): void {
+  async onAdditionalFilesSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const files = Array.from(input.files);
 
-      files.forEach((file) => {
+      for (const file of files) {
+        const isPdf = file.type === 'application/pdf' && file.name.toLowerCase().endsWith('.pdf');
+        if (!isPdf) {
+          this._toastService.warning('Invalid File Type', `${file.name} is not a PDF. Only PDF files are allowed.`);
+          continue;
+        }
+
+        // Verify actual PDF signature (magic bytes "%PDF-") to guard against renamed files
+        if (!(await this.hasPdfSignature(file))) {
+          this._toastService.warning('Invalid File', `${file.name} is not a valid PDF (signature check failed)`);
+          continue;
+        }
+
         const maxSize = 10 * 1024 * 1024;
         if (file.size > maxSize) {
           this._toastService.warning('File Too Large', `${file.name} exceeds 10MB limit`);
-          return;
+          continue;
         }
 
         const isDuplicate = this.additionalFiles.some((f) => f.name === file.name && f.size === file.size);
         if (isDuplicate) {
           this._toastService.warning('Duplicate File', `${file.name} has already been added`);
-          return;
+          continue;
         }
 
         const reader = new FileReader();
@@ -559,9 +571,27 @@ export class AddReactiveComponent implements OnInit {
           });
         };
         reader.readAsDataURL(file);
-      });
+      }
 
       input.value = '';
+    }
+  }
+
+  private async hasPdfSignature(file: File): Promise<boolean> {
+    try {
+      const buffer = await file.slice(0, 5).arrayBuffer();
+      const bytes = new Uint8Array(buffer);
+      // "%PDF-" = 0x25 0x50 0x44 0x46 0x2D
+      return (
+        bytes.length === 5 &&
+        bytes[0] === 0x25 &&
+        bytes[1] === 0x50 &&
+        bytes[2] === 0x44 &&
+        bytes[3] === 0x46 &&
+        bytes[4] === 0x2d
+      );
+    } catch {
+      return false;
     }
   }
 

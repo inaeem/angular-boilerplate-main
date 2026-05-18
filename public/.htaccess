@@ -1,0 +1,67 @@
+# Angular SPA — Apache config
+# Place at the document root (next to index.html).
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Stop the loop: if the request is already index.html, serve it as-is.
+    RewriteRule ^index\.html$ - [L]
+
+    # Don't rewrite real files or directories (assets, fonts, icons, etc.).
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Everything else falls back to the Angular app.
+    RewriteRule ^ index.html [L]
+</IfModule>
+
+# Correct MIME types (helps when the server is misconfigured).
+<IfModule mod_mime.c>
+    AddType application/javascript            .js .mjs
+    AddType text/css                          .css
+    AddType image/svg+xml                     .svg
+    AddType application/font-woff2            .woff2
+    AddType application/manifest+json         .webmanifest
+</IfModule>
+
+# Gzip compression.
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml
+    AddOutputFilterByType DEFLATE application/javascript application/json
+    AddOutputFilterByType DEFLATE application/xml application/xhtml+xml
+    AddOutputFilterByType DEFLATE image/svg+xml application/font-woff2
+</IfModule>
+
+# Cache hashed build assets for a year; never cache index.html / service worker.
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css                "access plus 1 year"
+    ExpiresByType application/javascript  "access plus 1 year"
+    ExpiresByType image/png               "access plus 1 year"
+    ExpiresByType image/jpeg              "access plus 1 year"
+    ExpiresByType image/svg+xml           "access plus 1 year"
+    ExpiresByType application/font-woff2  "access plus 1 year"
+    ExpiresByType text/html               "access plus 0 seconds"
+</IfModule>
+
+<FilesMatch "^(index\.html|ngsw\.json|ngsw-worker\.js|safety-worker\.js|worker-basic\.min\.js)$">
+    <IfModule mod_headers.c>
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </IfModule>
+</FilesMatch>
+
+# Security headers.
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Block access to dotfiles (.git, .env, etc.).
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>

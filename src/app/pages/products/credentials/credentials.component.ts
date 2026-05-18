@@ -191,6 +191,9 @@ export class CredentialsComponent implements OnInit {
 
   // Provider selection methods
   toggleProvider(providerId: number): void {
+    if (this.hasExistingCredential(providerId)) {
+      return;
+    }
     const index = this.formData.providerIds.indexOf(providerId);
     if (index > -1) {
       this.formData.providerIds.splice(index, 1);
@@ -204,18 +207,28 @@ export class CredentialsComponent implements OnInit {
     return this.formData.providerIds.includes(providerId);
   }
 
+  hasExistingCredential(providerId: number): boolean {
+    return this.credentials.some(c => c.providerId === providerId);
+  }
+
+  private getSelectableProviders(): Provider[] {
+    return this.availableProviders.filter(p => !this.hasExistingCredential(p.id));
+  }
+
   toggleAllProviders(): void {
+    const selectable = this.getSelectableProviders();
     if (this.areAllProvidersSelected()) {
       this.formData.providerIds = [];
     } else {
-      this.formData.providerIds = this.availableProviders.map(p => p.id);
+      this.formData.providerIds = selectable.map(p => p.id);
     }
     this.showValidationError = false;
   }
 
   areAllProvidersSelected(): boolean {
-    return this.availableProviders.length > 0 &&
-           this.formData.providerIds.length === this.availableProviders.length;
+    const selectable = this.getSelectableProviders();
+    return selectable.length > 0 &&
+           this.formData.providerIds.length === selectable.length;
   }
 
   regenerateSecret(credential: Credential): void {
