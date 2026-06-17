@@ -36,6 +36,7 @@
     "@tabler/core": "^1.4.0",
     "@tabler/icons": "^3.38.0",
     "@tabler/icons-webfont": "^3.38.0",
+    "angular-oauth2-oidc": "^20",
     "bootstrap": "5.3.7",
     "ng-recaptcha-2": "16.0.1",
     "rxjs": "^7.8.2",

@@ -1,14 +1,17 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from '@angular/router';
+import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
+import { filter, map, take } from 'rxjs/operators';
 
 import { Logger } from '@app/@core/services';
 import { UntilDestroy } from '@ngneat/until-destroy';
-import { CredentialsService } from '@app/auth';
+import { OAuthAuthService } from '@app/auth/services/oauth-auth.service';
 
 const log = new Logger('AuthenticationGuard');
 
 /**
- * Guard that checks if a user is already authenticated and redirects them to the dashboard.
+ * Guard for the login route: if the user is already authenticated, send them
+ * to the home page (dashboard) instead of showing the login screen.
  */
 @UntilDestroy()
 @Injectable({
@@ -16,26 +19,30 @@ const log = new Logger('AuthenticationGuard');
 })
 export class AlreadyLoggedCheckGuard {
   constructor(
-    private readonly _credentialsService: CredentialsService,
+    private readonly _auth: OAuthAuthService,
     private readonly _router: Router,
   ) {}
 
-  async canActivate(): Promise<boolean> {
-    const isAuthenticated = this._credentialsService.isAuthenticated();
-
-    if (isAuthenticated) {
-      log.debug('User already authenticated, redirecting to dashboard');
-      this._router.navigateByUrl('/dashboard');
-      return false;
-    }
-
-    return true;
+  canActivate(): Observable<boolean> {
+    // Wait until the initial OIDC sequence has settled before deciding.
+    return this._auth.isDoneLoading$.pipe(
+      filter(Boolean),
+      take(1),
+      map(() => {
+        if (this._auth.hasValidToken()) {
+          log.debug('Already authenticated, redirecting to dashboard');
+          this._router.navigateByUrl('/dashboard');
+          return false;
+        }
+        return true;
+      }),
+    );
   }
 }
 
 /**
- * Guard that checks if a user is authenticated before allowing access to protected routes.
- * Redirects to login if not authenticated.
+ * Guard for protected routes: allow access only when authenticated, otherwise
+ * redirect to the login page (preserving the attempted URL).
  */
 @Injectable({
   providedIn: 'root',
@@ -43,17 +50,21 @@ export class AlreadyLoggedCheckGuard {
 export class AuthenticationGuard {
   constructor(
     private readonly _router: Router,
-    private readonly _credentialsService: CredentialsService,
+    private readonly _auth: OAuthAuthService,
   ) {}
 
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-    if (this._credentialsService.isAuthenticated()) {
-      return true;
-    }
-
-    // Not authenticated, redirect to login
-    log.debug('Not authenticated, redirecting to login with redirect url...');
-    this._router.navigate(['/login'], { queryParams: { redirect: state.url }, replaceUrl: true });
-    return false;
+  canActivate(): Observable<boolean> {
+    return this._auth.isDoneLoading$.pipe(
+      filter(Boolean),
+      take(1),
+      map(() => {
+        if (this._auth.hasValidToken()) {
+          return true;
+        }
+        log.debug('Not authenticated, redirecting to login');
+        this._router.navigate(['/login'], { replaceUrl: true });
+        return false;
+      }),
+    );
   }
 }

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthenticationService, CredentialsService } from '@auth';
+import { OAuthAuthService } from '@app/auth/services/oauth-auth.service';
 
 @Component({
   selector: 'app-logout',
@@ -10,29 +10,17 @@ import { AuthenticationService, CredentialsService } from '@auth';
 })
 export class LogoutComponent implements OnInit {
   constructor(
-    private readonly _authService: AuthenticationService,
+    private readonly _auth: OAuthAuthService,
     private readonly _router: Router,
-    private readonly _credentialsService: CredentialsService,
   ) {}
 
   ngOnInit() {
-    if (!this._credentialsService.isAuthenticated()) {
-      this._credentialsService.setCredentials();
-      this._router.navigate(['/login']).then(() => {
-        window.location.reload();
-      });
+    if (this._auth.hasValidToken()) {
+      // Clears local tokens and redirects to the IdP end-session endpoint
+      // (which then returns to postLogoutRedirectUri).
+      this._auth.logout();
     } else {
-      this._authService.logout().subscribe({
-        next: () => {
-          this._credentialsService.setCredentials();
-          this._router.navigate(['/login']).then(() => {
-            window.location.reload();
-          });
-        },
-        error: () => {
-          console.error('Error logging out');
-        },
-      });
+      this._router.navigate(['/login']);
     }
   }
 }

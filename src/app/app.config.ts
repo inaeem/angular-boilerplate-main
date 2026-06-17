@@ -1,10 +1,12 @@
-import { ApplicationConfig, enableProdMode, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, enableProdMode, importProvidersFrom, inject, provideAppInitializer, provideZoneChangeDetection } from '@angular/core';
 import { PreloadAllModules, provideRouter, RouteReuseStrategy, withEnabledBlockingInitialNavigation, withInMemoryScrolling, withPreloading, withRouterConfig } from '@angular/router';
 
 import { routes } from './app.routes';
 import { TranslateModule } from '@ngx-translate/core';
 import { environment } from '@env/environment';
 import { ShellModule } from './shell/shell.module';
+import { OAuthStorage, provideOAuthClient } from 'angular-oauth2-oidc';
+import { OAuthAuthService } from '@app/auth/services/oauth-auth.service';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { ApiPrefixInterceptor, ErrorHandlerInterceptor } from '@core/interceptors';
 import { RouteReusableStrategy } from '@core/helpers';
@@ -69,5 +71,19 @@ export const appConfig: ApplicationConfig = {
       provide: RouteReuseStrategy,
       useClass: RouteReusableStrategy,
     },
+
+    // OAuth2 / OIDC client. Sends bearer tokens to the configured resource server URLs.
+    provideOAuthClient({
+      resourceServer: {
+        allowedUrls: [environment.apiBaseUrl],
+        sendAccessToken: true,
+      },
+    }),
+
+    // Persist tokens in sessionStorage (cleared when the tab closes).
+    { provide: OAuthStorage, useFactory: () => sessionStorage },
+
+    // Load discovery doc + process the IdP redirect callback before any route activates.
+    provideAppInitializer(() => inject(OAuthAuthService).runInitialLoginSequence()),
   ],
 };

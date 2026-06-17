@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { AuthenticationService } from '@app/auth';
+import { UntilDestroy } from '@ngneat/until-destroy';
+import { OAuthAuthService } from '@app/auth/services/oauth-auth.service';
 
 import { environment } from '@env/environment';
 
@@ -32,10 +31,7 @@ export class LoginComponent {
     developer: { type: 'developer', role: 'Developer' },
   };
 
-  constructor(
-    private readonly _router: Router,
-    private readonly _authService: AuthenticationService,
-  ) {}
+  constructor(private readonly _auth: OAuthAuthService) {}
 
   /**
    * Get translation parameters for portal name
@@ -52,35 +48,16 @@ export class LoginComponent {
   }
 
   /**
-   * Login with selected portal type
+   * Start the OAuth/OIDC login by redirecting to the identity provider.
+   * The browser navigates away to the IdP; after a successful login it is
+   * redirected back and `OAuthAuthService.runInitialLoginSequence()` (run via
+   * APP_INITIALIZER) completes the flow and stores the tokens.
    */
   login(portalType: PortalType): void {
     this.isLoading = true;
     this.selectedPortal = portalType;
 
-    // Simulate login with the portal type as username
-    this._authService
-      .login({
-        username: portalType,
-        password: 'portal',
-        remember: true,
-      })
-      .pipe(untilDestroyed(this))
-      .subscribe({
-        next: (credentials) => {
-          if (credentials) {
-            console.log(`Logged in as ${portalType}`, credentials);
-            // Navigate to dashboard
-            this._router.navigate(['/dashboard'], { replaceUrl: true }).then(() => {
-              console.log('Navigated to dashboard');
-            });
-          }
-        },
-        error: (error) => {
-          this.isLoading = false;
-          this.selectedPortal = null;
-          console.error('Login error:', error);
-        },
-      });
+    // Send the user to the IdP. Land back on the dashboard once authenticated.
+    this._auth.login('/dashboard');
   }
 }

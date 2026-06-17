@@ -763,10 +763,7 @@ export class AddComponent implements OnInit {
 
     // Require a solved reCAPTCHA before submitting
     if (!this.captchaToken) {
-      this._toastService.error(
-        this._translateService.instant('Verification Required'),
-        this._translateService.instant('Please complete the reCAPTCHA to confirm you are not a robot.')
-      );
+      this._toastService.error(this._translateService.instant('Verification Required'), this._translateService.instant('Please complete the reCAPTCHA to confirm you are not a robot.'));
       return;
     }
 

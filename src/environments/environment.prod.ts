@@ -9,6 +9,14 @@ export const environment = {
   // reCAPTCHA v2 site key — replace with your production key from https://www.google.com/recaptcha/admin
   recaptchaSiteKey: 'YOUR_PRODUCTION_RECAPTCHA_SITE_KEY',
 
+  // OAuth2 / OIDC identity provider configuration (Authorization Code + PKCE)
+  oauth: {
+    issuer: 'https://YOUR_PROD_IDP_ISSUER', // TODO: production issuer URL
+    clientId: 'YOUR_PROD_CLIENT_ID', // TODO: production client id
+    scope: 'openid profile email',
+    responseType: 'code',
+  },
+
   // API Configuration
   useMockData: false, // Use real API in production
   useApiMapper: true, // Set to true if API uses different structure (snake_case, etc.)
