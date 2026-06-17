@@ -66,6 +66,12 @@ export const webSidebarMenuItems: NavMenuItem[] = [
     ],
   },
   {
+    href: '/contact',
+    title: 'Contact Us',
+    active: false,
+    icon: 'mail',
+  },
+  {
     href: '/settings',
     title: 'Settings',
     active: false,

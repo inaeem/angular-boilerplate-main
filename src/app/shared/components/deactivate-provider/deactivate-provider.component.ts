@@ -65,9 +65,7 @@ export class DeactivateProviderComponent implements OnChanges {
         next: (plans) => {
           this.plans = plans || [];
           if (this.provider) {
-            this.providerPlans = this.plans.filter((plan) =>
-              this.provider!.selectedPlans.includes(plan.id)
-            );
+            this.providerPlans = this.plans.filter((plan) => this.provider!.selectedPlans.includes(plan.id));
             this.filteredPlans = [...this.providerPlans];
           }
           this.isLoadingData = false;
@@ -125,10 +123,7 @@ export class DeactivateProviderComponent implements OnChanges {
   }
 
   areAllLOBsSelected(): boolean {
-    return (
-      this.providerPlans.length > 0 &&
-      this.selectedLOBs.length === this.providerPlans.length
-    );
+    return this.providerPlans.length > 0 && this.selectedLOBs.length === this.providerPlans.length;
   }
 
   filterLOBs(): void {
@@ -136,11 +131,7 @@ export class DeactivateProviderComponent implements OnChanges {
     if (!query) {
       this.filteredPlans = [...this.providerPlans];
     } else {
-      this.filteredPlans = this.providerPlans.filter(
-        (plan) =>
-          plan.name.toLowerCase().includes(query) ||
-          (plan.description && plan.description.toLowerCase().includes(query))
-      );
+      this.filteredPlans = this.providerPlans.filter((plan) => plan.name.toLowerCase().includes(query) || (plan.description && plan.description.toLowerCase().includes(query)));
     }
   }
 
@@ -178,19 +169,13 @@ export class DeactivateProviderComponent implements OnChanges {
         .pipe(untilDestroyed(this))
         .subscribe({
           next: () => {
-            this._toastService.success(
-              'Provider Deactivated',
-              `${this.provider!.applicationName} has been successfully deactivated`
-            );
+            this._toastService.success('Provider Deactivated', `${this.provider!.applicationName} has been successfully deactivated`);
             this.closeModal();
             this.deactivated.emit();
           },
           error: (error) => {
             console.error('Error deactivating provider:', error);
-            this._toastService.error(
-              'Error',
-              'Failed to deactivate provider. Please try again.'
-            );
+            this._toastService.error('Error', 'Failed to deactivate provider. Please try again.');
             this.isSubmitting = false;
           },
         });
@@ -208,19 +193,13 @@ export class DeactivateProviderComponent implements OnChanges {
         .pipe(untilDestroyed(this))
         .subscribe({
           next: () => {
-            this._toastService.success(
-              'LOBs Deactivated',
-              `Selected LOBs have been successfully deactivated`
-            );
+            this._toastService.success('LOBs Deactivated', `Selected LOBs have been successfully deactivated`);
             this.closeModal();
             this.deactivated.emit();
           },
           error: (error) => {
             console.error('Error deactivating LOBs:', error);
-            this._toastService.error(
-              'Error',
-              'Failed to deactivate LOBs. Please try again.'
-            );
+            this._toastService.error('Error', 'Failed to deactivate LOBs. Please try again.');
             this.isSubmitting = false;
           },
         });

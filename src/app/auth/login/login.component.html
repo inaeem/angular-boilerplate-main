@@ -23,11 +23,7 @@
             <h3 class="card-title mb-2" translate>login.admin.title</h3>
             <p class="text-muted mb-4" translate>login.admin.description</p>
             <div class="mt-auto">
-              <button
-                type="button"
-                class="btn btn-primary w-100"
-                (click)="login('admin')"
-                [disabled]="isLoading">
+              <button type="button" class="btn btn-primary w-100" (click)="login('admin')" [disabled]="isLoading">
                 <i class="ti ti-login icon"></i>
                 <span *ngIf="!isLoading || selectedPortal !== 'admin'" [translate]="'login.admin.button'" [translateParams]="getButtonParams('admin')"></span>
                 <span *ngIf="isLoading && selectedPortal === 'admin'">
@@ -56,11 +52,7 @@
             <h3 class="card-title mb-2" translate>login.provider.title</h3>
             <p class="text-muted mb-4" translate>login.provider.description</p>
             <div class="mt-auto">
-              <button
-                type="button"
-                class="btn btn-primary w-100"
-                (click)="login('provider')"
-                [disabled]="isLoading">
+              <button type="button" class="btn btn-primary w-100" (click)="login('provider')" [disabled]="isLoading">
                 <i class="ti ti-login icon"></i>
                 <span *ngIf="!isLoading || selectedPortal !== 'provider'" [translate]="'login.provider.button'" [translateParams]="getButtonParams('provider')"></span>
                 <span *ngIf="isLoading && selectedPortal === 'provider'">
@@ -89,11 +81,7 @@
             <h3 class="card-title mb-2" translate>login.developer.title</h3>
             <p class="text-muted mb-4" translate>login.developer.description</p>
             <div class="mt-auto">
-              <button
-                type="button"
-                class="btn btn-primary w-100"
-                (click)="login('developer')"
-                [disabled]="isLoading">
+              <button type="button" class="btn btn-primary w-100" (click)="login('developer')" [disabled]="isLoading">
                 <i class="ti ti-login icon"></i>
                 <span *ngIf="!isLoading || selectedPortal !== 'developer'" [translate]="'login.developer.button'" [translateParams]="getButtonParams('developer')"></span>
                 <span *ngIf="isLoading && selectedPortal === 'developer'">

@@ -24,7 +24,7 @@
     <div class="row g-4">
       <!-- Enhanced Sidebar -->
       <div class="col-md-3">
-        <div class="card sidebar-card sticky-top" style="top: 1rem;">
+        <div class="card sidebar-card sticky-top" style="top: 1rem">
           <div class="card-body">
             <!-- Search -->
             <div class="mb-4">
@@ -32,14 +32,7 @@
                 <span class="input-icon-addon">
                   <i class="ti ti-search"></i>
                 </span>
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="Search providers..."
-                  [(ngModel)]="searchQuery"
-                  (input)="searchProviders()"
-                  [disabled]="isLoading || hasError"
-                />
+                <input type="text" class="form-control" placeholder="Search providers..." [(ngModel)]="searchQuery" (input)="searchProviders()" [disabled]="isLoading || hasError" />
               </div>
             </div>
 
@@ -132,13 +125,7 @@
                   <span class="badge bg-teal-lt ms-auto">{{ getGrantTypeCount('client_credentials') }}</span>
                 </label>
                 <label class="list-group-item list-group-item-action d-flex align-items-center sidebar-checkbox-item" [class.active]="selectedGrantTypes.includes('implicit')">
-                  <input
-                    type="checkbox"
-                    class="form-check-input me-2"
-                    [checked]="selectedGrantTypes.includes('implicit')"
-                    (change)="toggleGrantType('implicit')"
-                    [disabled]="isLoading"
-                  />
+                  <input type="checkbox" class="form-check-input me-2" [checked]="selectedGrantTypes.includes('implicit')" (change)="toggleGrantType('implicit')" [disabled]="isLoading" />
                   <span class="sidebar-icon bg-orange-lt text-orange">
                     <i class="ti ti-bolt"></i>
                   </span>
@@ -155,13 +142,7 @@
               <div class="sidebar-section-title" translate>Certification</div>
               <div class="list-group list-group-flush">
                 <label class="list-group-item list-group-item-action d-flex align-items-center sidebar-checkbox-item" [class.active]="certifiedOnly">
-                  <input
-                    type="checkbox"
-                    class="form-check-input me-2"
-                    [checked]="certifiedOnly"
-                    (change)="toggleCertified()"
-                    [disabled]="isLoading"
-                  />
+                  <input type="checkbox" class="form-check-input me-2" [checked]="certifiedOnly" (change)="toggleCertified()" [disabled]="isLoading" />
                   <span class="sidebar-icon bg-cyan-lt text-cyan">
                     <i class="ti ti-certificate"></i>
                   </span>
@@ -221,7 +202,7 @@
                   <div class="card-body">
                     <div class="row">
                       <div class="col-auto">
-                        <div class="placeholder" style="width: 80px; height: 80px; border-radius: 4px;"></div>
+                        <div class="placeholder" style="width: 80px; height: 80px; border-radius: 4px"></div>
                       </div>
                       <div class="col">
                         <div class="placeholder col-8 mb-2"></div>
@@ -283,9 +264,7 @@
                               }
                             </div>
                             @if (provider.applicationDescription) {
-                              <div class="text-muted small mb-3">
-                                {{ provider.applicationDescription | slice:0:200 }}{{ provider.applicationDescription.length > 200 ? '...' : '' }}
-                              </div>
+                              <div class="text-muted small mb-3">{{ provider.applicationDescription | slice: 0 : 200 }}{{ provider.applicationDescription.length > 200 ? '...' : '' }}</div>
                             }
 
                             <!-- Tags & Links -->
@@ -322,7 +301,8 @@
                                   rel="noopener noreferrer"
                                   class="badge bg-info-lt text-info"
                                   (click)="$event.stopPropagation()"
-                                  title="Open Sandbox Environment">
+                                  title="Open Sandbox Environment"
+                                >
                                   <i class="ti ti-browser icon-inline"></i>
                                   <span translate>Sandbox</span>
                                 </a>
@@ -337,10 +317,7 @@
 
                             <!-- Action Buttons -->
                             <div class="d-flex gap-2">
-                              <button
-                                type="button"
-                                class="btn btn-sm btn-primary flex-fill"
-                                (click)="viewCredentials(provider); $event.stopPropagation()">
+                              <button type="button" class="btn btn-sm btn-primary flex-fill" (click)="viewCredentials(provider); $event.stopPropagation()">
                                 <i class="ti ti-key"></i>
                                 View Credentials
                               </button>
@@ -348,7 +325,8 @@
                                 type="button"
                                 class="btn btn-sm btn-outline-danger flex-fill"
                                 (click)="deactivateProvider(provider); $event.stopPropagation()"
-                                [disabled]="provider.status === 'suspended' || provider.status === 'rejected'">
+                                [disabled]="provider.status === 'suspended' || provider.status === 'rejected'"
+                              >
                                 <i class="ti ti-ban"></i>
                                 Deactivate
                               </button>

@@ -5,7 +5,6 @@ import { ProvidersService } from '../services/providers.service';
 import { Provider } from '../entities/provider.entity';
 import { ToastService } from '@shared/services/toast.service';
 
-
 @UntilDestroy()
 @Component({
   selector: 'app-view',
@@ -101,11 +100,11 @@ export class ViewComponent implements OnInit {
 
   getStatusBadgeClass(status: string): string {
     const statusMap: { [key: string]: string } = {
-      'active': 'bg-success',
-      'pending': 'bg-warning',
-      'approved': 'bg-info',
-      'rejected': 'bg-danger',
-      'suspended': 'bg-secondary',
+      active: 'bg-success',
+      pending: 'bg-warning',
+      approved: 'bg-info',
+      rejected: 'bg-danger',
+      suspended: 'bg-secondary',
     };
     return statusMap[status] || 'bg-secondary';
   }
@@ -116,9 +115,9 @@ export class ViewComponent implements OnInit {
 
   getGrantTypeLabel(grantType: string): string {
     const grantTypeMap: { [key: string]: string } = {
-      'authorization_code': 'Authorization Code',
-      'client_credentials': 'Client Credentials',
-      'implicit': 'Implicit',
+      authorization_code: 'Authorization Code',
+      client_credentials: 'Client Credentials',
+      implicit: 'Implicit',
     };
     return grantTypeMap[grantType] || grantType;
   }
@@ -128,16 +127,16 @@ export class ViewComponent implements OnInit {
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   }
 
   getInitials(name: string): string {
     if (!name) return '?';
     return name
       .split(' ')
-      .filter(word => word.length > 0)
+      .filter((word) => word.length > 0)
       .slice(0, 2)
-      .map(word => word[0].toUpperCase())
+      .map((word) => word[0].toUpperCase())
       .join('');
   }
 
@@ -179,7 +178,7 @@ export class ViewComponent implements OnInit {
 
       window.scrollTo({
         top: offsetPosition,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
 
       // Update active state for navigation items
@@ -189,7 +188,7 @@ export class ViewComponent implements OnInit {
 
   updateActiveNavItem(sectionId: string): void {
     // Remove active class from all nav items
-    document.querySelectorAll('.sidebar-nav-item').forEach(item => {
+    document.querySelectorAll('.sidebar-nav-item').forEach((item) => {
       item.classList.remove('active');
     });
 

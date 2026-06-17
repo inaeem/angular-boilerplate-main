@@ -6,6 +6,9 @@ export const environment = {
   defaultLanguage: 'de-DE',
   supportedLanguages: ['de-DE', 'en-US', 'es-ES', 'fr-FR', 'it-IT'],
 
+  // reCAPTCHA v2 site key — replace with your production key from https://www.google.com/recaptcha/admin
+  recaptchaSiteKey: 'YOUR_PRODUCTION_RECAPTCHA_SITE_KEY',
+
   // API Configuration
   useMockData: false, // Use real API in production
   useApiMapper: true, // Set to true if API uses different structure (snake_case, etc.)

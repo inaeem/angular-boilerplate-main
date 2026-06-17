@@ -74,20 +74,20 @@ export class PrintComponent implements OnInit {
 
   getStatusBadgeClass(status: string): string {
     const statusMap: { [key: string]: string } = {
-      'active': 'bg-success',
-      'pending': 'bg-warning',
-      'approved': 'bg-info',
-      'rejected': 'bg-danger',
-      'suspended': 'bg-secondary',
+      active: 'bg-success',
+      pending: 'bg-warning',
+      approved: 'bg-info',
+      rejected: 'bg-danger',
+      suspended: 'bg-secondary',
     };
     return statusMap[status] || 'bg-secondary';
   }
 
   getGrantTypeLabel(grantType: string): string {
     const grantTypeMap: { [key: string]: string } = {
-      'authorization_code': 'Authorization Code',
-      'client_credentials': 'Client Credentials',
-      'implicit': 'Implicit',
+      authorization_code: 'Authorization Code',
+      client_credentials: 'Client Credentials',
+      implicit: 'Implicit',
     };
     return grantTypeMap[grantType] || grantType;
   }
@@ -97,7 +97,7 @@ export class PrintComponent implements OnInit {
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   }
 
   // Make Object available in template

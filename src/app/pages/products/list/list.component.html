@@ -105,7 +105,7 @@
           <div class="col-sm-6 col-lg-4">
             <div class="card placeholder-glow">
               <div class="card-body">
-                <div class="placeholder col-12 mb-3" style="height: 120px;"></div>
+                <div class="placeholder col-12 mb-3" style="height: 120px"></div>
                 <div class="placeholder col-10 mb-2"></div>
                 <div class="placeholder col-8 mb-2"></div>
                 <div class="placeholder col-6"></div>
@@ -131,12 +131,7 @@
               <!-- Card Image/Logo -->
               <div class="card-img-top provider-logo-container">
                 @if (provider.logo) {
-                  <img
-                    [src]="provider.logo.dataUrl"
-                    [alt]="provider.applicationName"
-                    class="provider-logo-image"
-                    (error)="onImageError($event)"
-                    loading="lazy">
+                  <img [src]="provider.logo.dataUrl" [alt]="provider.applicationName" class="provider-logo-image" (error)="onImageError($event)" loading="lazy" />
                 } @else {
                   <div class="provider-logo-placeholder">
                     <div class="placeholder-content">
@@ -168,8 +163,8 @@
 
                 <!-- Description - Compact and Optional -->
                 @if (provider.applicationDescription) {
-                  <div class="text-muted small mb-2" style="height: 40px; overflow: hidden; line-height: 1.4;">
-                    {{ provider.applicationDescription | slice:0:80 }}{{ provider.applicationDescription.length > 80 ? '...' : '' }}
+                  <div class="text-muted small mb-2" style="height: 40px; overflow: hidden; line-height: 1.4">
+                    {{ provider.applicationDescription | slice: 0 : 80 }}{{ provider.applicationDescription.length > 80 ? '...' : '' }}
                   </div>
                 }
 
@@ -204,14 +199,7 @@
                       <div class="col-12">
                         <div class="d-flex align-items-center">
                           <i class="ti ti-browser icon-sm me-2 text-info"></i>
-                          <a
-                            [href]="provider.sandboxUrl"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="small text-info"
-                            (click)="$event.stopPropagation()">
-                            Sandbox Environment
-                          </a>
+                          <a [href]="provider.sandboxUrl" target="_blank" rel="noopener noreferrer" class="small text-info" (click)="$event.stopPropagation()"> Sandbox Environment </a>
                         </div>
                       </div>
                     }
@@ -221,9 +209,7 @@
                 <!-- Badges - Compact -->
                 <div class="d-flex gap-1 flex-wrap mb-2">
                   @if (provider.isCertified) {
-                    <span class="badge badge-sm bg-info-lt">
-                      <i class="ti ti-certificate"></i> Certified
-                    </span>
+                    <span class="badge badge-sm bg-info-lt"> <i class="ti ti-certificate"></i> Certified </span>
                   }
                   @if (provider.selectedPlans && provider.selectedPlans.length > 0) {
                     @for (planName of getPlanNames(provider.selectedPlans); track planName) {
@@ -233,18 +219,13 @@
                     }
                   }
                   @if (provider.additionalFiles && provider.additionalFiles.length > 0) {
-                    <span class="badge badge-sm bg-secondary-lt">
-                      <i class="ti ti-files"></i> {{ provider.additionalFiles.length }}
-                    </span>
+                    <span class="badge badge-sm bg-secondary-lt"> <i class="ti ti-files"></i> {{ provider.additionalFiles.length }} </span>
                   }
                 </div>
 
                 <!-- Actions -->
                 <div class="d-flex gap-2 mt-2">
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-primary flex-fill"
-                    (click)="viewCredentials(provider); $event.stopPropagation()">
+                  <button type="button" class="btn btn-sm btn-primary flex-fill" (click)="viewCredentials(provider); $event.stopPropagation()">
                     <i class="ti ti-key"></i>
                     View Credentials
                   </button>
@@ -252,7 +233,8 @@
                     type="button"
                     class="btn btn-sm btn-outline-danger flex-fill"
                     (click)="deactivateProvider(provider); $event.stopPropagation()"
-                    [disabled]="provider.status === 'suspended' || provider.status === 'rejected'">
+                    [disabled]="provider.status === 'suspended' || provider.status === 'rejected'"
+                  >
                     <i class="ti ti-ban"></i>
                     Deactivate
                   </button>
@@ -261,7 +243,7 @@
                 <!-- Updated timestamp -->
                 @if (provider.updatedAt) {
                   <div class="text-muted text-end">
-                    <small style="font-size: 0.7rem;">
+                    <small style="font-size: 0.7rem">
                       <i class="ti ti-clock"></i>
                       {{ provider.updatedAt | date: 'MMM d, y' }}
                     </small>
@@ -277,11 +259,7 @@
 </div>
 
 <!-- Deactivate Provider Component -->
-<app-deactivate-provider
-  [provider]="providerToDeactivate"
-  [trigger]="deactivateTrigger"
-  (deactivated)="onProviderDeactivated()">
-</app-deactivate-provider>
+<app-deactivate-provider [provider]="providerToDeactivate" [trigger]="deactivateTrigger" (deactivated)="onProviderDeactivated()"> </app-deactivate-provider>
 
 <!-- Delete Confirmation Modal -->
 @if (showDeleteModal && providerToDelete) {

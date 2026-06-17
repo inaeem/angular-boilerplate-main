@@ -66,6 +66,9 @@ export class AddComponent implements OnInit {
   isLoading = false;
   isLoadingPlans = false;
 
+  // reCAPTCHA token; null until the user solves the challenge (or when it expires)
+  captchaToken: string | null = null;
+
   // Plan selection UI mode: 'grid' or 'dropdown'
   planSelectionMode: 'grid' | 'dropdown' = 'grid'; // Change to 'dropdown' to use dropdown mode
   isPlansDropdownOpen = false;
@@ -180,10 +183,7 @@ export class AddComponent implements OnInit {
         error: (error) => {
           console.error('Error loading plans:', error);
           this.isLoadingPlans = false;
-          this._toastService.error(
-            'Failed to Load Plans',
-            'Could not load application plans. Please refresh the page.'
-          );
+          this._toastService.error('Failed to Load Plans', 'Could not load application plans. Please refresh the page.');
         },
       });
   }
@@ -214,13 +214,15 @@ export class AddComponent implements OnInit {
               contactPersonName: '',
               designation: '',
               officialEmail: '',
-              logo: product.image ? {
-                name: 'product-image.jpg',
-                size: 0,
-                type: 'image/jpeg',
-                dataUrl: product.image,
-                file: null as any
-              } : null,
+              logo: product.image
+                ? {
+                    name: 'product-image.jpg',
+                    size: 0,
+                    type: 'image/jpeg',
+                    dataUrl: product.image,
+                    file: null as any,
+                  }
+                : null,
               selectedPlans: [], // Initialize as empty array for edit mode
 
               // Step 2: Personal Information
@@ -239,26 +241,17 @@ export class AddComponent implements OnInit {
               additionalFiles: [],
             };
             this.isLoading = false;
-            this._toastService.info(
-              this._translateService.instant('Load Successful'),
-              `Loaded product "${product.name}" for editing.`
-            );
+            this._toastService.info(this._translateService.instant('Load Successful'), `Loaded product "${product.name}" for editing.`);
           } else {
             this.isLoading = false;
-            this._toastService.error(
-              this._translateService.instant('Load Failed'),
-              'Product not found.'
-            );
+            this._toastService.error(this._translateService.instant('Load Failed'), 'Product not found.');
             this._router.navigate(['/products']);
           }
         },
         error: (error) => {
           console.error('Error loading product:', error);
           this.isLoading = false;
-          this._toastService.error(
-            this._translateService.instant('Load Failed'),
-            this._translateService.instant('Failed to load product details.')
-          );
+          this._toastService.error(this._translateService.instant('Load Failed'), this._translateService.instant('Failed to load product details.'));
           this._router.navigate(['/products']);
         },
       });
@@ -285,10 +278,7 @@ export class AddComponent implements OnInit {
 
     if (!this.isStepValid(this.currentStep)) {
       const errors = this.getStepErrors(this.currentStep);
-      this._toastService.warning(
-        this._translateService.instant('Validation Error'),
-        errors.join(', ')
-      );
+      this._toastService.warning(this._translateService.instant('Validation Error'), errors.join(', '));
       return;
     }
 
@@ -319,15 +309,23 @@ export class AddComponent implements OnInit {
         // Step 1: Application Information
         const providerTypeValid = !!this.formData.providerType;
         const isGroup = this.formData.providerType === 'group';
-        const groupFieldsValid = !isGroup || !!(
-          this.formData.providerGroupName && this.formData.providerGroupName.trim().length >= 3 &&
-          this.formData.groupRegistrationNumber && this.formData.groupRegistrationNumber.trim().length >= 3 &&
-          this.formData.groupType &&
-          this.formData.numberOfProviders !== null && this.formData.numberOfProviders >= 2 &&
-          this.formData.numberOfLocations !== null && this.formData.numberOfLocations >= 1 &&
-          this.formData.complianceOfficerName && this.formData.complianceOfficerName.trim().length >= 2 &&
-          this.formData.complianceOfficerEmail && this.isValidEmail(this.formData.complianceOfficerEmail)
-        );
+        const groupFieldsValid =
+          !isGroup ||
+          !!(
+            this.formData.providerGroupName &&
+            this.formData.providerGroupName.trim().length >= 3 &&
+            this.formData.groupRegistrationNumber &&
+            this.formData.groupRegistrationNumber.trim().length >= 3 &&
+            this.formData.groupType &&
+            this.formData.numberOfProviders !== null &&
+            this.formData.numberOfProviders >= 2 &&
+            this.formData.numberOfLocations !== null &&
+            this.formData.numberOfLocations >= 1 &&
+            this.formData.complianceOfficerName &&
+            this.formData.complianceOfficerName.trim().length >= 2 &&
+            this.formData.complianceOfficerEmail &&
+            this.isValidEmail(this.formData.complianceOfficerEmail)
+          );
         return !!(
           providerTypeValid &&
           groupFieldsValid &&
@@ -347,20 +345,10 @@ export class AddComponent implements OnInit {
         );
       case 2:
         // Step 2: Personal Information
-        return !!(
-          this.formData.licenseNumber &&
-          this.formData.licenseNumber.trim().length >= 5 &&
-          this.formData.dateOfBirth &&
-          this.formData.age !== null &&
-          this.formData.age >= 18
-        );
+        return !!(this.formData.licenseNumber && this.formData.licenseNumber.trim().length >= 5 && this.formData.dateOfBirth && this.formData.age !== null && this.formData.age >= 18);
       case 3:
         // Step 3: Authorization and Scopes
-        return !!(
-          this.formData.allowedGrant &&
-          this.formData.redirectUrls.length > 0 &&
-          this.formData.redirectUrls.every((url) => this.isValidUrl(url))
-        );
+        return !!(this.formData.allowedGrant && this.formData.redirectUrls.length > 0 && this.formData.redirectUrls.every((url) => this.isValidUrl(url)));
       case 4:
         // Step 4: Preview and Submit - all previous steps must be valid
         return this.isStepValid(1) && this.isStepValid(2) && this.isStepValid(3);
@@ -505,25 +493,19 @@ export class AddComponent implements OnInit {
       case 'providerType':
         return !this.formData.providerType;
       case 'providerGroupName':
-        return this.formData.providerType === 'group' &&
-          (!this.formData.providerGroupName || this.formData.providerGroupName.trim().length < 3);
+        return this.formData.providerType === 'group' && (!this.formData.providerGroupName || this.formData.providerGroupName.trim().length < 3);
       case 'groupRegistrationNumber':
-        return this.formData.providerType === 'group' &&
-          (!this.formData.groupRegistrationNumber || this.formData.groupRegistrationNumber.trim().length < 3);
+        return this.formData.providerType === 'group' && (!this.formData.groupRegistrationNumber || this.formData.groupRegistrationNumber.trim().length < 3);
       case 'groupType':
         return this.formData.providerType === 'group' && !this.formData.groupType;
       case 'numberOfProviders':
-        return this.formData.providerType === 'group' &&
-          (this.formData.numberOfProviders === null || this.formData.numberOfProviders < 2);
+        return this.formData.providerType === 'group' && (this.formData.numberOfProviders === null || this.formData.numberOfProviders < 2);
       case 'numberOfLocations':
-        return this.formData.providerType === 'group' &&
-          (this.formData.numberOfLocations === null || this.formData.numberOfLocations < 1);
+        return this.formData.providerType === 'group' && (this.formData.numberOfLocations === null || this.formData.numberOfLocations < 1);
       case 'complianceOfficerName':
-        return this.formData.providerType === 'group' &&
-          (!this.formData.complianceOfficerName || this.formData.complianceOfficerName.trim().length < 2);
+        return this.formData.providerType === 'group' && (!this.formData.complianceOfficerName || this.formData.complianceOfficerName.trim().length < 2);
       case 'complianceOfficerEmail':
-        return this.formData.providerType === 'group' &&
-          (!this.formData.complianceOfficerEmail || !this.isValidEmail(this.formData.complianceOfficerEmail));
+        return this.formData.providerType === 'group' && (!this.formData.complianceOfficerEmail || !this.isValidEmail(this.formData.complianceOfficerEmail));
       case 'applicationName':
         return !this.formData.applicationName || this.formData.applicationName.trim().length < 3;
       case 'applicationDescription':
@@ -577,7 +559,7 @@ export class AddComponent implements OnInit {
       this.formData.selectedPlans = [];
     } else {
       // Select all
-      this.formData.selectedPlans = this.plans.map(plan => plan.id);
+      this.formData.selectedPlans = this.plans.map((plan) => plan.id);
     }
   }
 
@@ -593,9 +575,7 @@ export class AddComponent implements OnInit {
     if (this.formData.selectedPlans.length === 0) {
       return this._translateService.instant('Select plans...');
     }
-    const selectedNames = this.plans
-      .filter(plan => this.formData.selectedPlans.includes(plan.id))
-      .map(plan => plan.name);
+    const selectedNames = this.plans.filter((plan) => this.formData.selectedPlans.includes(plan.id)).map((plan) => plan.name);
 
     if (selectedNames.length <= 2) {
       return selectedNames.join(', ');
@@ -719,14 +699,7 @@ export class AddComponent implements OnInit {
       const buffer = await file.slice(0, 5).arrayBuffer();
       const bytes = new Uint8Array(buffer);
       // "%PDF-" = 0x25 0x50 0x44 0x46 0x2D
-      return (
-        bytes.length === 5 &&
-        bytes[0] === 0x25 &&
-        bytes[1] === 0x50 &&
-        bytes[2] === 0x44 &&
-        bytes[3] === 0x46 &&
-        bytes[4] === 0x2d
-      );
+      return bytes.length === 5 && bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46 && bytes[4] === 0x2d;
     } catch {
       return false;
     }
@@ -742,7 +715,7 @@ export class AddComponent implements OnInit {
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   }
 
   // Utility: Get file icon based on type
@@ -753,6 +726,16 @@ export class AddComponent implements OnInit {
     if (type.includes('excel') || type.includes('spreadsheet')) return 'ti-table';
     if (type.includes('zip') || type.includes('archive')) return 'ti-file-zip';
     return 'ti-file';
+  }
+
+  /** Called by <re-captcha> when the challenge is solved (token) or expires (null). */
+  onCaptchaResolved(token: string | null): void {
+    this.captchaToken = token;
+  }
+
+  /** Called by <re-captcha> when the widget fails to load or errors out. */
+  onCaptchaError(): void {
+    this.captchaToken = null;
   }
 
   submitProvider(): void {
@@ -775,6 +758,15 @@ export class AddComponent implements OnInit {
           break;
         }
       }
+      return;
+    }
+
+    // Require a solved reCAPTCHA before submitting
+    if (!this.captchaToken) {
+      this._toastService.error(
+        this._translateService.instant('Verification Required'),
+        this._translateService.instant('Please complete the reCAPTCHA to confirm you are not a robot.')
+      );
       return;
     }
 
@@ -802,19 +794,13 @@ export class AddComponent implements OnInit {
         .subscribe({
           next: (updatedProduct) => {
             this.isLoading = false;
-            this._toastService.success(
-              this._translateService.instant('Product Updated'),
-              `"${updatedProduct.name}" has been successfully updated.`
-            );
+            this._toastService.success(this._translateService.instant('Product Updated'), `"${updatedProduct.name}" has been successfully updated.`);
             this._router.navigate(['/products']);
           },
           error: (error) => {
             console.error('Error updating product:', error);
             this.isLoading = false;
-            this._toastService.error(
-              this._translateService.instant('Update Failed'),
-              'An error occurred while updating the product.'
-            );
+            this._toastService.error(this._translateService.instant('Update Failed'), 'An error occurred while updating the product.');
           },
         });
     } else {
@@ -825,19 +811,13 @@ export class AddComponent implements OnInit {
         .subscribe({
           next: (newProduct) => {
             this.isLoading = false;
-            this._toastService.success(
-              this._translateService.instant('Product Created'),
-              `"${newProduct.name}" has been successfully created.`
-            );
+            this._toastService.success(this._translateService.instant('Product Created'), `"${newProduct.name}" has been successfully created.`);
             this._router.navigate(['/products']);
           },
           error: (error) => {
             console.error('Error creating product:', error);
             this.isLoading = false;
-            this._toastService.error(
-              this._translateService.instant('Creation Failed'),
-              'An error occurred while creating the product.'
-            );
+            this._toastService.error(this._translateService.instant('Creation Failed'), 'An error occurred while creating the product.');
           },
         });
     }

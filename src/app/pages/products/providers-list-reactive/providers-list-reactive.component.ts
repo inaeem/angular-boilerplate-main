@@ -65,9 +65,7 @@ export class ProvidersListReactiveComponent implements OnInit {
     });
 
     // React to form value changes for real-time filtering
-    this.filterForm.valueChanges
-      .pipe(untilDestroyed(this))
-      .subscribe(() => this.applyFilters());
+    this.filterForm.valueChanges.pipe(untilDestroyed(this)).subscribe(() => this.applyFilters());
   }
 
   get selectedStatuses(): FormArray {
@@ -79,7 +77,7 @@ export class ProvidersListReactiveComponent implements OnInit {
   }
 
   toggleStatus(status: string): void {
-    const index = this.selectedStatuses.controls.findIndex(c => c.value === status);
+    const index = this.selectedStatuses.controls.findIndex((c) => c.value === status);
     if (index > -1) {
       this.selectedStatuses.removeAt(index);
     } else {
@@ -88,11 +86,11 @@ export class ProvidersListReactiveComponent implements OnInit {
   }
 
   isStatusSelected(status: string): boolean {
-    return this.selectedStatuses.controls.some(c => c.value === status);
+    return this.selectedStatuses.controls.some((c) => c.value === status);
   }
 
   toggleGrantType(grantType: string): void {
-    const index = this.selectedGrantTypes.controls.findIndex(c => c.value === grantType);
+    const index = this.selectedGrantTypes.controls.findIndex((c) => c.value === grantType);
     if (index > -1) {
       this.selectedGrantTypes.removeAt(index);
     } else {
@@ -101,7 +99,7 @@ export class ProvidersListReactiveComponent implements OnInit {
   }
 
   isGrantTypeSelected(grantType: string): boolean {
-    return this.selectedGrantTypes.controls.some(c => c.value === grantType);
+    return this.selectedGrantTypes.controls.some((c) => c.value === grantType);
   }
 
   filterByStatus(status: string): void {
@@ -152,7 +150,7 @@ export class ProvidersListReactiveComponent implements OnInit {
     if (!control.value) return null;
     try {
       const url = new URL(control.value);
-      return (url.protocol === 'http:' || url.protocol === 'https:') ? null : { invalidUrl: true };
+      return url.protocol === 'http:' || url.protocol === 'https:' ? null : { invalidUrl: true };
     } catch {
       return { invalidUrl: true };
     }
@@ -190,13 +188,13 @@ export class ProvidersListReactiveComponent implements OnInit {
 
     // Populate redirect URLs FormArray
     this.editRedirectUrls.clear();
-    provider.redirectUrls.forEach(url => {
+    provider.redirectUrls.forEach((url) => {
       this.editRedirectUrls.push(new FormControl(url, [Validators.required, this.urlValidator]));
     });
 
     // Populate selected plans FormArray
     this.editSelectedPlans.clear();
-    provider.selectedPlans.forEach(planId => {
+    provider.selectedPlans.forEach((planId) => {
       this.editSelectedPlans.push(new FormControl(planId));
     });
   }
@@ -217,7 +215,7 @@ export class ProvidersListReactiveComponent implements OnInit {
   }
 
   toggleEditPlan(planId: number): void {
-    const index = this.editSelectedPlans.controls.findIndex(c => c.value === planId);
+    const index = this.editSelectedPlans.controls.findIndex((c) => c.value === planId);
     if (index > -1) {
       this.editSelectedPlans.removeAt(index);
     } else {
@@ -226,7 +224,7 @@ export class ProvidersListReactiveComponent implements OnInit {
   }
 
   isEditPlanSelected(planId: number): boolean {
-    return this.editSelectedPlans.controls.some(c => c.value === planId);
+    return this.editSelectedPlans.controls.some((c) => c.value === planId);
   }
 
   saveProvider(): void {
@@ -262,7 +260,7 @@ export class ProvidersListReactiveComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe({
         next: (updated) => {
-          const index = this.providers.findIndex(p => p.id === updated.id);
+          const index = this.providers.findIndex((p) => p.id === updated.id);
           if (index > -1) {
             this.providers[index] = updated;
             this.applyFilters();
@@ -356,25 +354,25 @@ export class ProvidersListReactiveComponent implements OnInit {
     // Filter by status
     const statuses: string[] = formValue.selectedStatuses || [];
     if (statuses.length > 0) {
-      filtered = filtered.filter(p => statuses.includes(p.status));
+      filtered = filtered.filter((p) => statuses.includes(p.status));
     }
 
     // Filter by grant type
     const grantTypes: string[] = formValue.selectedGrantTypes || [];
     if (grantTypes.length > 0) {
-      filtered = filtered.filter(p => grantTypes.includes(p.allowedGrant));
+      filtered = filtered.filter((p) => grantTypes.includes(p.allowedGrant));
     }
 
     // Filter by certified
     if (formValue.certifiedOnly) {
-      filtered = filtered.filter(p => p.isCertified);
+      filtered = filtered.filter((p) => p.isCertified);
     }
 
     // Filter by search query
     const query = (formValue.searchQuery || '').toLowerCase().trim();
     if (query) {
       filtered = filtered.filter(
-        provider =>
+        (provider) =>
           provider.applicationName.toLowerCase().includes(query) ||
           provider.applicationDescription.toLowerCase().includes(query) ||
           provider.contactPersonName.toLowerCase().includes(query) ||
@@ -393,29 +391,39 @@ export class ProvidersListReactiveComponent implements OnInit {
 
   getStatusBadgeClass(status: string): string {
     switch (status) {
-      case 'active': return 'bg-success';
-      case 'pending': return 'bg-warning';
-      case 'approved': return 'bg-info';
-      case 'rejected': return 'bg-danger';
-      case 'suspended': return 'bg-secondary';
-      default: return 'bg-secondary';
+      case 'active':
+        return 'bg-success';
+      case 'pending':
+        return 'bg-warning';
+      case 'approved':
+        return 'bg-info';
+      case 'rejected':
+        return 'bg-danger';
+      case 'suspended':
+        return 'bg-secondary';
+      default:
+        return 'bg-secondary';
     }
   }
 
   getGrantTypeLabel(grantType: string): string {
     switch (grantType) {
-      case 'authorization_code': return 'Authorization Code';
-      case 'client_credentials': return 'Client Credentials';
-      case 'implicit': return 'Implicit';
-      default: return grantType;
+      case 'authorization_code':
+        return 'Authorization Code';
+      case 'client_credentials':
+        return 'Client Credentials';
+      case 'implicit':
+        return 'Implicit';
+      default:
+        return grantType;
     }
   }
 
   getPlanNames(planIds: number[]): string[] {
     if (!planIds || planIds.length === 0) return [];
     return planIds
-      .map(id => {
-        const plan = this.plans.find(p => p.id === id);
+      .map((id) => {
+        const plan = this.plans.find((p) => p.id === id);
         return plan ? plan.name : null;
       })
       .filter((name): name is string => name !== null);
@@ -425,9 +433,9 @@ export class ProvidersListReactiveComponent implements OnInit {
     if (!name) return '?';
     return name
       .split(' ')
-      .filter(word => word.length > 0)
+      .filter((word) => word.length > 0)
       .slice(0, 2)
-      .map(word => word[0].toUpperCase())
+      .map((word) => word[0].toUpperCase())
       .join('');
   }
 
@@ -447,15 +455,15 @@ export class ProvidersListReactiveComponent implements OnInit {
   }
 
   getStatusCount(status: string): number {
-    return this.providers.filter(p => p.status === status).length;
+    return this.providers.filter((p) => p.status === status).length;
   }
 
   getGrantTypeCount(grantType: string): number {
-    return this.providers.filter(p => p.allowedGrant === grantType).length;
+    return this.providers.filter((p) => p.allowedGrant === grantType).length;
   }
 
   getCertifiedCount(): number {
-    return this.providers.filter(p => p.isCertified).length;
+    return this.providers.filter((p) => p.isCertified).length;
   }
 
   viewCredentials(provider: Provider): void {

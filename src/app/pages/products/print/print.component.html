@@ -20,9 +20,7 @@
       <div class="container-xl">
         <div class="row align-items-center">
           <div class="col">
-            <h2 class="page-title">
-              <span translate>Provider Information Sheet</span> - {{ provider.applicationName }}
-            </h2>
+            <h2 class="page-title"><span translate>Provider Information Sheet</span> - {{ provider.applicationName }}</h2>
           </div>
           <div class="col-auto ms-auto">
             <div class="btn-list">
@@ -50,8 +48,8 @@
             <div class="col-6">
               <h1>{{ 'APP_NAME' | translate }}</h1>
               <address>
-                <span translate>Provider Information Sheet</span><br>
-                <span translate>Generated</span>: {{ printDate | date: 'medium' }}<br>
+                <span translate>Provider Information Sheet</span><br />
+                <span translate>Generated</span>: {{ printDate | date: 'medium' }}<br />
               </address>
             </div>
             <div class="col-6 text-end">
@@ -61,23 +59,20 @@
                   {{ provider.status | titlecase }}
                 </span>
                 @if (provider.isCertified) {
-                  <span class="badge bg-info ms-1">
-                    <i class="ti ti-certificate"></i> <span translate>Certified</span>
-                  </span>
+                  <span class="badge bg-info ms-1"> <i class="ti ti-certificate"></i> <span translate>Certified</span> </span>
                 }
               </div>
             </div>
           </div>
 
-          <hr class="my-4">
+          <hr class="my-4" />
 
           <!-- Provider Header -->
           <div class="row mb-4">
             <div class="col-12">
               <h2 class="mb-2">{{ provider.applicationName }}</h2>
               <div class="text-muted">
-                <span translate>License</span>: <code>{{ provider.licenseNumber }}</code> |
-                <span translate>Grant Type</span>: <strong>{{ getGrantTypeLabel(provider.allowedGrant) }}</strong>
+                <span translate>License</span>: <code>{{ provider.licenseNumber }}</code> | <span translate>Grant Type</span>: <strong>{{ getGrantTypeLabel(provider.allowedGrant) }}</strong>
               </div>
             </div>
           </div>
@@ -86,7 +81,7 @@
           <div class="row mb-4">
             @if (provider.logo) {
               <div class="col-md-3">
-                <img [src]="provider.logo.dataUrl" [alt]="provider.applicationName" class="img-fluid rounded border">
+                <img [src]="provider.logo.dataUrl" [alt]="provider.applicationName" class="img-fluid rounded border" />
               </div>
             }
             <div [class]="provider.logo ? 'col-md-9' : 'col-12'">
@@ -111,7 +106,9 @@
                   </tr>
                   <tr>
                     <th><span translate>Official Email</span></th>
-                    <td><a [href]="'mailto:' + provider.officialEmail">{{ provider.officialEmail }}</a></td>
+                    <td>
+                      <a [href]="'mailto:' + provider.officialEmail">{{ provider.officialEmail }}</a>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -126,7 +123,9 @@
                 <tbody>
                   <tr>
                     <th style="width: 30%"><span translate>Business URL</span></th>
-                    <td><a [href]="provider.businessUrl" target="_blank">{{ provider.businessUrl }}</a></td>
+                    <td>
+                      <a [href]="provider.businessUrl" target="_blank">{{ provider.businessUrl }}</a>
+                    </td>
                   </tr>
                   <tr>
                     <th><span translate>Registered Address</span></th>
@@ -135,7 +134,9 @@
                   @if (provider.sandboxUrl) {
                     <tr>
                       <th><span translate>Sandbox URL</span></th>
-                      <td><a [href]="provider.sandboxUrl" target="_blank">{{ provider.sandboxUrl }}</a></td>
+                      <td>
+                        <a [href]="provider.sandboxUrl" target="_blank">{{ provider.sandboxUrl }}</a>
+                      </td>
                     </tr>
                   }
                 </tbody>
@@ -151,7 +152,9 @@
                 <tbody>
                   <tr>
                     <th style="width: 30%"><span translate>License Number</span></th>
-                    <td><code>{{ provider.licenseNumber }}</code></td>
+                    <td>
+                      <code>{{ provider.licenseNumber }}</code>
+                    </td>
                   </tr>
                   <tr>
                     <th><span translate>Date of Birth</span></th>
@@ -210,7 +213,9 @@
                     @for (file of provider.additionalFiles; track file.name) {
                       <tr>
                         <td>{{ file.name }}</td>
-                        <td><code>{{ file.type }}</code></td>
+                        <td>
+                          <code>{{ file.type }}</code>
+                        </td>
                         <td>{{ formatFileSize(file.size) }}</td>
                       </tr>
                     }
@@ -233,17 +238,13 @@
           }
 
           <!-- Footer -->
-          <hr class="my-4">
+          <hr class="my-4" />
           <div class="row">
             <div class="col-6 text-muted">
-              <small>
-                <strong translate>Created</strong>: {{ provider.createdAt | date: 'medium' }}
-              </small>
+              <small> <strong translate>Created</strong>: {{ provider.createdAt | date: 'medium' }} </small>
             </div>
             <div class="col-6 text-end text-muted">
-              <small>
-                <strong translate>Last Updated</strong>: {{ provider.updatedAt | date: 'medium' }}
-              </small>
+              <small> <strong translate>Last Updated</strong>: {{ provider.updatedAt | date: 'medium' }} </small>
             </div>
           </div>
         </div>

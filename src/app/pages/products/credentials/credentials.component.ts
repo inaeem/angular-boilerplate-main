@@ -88,9 +88,8 @@ export class CredentialsComponent implements OnInit {
     if (!search) {
       this.filteredProviders = this.availableProviders;
     } else {
-      this.filteredProviders = this.availableProviders.filter(provider =>
-        provider.applicationName.toLowerCase().includes(search) ||
-        (provider.status && provider.status.toLowerCase().includes(search))
+      this.filteredProviders = this.availableProviders.filter(
+        (provider) => provider.applicationName.toLowerCase().includes(search) || (provider.status && provider.status.toLowerCase().includes(search)),
       );
     }
   }
@@ -156,9 +155,7 @@ export class CredentialsComponent implements OnInit {
     this.showValidationError = false;
 
     // Create credentials for each selected provider
-    const creationObservables = this.formData.providerIds.map(providerId =>
-      this._credentialsService.createCredential(providerId, this.formData)
-    );
+    const creationObservables = this.formData.providerIds.map((providerId) => this._credentialsService.createCredential(providerId, this.formData));
 
     // Execute all creation requests with loading state
     this.isCreatingCredentials = true;
@@ -166,15 +163,12 @@ export class CredentialsComponent implements OnInit {
       .pipe(untilDestroyed(this))
       .subscribe({
         next: (credentials) => {
-          credentials.forEach(credential => {
+          credentials.forEach((credential) => {
             this.credentials.push(credential);
           });
           this.isCreatingCredentials = false;
           this.closeCreateModal();
-          this._toastService.success(
-            'Credentials Created',
-            `${credentials.length} credential${credentials.length > 1 ? 's have' : ' has'} been generated successfully`
-          );
+          this._toastService.success('Credentials Created', `${credentials.length} credential${credentials.length > 1 ? 's have' : ' has'} been generated successfully`);
         },
         error: (error) => {
           console.error('Error creating credentials:', error);
@@ -185,7 +179,7 @@ export class CredentialsComponent implements OnInit {
   }
 
   getProviderName(providerId: number): string {
-    const provider = this.availableProviders.find(p => p.id === providerId);
+    const provider = this.availableProviders.find((p) => p.id === providerId);
     return provider ? provider.applicationName : `Provider ${providerId}`;
   }
 
@@ -208,11 +202,11 @@ export class CredentialsComponent implements OnInit {
   }
 
   hasExistingCredential(providerId: number): boolean {
-    return this.credentials.some(c => c.providerId === providerId);
+    return this.credentials.some((c) => c.providerId === providerId);
   }
 
   private getSelectableProviders(): Provider[] {
-    return this.availableProviders.filter(p => !this.hasExistingCredential(p.id));
+    return this.availableProviders.filter((p) => !this.hasExistingCredential(p.id));
   }
 
   toggleAllProviders(): void {
@@ -220,15 +214,14 @@ export class CredentialsComponent implements OnInit {
     if (this.areAllProvidersSelected()) {
       this.formData.providerIds = [];
     } else {
-      this.formData.providerIds = selectable.map(p => p.id);
+      this.formData.providerIds = selectable.map((p) => p.id);
     }
     this.showValidationError = false;
   }
 
   areAllProvidersSelected(): boolean {
     const selectable = this.getSelectableProviders();
-    return selectable.length > 0 &&
-           this.formData.providerIds.length === selectable.length;
+    return selectable.length > 0 && this.formData.providerIds.length === selectable.length;
   }
 
   regenerateSecret(credential: Credential): void {
@@ -324,7 +317,7 @@ export class CredentialsComponent implements OnInit {
       },
       () => {
         this._toastService.error('Copy Failed', 'Failed to copy to clipboard');
-      }
+      },
     );
   }
 

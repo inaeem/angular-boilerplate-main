@@ -118,7 +118,7 @@ export class PlansService {
       catchError((error) => {
         console.error('Error fetching plans from API:', error);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -128,10 +128,10 @@ export class PlansService {
    */
   private getMockPlans(): Observable<Plan[]> {
     // Only return active plans
-    const activeDtos = this.mockPlanDtos.filter(dto => dto.is_active);
+    const activeDtos = this.mockPlanDtos.filter((dto) => dto.is_active);
     return of(activeDtos).pipe(
       map((dtos) => this.planMapper.fromDtoArray(dtos)),
-      delay(this.getRandomDelay())
+      delay(this.getRandomDelay()),
     );
   }
 
@@ -150,7 +150,7 @@ export class PlansService {
       catchError((error) => {
         console.error(`Error fetching plan ${id} from API:`, error);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -164,7 +164,7 @@ export class PlansService {
     }
     return of(dto).pipe(
       map((dto) => this.planMapper.fromDto(dto)),
-      delay(this.getRandomDelay())
+      delay(this.getRandomDelay()),
     );
   }
 }

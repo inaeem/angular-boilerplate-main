@@ -4,7 +4,7 @@
     <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-body text-center py-5">
-          <div class="spinner-border text-danger mb-3" role="status" style="width: 3rem; height: 3rem;">
+          <div class="spinner-border text-danger mb-3" role="status" style="width: 3rem; height: 3rem">
             <span class="visually-hidden">Loading...</span>
           </div>
           <h3 class="text-muted" translate>Loading Deactivation Options...</h3>
@@ -38,9 +38,7 @@
               </div>
               <div>
                 <h4 class="alert-title" translate>Warning: This action will deactivate the provider</h4>
-                <div class="text-muted" translate>
-                  Deactivating a provider will suspend their access. You can choose to deactivate the entire provider or specific Lines of Business (LOBs).
-                </div>
+                <div class="text-muted" translate>Deactivating a provider will suspend their access. You can choose to deactivate the entire provider or specific Lines of Business (LOBs).</div>
               </div>
             </div>
           </div>
@@ -58,14 +56,14 @@
                   [checked]="deactivateEntireProvider"
                   (change)="setDeactivationType(true)"
                   [disabled]="isSubmitting"
-                >
+                />
                 <div class="form-selectgroup-label d-flex align-items-center p-3">
                   <div class="me-3">
                     <span class="form-selectgroup-check"></span>
                   </div>
                   <div class="form-selectgroup-label-content d-flex align-items-center">
                     <div class="me-3">
-                      <i class="ti ti-ban text-danger" style="font-size: 1.5rem;"></i>
+                      <i class="ti ti-ban text-danger" style="font-size: 1.5rem"></i>
                     </div>
                     <div>
                       <strong translate>Deactivate Entire Provider</strong>
@@ -83,14 +81,14 @@
                   [checked]="!deactivateEntireProvider"
                   (change)="setDeactivationType(false)"
                   [disabled]="isSubmitting"
-                >
+                />
                 <div class="form-selectgroup-label d-flex align-items-center p-3">
                   <div class="me-3">
                     <span class="form-selectgroup-check"></span>
                   </div>
                   <div class="form-selectgroup-label-content d-flex align-items-center">
                     <div class="me-3">
-                      <i class="ti ti-list text-warning" style="font-size: 1.5rem;"></i>
+                      <i class="ti ti-list text-warning" style="font-size: 1.5rem"></i>
                     </div>
                     <div>
                       <strong translate>Deactivate Specific LOBs</strong>
@@ -113,12 +111,7 @@
                   }
                 </label>
                 @if (providerPlans.length > 0) {
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-ghost-danger"
-                    (click)="toggleAllLOBs()"
-                    [disabled]="isSubmitting"
-                  >
+                  <button type="button" class="btn btn-sm btn-ghost-danger" (click)="toggleAllLOBs()" [disabled]="isSubmitting">
                     <i class="ti ti-checkbox icon"></i>
                     <span translate>{{ areAllLOBsSelected() ? 'Deselect All' : 'Select All' }}</span>
                   </button>
@@ -133,28 +126,14 @@
               } @else {
                 @if (providerPlans.length > 5) {
                   <div class="mb-2">
-                    <input
-                      type="text"
-                      class="form-control form-control-sm"
-                      [(ngModel)]="searchLOB"
-                      placeholder="Search line of business..."
-                      (input)="filterLOBs()"
-                      [disabled]="isSubmitting"
-                    >
+                    <input type="text" class="form-control form-control-sm" [(ngModel)]="searchLOB" placeholder="Search line of business..." (input)="filterLOBs()" [disabled]="isSubmitting" />
                   </div>
                 }
                 <div class="lob-list-wrapper">
                   <div class="lob-list-vertical" [class.is-invalid]="showError && selectedLOBs.length === 0">
                     @for (plan of filteredPlans; track plan.id) {
                       <label class="lob-option-vertical" [class.selected]="isLOBSelected(plan.id)" [for]="'lob-' + plan.id">
-                        <input
-                          class="lob-checkbox"
-                          type="checkbox"
-                          [id]="'lob-' + plan.id"
-                          [checked]="isLOBSelected(plan.id)"
-                          (change)="toggleLOB(plan.id)"
-                          [disabled]="isSubmitting"
-                        />
+                        <input class="lob-checkbox" type="checkbox" [id]="'lob-' + plan.id" [checked]="isLOBSelected(plan.id)" (change)="toggleLOB(plan.id)" [disabled]="isSubmitting" />
                         <span class="lob-checkmark">
                           <i class="ti ti-check"></i>
                         </span>
@@ -176,7 +155,7 @@
                     }
                   </div>
                   @if (providerPlans.length > 5) {
-                    <div class="text-muted text-center mt-2" style="font-size: 0.75rem;">
+                    <div class="text-muted text-center mt-2" style="font-size: 0.75rem">
                       <i class="ti ti-arrows-vertical"></i>
                       <span translate>Scroll to see all {{ providerPlans.length }} lines of business</span>
                     </div>
@@ -187,9 +166,7 @@
               @if (showError && selectedLOBs.length === 0) {
                 <div class="text-danger small mt-2" translate>At least one line of business must be selected</div>
               }
-              <small class="form-hint" translate>
-                Selected: {{ selectedLOBs.length }} of {{ providerPlans.length }}
-              </small>
+              <small class="form-hint" translate> Selected: {{ selectedLOBs.length }} of {{ providerPlans.length }} </small>
             </div>
           }
 
@@ -204,9 +181,7 @@
               [disabled]="isSubmitting"
               [class.is-invalid]="showError && !deactivationReason.trim()"
             ></textarea>
-            <small class="form-hint" translate>
-              This reason will be recorded in the provider's history
-            </small>
+            <small class="form-hint" translate> This reason will be recorded in the provider's history </small>
           </div>
 
           <!-- Error Message -->
@@ -222,9 +197,7 @@
           }
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn" (click)="closeModal()" [disabled]="isSubmitting" translate>
-            Cancel
-          </button>
+          <button type="button" class="btn" (click)="closeModal()" [disabled]="isSubmitting" translate>Cancel</button>
           <button type="button" class="btn btn-danger" (click)="submitDeactivation()" [disabled]="isSubmitting">
             @if (isSubmitting) {
               <span class="spinner-border spinner-border-sm me-2"></span>

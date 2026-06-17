@@ -41,7 +41,7 @@
     @if (isLoading) {
       <!-- Loading State -->
       <div class="card">
-            <div class="card-body">
+        <div class="card-body">
           <div class="text-center py-5">
             <div class="spinner-border text-azure" role="status"></div>
             <div class="mt-3 text-muted" translate>Loading provider details...</div>
@@ -53,31 +53,47 @@
       <div class="row">
         <!-- Sticky Sidebar Navigation -->
         <div class="col-md-3">
-          <div class="card card-stacked sticky-top sidebar-card" style="top: 1rem;">
+          <div class="card card-stacked sticky-top sidebar-card" style="top: 1rem">
             <!-- Provider Header with Gradient Background -->
             <div class="sidebar-header">
               <div class="sidebar-avatar-wrapper">
                 @if (provider.logo) {
-                  <img [src]="provider.logo.dataUrl" [alt]="provider.applicationName" class="sidebar-avatar">
+                  <img [src]="provider.logo.dataUrl" [alt]="provider.applicationName" class="sidebar-avatar" />
                 } @else {
                   <span class="sidebar-avatar sidebar-avatar-initials" [style.background]="getAvatarGradient(provider.id)">
                     {{ getInitials(provider.applicationName) }}
                   </span>
                 }
-                <div class="sidebar-status-badge" [class.status-active]="provider.status === 'active'" [class.status-pending]="provider.status === 'pending'" [class.status-suspended]="provider.status === 'suspended'" [class.status-rejected]="provider.status === 'rejected'">
-                  <i class="ti" [class.ti-check]="provider.status === 'active'" [class.ti-clock]="provider.status === 'pending'" [class.ti-ban]="provider.status === 'suspended'" [class.ti-x]="provider.status === 'rejected'"></i>
+                <div
+                  class="sidebar-status-badge"
+                  [class.status-active]="provider.status === 'active'"
+                  [class.status-pending]="provider.status === 'pending'"
+                  [class.status-suspended]="provider.status === 'suspended'"
+                  [class.status-rejected]="provider.status === 'rejected'"
+                >
+                  <i
+                    class="ti"
+                    [class.ti-check]="provider.status === 'active'"
+                    [class.ti-clock]="provider.status === 'pending'"
+                    [class.ti-ban]="provider.status === 'suspended'"
+                    [class.ti-x]="provider.status === 'rejected'"
+                  ></i>
                 </div>
               </div>
               <h3 class="sidebar-title">{{ provider.applicationName }}</h3>
               <div class="sidebar-subtitle">{{ provider.designation }}</div>
               <div class="sidebar-status-badge-large">
-                <span class="badge" [class.bg-success]="provider.status === 'active'" [class.bg-warning]="provider.status === 'pending'" [class.bg-secondary]="provider.status === 'suspended'" [class.bg-danger]="provider.status === 'rejected'">
+                <span
+                  class="badge"
+                  [class.bg-success]="provider.status === 'active'"
+                  [class.bg-warning]="provider.status === 'pending'"
+                  [class.bg-secondary]="provider.status === 'suspended'"
+                  [class.bg-danger]="provider.status === 'rejected'"
+                >
                   {{ provider.status | titlecase }}
                 </span>
                 @if (provider.isCertified) {
-                  <span class="badge bg-info ms-1">
-                    <i class="ti ti-certificate"></i> Certified
-                  </span>
+                  <span class="badge bg-info ms-1"> <i class="ti ti-certificate"></i> Certified </span>
                 }
               </div>
             </div>
@@ -233,7 +249,9 @@
                 <div class="col-md-6 col-lg-4">
                   <div class="preview-field">
                     <label class="preview-label" translate>License Number</label>
-                    <div class="preview-value"><code>{{ provider.licenseNumber }}</code></div>
+                    <div class="preview-value">
+                      <code>{{ provider.licenseNumber }}</code>
+                    </div>
                   </div>
                 </div>
                 <div class="col-md-6 col-lg-4">
@@ -293,38 +311,38 @@
               </h3>
             </div>
             <div class="card-body">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <div class="preview-field">
-                <label class="preview-label" translate>Business URL</label>
-                <div class="preview-value">
-                  <a [href]="provider.businessUrl" target="_blank" rel="noopener noreferrer" class="text-azure">
-                    {{ provider.businessUrl }}
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="preview-field">
-                <label class="preview-label" translate>Registered Address</label>
-                <div class="preview-value">{{ provider.registeredBusinessAddress }}</div>
-              </div>
-            </div>
-            @if (provider.sandboxUrl) {
-              <div class="col-md-6">
-                <div class="preview-field">
-                  <label class="preview-label" translate>Sandbox URL</label>
-                  <div class="preview-value">
-                    <a [href]="provider.sandboxUrl" target="_blank" rel="noopener noreferrer" class="text-azure">
-                      {{ provider.sandboxUrl }}
-                    </a>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="preview-field">
+                    <label class="preview-label" translate>Business URL</label>
+                    <div class="preview-value">
+                      <a [href]="provider.businessUrl" target="_blank" rel="noopener noreferrer" class="text-azure">
+                        {{ provider.businessUrl }}
+                      </a>
+                    </div>
                   </div>
                 </div>
+                <div class="col-md-6">
+                  <div class="preview-field">
+                    <label class="preview-label" translate>Registered Address</label>
+                    <div class="preview-value">{{ provider.registeredBusinessAddress }}</div>
+                  </div>
+                </div>
+                @if (provider.sandboxUrl) {
+                  <div class="col-md-6">
+                    <div class="preview-field">
+                      <label class="preview-label" translate>Sandbox URL</label>
+                      <div class="preview-value">
+                        <a [href]="provider.sandboxUrl" target="_blank" rel="noopener noreferrer" class="text-azure">
+                          {{ provider.sandboxUrl }}
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                }
               </div>
-            }
+            </div>
           </div>
-        </div>
-      </div>
 
           <!-- Personal Identity Card -->
           <div id="identity" class="card mb-3">
@@ -335,28 +353,30 @@
               </h3>
             </div>
             <div class="card-body">
-          <div class="row g-3">
-            <div class="col-md-6 col-lg-4">
-              <div class="preview-field">
-                <label class="preview-label" translate>License Number</label>
-                <div class="preview-value"><code>{{ provider.licenseNumber }}</code></div>
-              </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-              <div class="preview-field">
-                <label class="preview-label" translate>Date of Birth</label>
-                <div class="preview-value">{{ provider.dateOfBirth }}</div>
-              </div>
-            </div>
-            <div class="col-md-6 col-lg-4">
-              <div class="preview-field">
-                <label class="preview-label" translate>Age</label>
-                <div class="preview-value">{{ provider.age }} <span translate>years</span></div>
+              <div class="row g-3">
+                <div class="col-md-6 col-lg-4">
+                  <div class="preview-field">
+                    <label class="preview-label" translate>License Number</label>
+                    <div class="preview-value">
+                      <code>{{ provider.licenseNumber }}</code>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="preview-field">
+                    <label class="preview-label" translate>Date of Birth</label>
+                    <div class="preview-value">{{ provider.dateOfBirth }}</div>
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="preview-field">
+                    <label class="preview-label" translate>Age</label>
+                    <div class="preview-value">{{ provider.age }} <span translate>years</span></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
           <!-- OAuth Settings Card -->
           <div id="oauth" class="card mb-3">
@@ -367,32 +387,32 @@
               </h3>
             </div>
             <div class="card-body">
-          <div class="row g-3">
-            <div class="col-md-6 col-lg-4">
-              <div class="preview-field">
-                <label class="preview-label" translate>Grant Type</label>
-                <div class="preview-value">
-                  <span class="badge bg-blue-lt">{{ getGrantTypeLabel(provider.allowedGrant) }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="col-12">
-              <div class="preview-field">
-                <label class="preview-label" translate>Redirect URLs</label>
-                <div class="preview-value">
-                  @for (url of provider.redirectUrls; track url) {
-                    <div class="mb-1">
-                      <a [href]="url" target="_blank" rel="noopener noreferrer" class="text-azure">
-                        {{ url }}
-                      </a>
+              <div class="row g-3">
+                <div class="col-md-6 col-lg-4">
+                  <div class="preview-field">
+                    <label class="preview-label" translate>Grant Type</label>
+                    <div class="preview-value">
+                      <span class="badge bg-blue-lt">{{ getGrantTypeLabel(provider.allowedGrant) }}</span>
                     </div>
-                  }
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="preview-field">
+                    <label class="preview-label" translate>Redirect URLs</label>
+                    <div class="preview-value">
+                      @for (url of provider.redirectUrls; track url) {
+                        <div class="mb-1">
+                          <a [href]="url" target="_blank" rel="noopener noreferrer" class="text-azure">
+                            {{ url }}
+                          </a>
+                        </div>
+                      }
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
           <!-- Additional Files Card -->
           @if (provider.additionalFiles.length > 0) {
@@ -403,30 +423,32 @@
                   <span translate>Additional Files</span>
                 </h3>
               </div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-vcenter">
-                <thead>
-                  <tr>
-                    <th><span translate>File Name</span></th>
-                    <th><span translate>File Type</span></th>
-                    <th><span translate>File Size</span></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (file of provider.additionalFiles; track file.name) {
-                    <tr>
-                      <td>{{ file.name }}</td>
-                      <td><code>{{ file.type }}</code></td>
-                      <td>{{ formatFileSize(file.size) }}</td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-vcenter">
+                    <thead>
+                      <tr>
+                        <th><span translate>File Name</span></th>
+                        <th><span translate>File Type</span></th>
+                        <th><span translate>File Size</span></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (file of provider.additionalFiles; track file.name) {
+                        <tr>
+                          <td>{{ file.name }}</td>
+                          <td>
+                            <code>{{ file.type }}</code>
+                          </td>
+                          <td>{{ formatFileSize(file.size) }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      }
+          }
 
           <!-- Comments Card -->
           @if (provider.comments) {
@@ -437,13 +459,13 @@
                   <span translate>Comments</span>
                 </h3>
               </div>
-          <div class="card-body">
-            <div class="alert alert-info mb-0">
-              {{ provider.comments }}
+              <div class="card-body">
+                <div class="alert alert-info mb-0">
+                  {{ provider.comments }}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      }
+          }
 
           <!-- System Information Card -->
           <div id="system" class="card mb-3">
@@ -454,22 +476,22 @@
               </h3>
             </div>
             <div class="card-body">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <div class="preview-field">
-                <label class="preview-label" translate>Created At</label>
-                <div class="preview-value">{{ provider.createdAt | date: 'medium' }}</div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="preview-field">
-                <label class="preview-label" translate>Last Updated</label>
-                <div class="preview-value">{{ provider.updatedAt | date: 'medium' }}</div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="preview-field">
+                    <label class="preview-label" translate>Created At</label>
+                    <div class="preview-value">{{ provider.createdAt | date: 'medium' }}</div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="preview-field">
+                    <label class="preview-label" translate>Last Updated</label>
+                    <div class="preview-value">{{ provider.updatedAt | date: 'medium' }}</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
         </div>
         <!-- End Main Content (col-md-9) -->
       </div>
@@ -479,8 +501,4 @@
 </div>
 
 <!-- Deactivate Provider Component -->
-<app-deactivate-provider
-  [provider]="provider"
-  [trigger]="deactivateTrigger"
-  (deactivated)="onProviderDeactivated()">
-</app-deactivate-provider>
+<app-deactivate-provider [provider]="provider" [trigger]="deactivateTrigger" (deactivated)="onProviderDeactivated()"> </app-deactivate-provider>

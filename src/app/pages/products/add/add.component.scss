@@ -687,7 +687,9 @@
   &.selected {
     border-color: var(--tblr-azure);
     background: rgba(var(--tblr-azure-rgb), 0.04);
-    box-shadow: 0 0 0 1px var(--tblr-azure), 0 2px 8px rgba(var(--tblr-azure-rgb), 0.15);
+    box-shadow:
+      0 0 0 1px var(--tblr-azure),
+      0 2px 8px rgba(var(--tblr-azure-rgb), 0.15);
 
     .provider-type-icon {
       background: var(--tblr-azure);

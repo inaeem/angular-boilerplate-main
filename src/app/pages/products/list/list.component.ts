@@ -7,7 +7,6 @@ import { Provider } from '../entities/provider.entity';
 import { Plan } from '../entities';
 import { ToastService } from '@shared/services/toast.service';
 
-
 @UntilDestroy()
 @Component({
   selector: 'app-list',
@@ -225,16 +224,16 @@ export class ListComponent implements OnInit {
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   }
 
   getInitials(name: string): string {
     if (!name) return '?';
     return name
       .split(' ')
-      .filter(word => word.length > 0)
+      .filter((word) => word.length > 0)
       .slice(0, 2)
-      .map(word => word[0].toUpperCase())
+      .map((word) => word[0].toUpperCase())
       .join('');
   }
 
@@ -257,8 +256,8 @@ export class ListComponent implements OnInit {
   getPlanNames(planIds: number[]): string[] {
     if (!planIds || planIds.length === 0) return [];
     return planIds
-      .map(id => {
-        const plan = this.plans.find(p => p.id === id);
+      .map((id) => {
+        const plan = this.plans.find((p) => p.id === id);
         return plan ? plan.name : null;
       })
       .filter((name): name is string => name !== null);

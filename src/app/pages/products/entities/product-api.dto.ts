@@ -26,35 +26,35 @@ export interface ProductVariantApiDto {
 export interface ProductApiDto {
   // Basic fields
   id: number;
-  product_name: string;  // Maps to: name
-  product_description: string;  // Maps to: description
-  product_category: string;  // Maps to: category
-  product_status: string;  // Maps to: status
+  product_name: string; // Maps to: name
+  product_description: string; // Maps to: description
+  product_category: string; // Maps to: category
+  product_status: string; // Maps to: status
 
   // Pricing & Stock
-  unit_price: number;  // Maps to: price
-  compare_at_price: number | null;  // Maps to: compareAtPrice
-  cost_per_item: number | null;  // Maps to: costPerItem
-  product_sku: string;  // Maps to: sku
-  stock_quantity: number;  // Maps to: stock
-  low_stock_threshold: number | null;  // Maps to: lowStockThreshold
+  unit_price: number; // Maps to: price
+  compare_at_price: number | null; // Maps to: compareAtPrice
+  cost_per_item: number | null; // Maps to: costPerItem
+  product_sku: string; // Maps to: sku
+  stock_quantity: number; // Maps to: stock
+  low_stock_threshold: number | null; // Maps to: lowStockThreshold
 
   // Images & Media
-  image_url: string;  // Maps to: image
-  gallery_images: string[];  // Maps to: galleryImages
+  image_url: string; // Maps to: image
+  gallery_images: string[]; // Maps to: galleryImages
 
   // Variants
-  product_variants: ProductVariantApiDto[];  // Maps to: variants
+  product_variants: ProductVariantApiDto[]; // Maps to: variants
 
   // Additional Details
-  product_tags: string;  // Maps to: tags
-  product_weight: number | null;  // Maps to: weight
-  product_dimensions: string;  // Maps to: dimensions
+  product_tags: string; // Maps to: tags
+  product_weight: number | null; // Maps to: weight
+  product_dimensions: string; // Maps to: dimensions
 
   // Display attributes
-  rating_score: number;  // Maps to: rating
-  is_favorite: boolean;  // Maps to: isFavorite
-  is_deprecated: boolean;  // Maps to: deprecated
+  rating_score: number; // Maps to: rating
+  is_favorite: boolean; // Maps to: isFavorite
+  is_deprecated: boolean; // Maps to: deprecated
 
   // Metadata
   created_at?: string;

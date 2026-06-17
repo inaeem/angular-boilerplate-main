@@ -391,7 +391,8 @@
   }
 
   &.table-vcenter {
-    td, th {
+    td,
+    th {
       vertical-align: middle;
     }
   }
@@ -619,4 +620,3 @@ hr {
     margin-bottom: 0;
   }
 }
-

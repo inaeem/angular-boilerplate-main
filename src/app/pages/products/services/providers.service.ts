@@ -100,11 +100,7 @@ export class ProvidersService {
 
       const fileCount = faker.number.int({ min: 0, max: 3 });
       const additionalFiles: ProviderFile[] = Array.from({ length: fileCount }, () =>
-        this.createMockFile(
-          `${faker.system.commonFileName('pdf')}`,
-          'application/pdf',
-          faker.number.int({ min: 100000, max: 500000 }),
-        ),
+        this.createMockFile(`${faker.system.commonFileName('pdf')}`, 'application/pdf', faker.number.int({ min: 100000, max: 500000 })),
       );
 
       const redirectCount = faker.number.int({ min: 1, max: 3 });
@@ -124,9 +120,7 @@ export class ProvidersService {
         dateOfBirth: dob.toISOString().split('T')[0],
         age: new Date().getFullYear() - dob.getFullYear(),
         allowedGrant: faker.helpers.arrayElement(grants),
-        redirectUrls: Array.from({ length: redirectCount }, () =>
-          `https://${faker.internet.domainName()}/oauth/callback`,
-        ),
+        redirectUrls: Array.from({ length: redirectCount }, () => `https://${faker.internet.domainName()}/oauth/callback`),
         sandboxUrl: faker.datatype.boolean(0.8) ? `https://sandbox.${domain}/api` : '',
         isCertified: faker.datatype.boolean(),
         comments: faker.datatype.boolean(0.7) ? faker.lorem.sentence() : '',

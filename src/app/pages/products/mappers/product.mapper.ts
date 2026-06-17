@@ -48,7 +48,7 @@ export class ProductMapper {
       galleryImages: dto.gallery_images || [],
 
       // Variants
-      variants: dto.product_variants?.map(v => this.fromVariantDto(v)) || [],
+      variants: dto.product_variants?.map((v) => this.fromVariantDto(v)) || [],
 
       // Additional Details
       tags: dto.product_tags || '',
@@ -258,13 +258,7 @@ export class ProductMapper {
    * @returns boolean - True if valid
    */
   isValidDto(dto: any): dto is ProductApiDto {
-    return (
-      dto &&
-      typeof dto.id === 'number' &&
-      typeof dto.product_name === 'string' &&
-      typeof dto.unit_price === 'number' &&
-      typeof dto.stock_quantity === 'number'
-    );
+    return dto && typeof dto.id === 'number' && typeof dto.product_name === 'string' && typeof dto.unit_price === 'number' && typeof dto.stock_quantity === 'number';
   }
 
   /**

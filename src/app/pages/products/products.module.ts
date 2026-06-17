@@ -2,6 +2,8 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { RecaptchaModule, RECAPTCHA_SETTINGS, RecaptchaSettings } from 'ng-recaptcha-2';
+import { environment } from '@env/environment';
 
 import { ProductsRoutingModule } from './products-routing.module';
 import { ListComponent } from './list/list.component';
@@ -15,7 +17,23 @@ import { CredentialsComponent } from './credentials/credentials.component';
 import { DeactivateProviderComponent } from '@shared/components';
 
 @NgModule({
-  declarations: [ListComponent, AddComponent, AddReactiveComponent, ViewComponent, PrintComponent, ProvidersListComponent, ProvidersListReactiveComponent, CredentialsComponent, DeactivateProviderComponent],
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, ProductsRoutingModule],
+  declarations: [
+    ListComponent,
+    AddComponent,
+    AddReactiveComponent,
+    ViewComponent,
+    PrintComponent,
+    ProvidersListComponent,
+    ProvidersListReactiveComponent,
+    CredentialsComponent,
+    DeactivateProviderComponent,
+  ],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, RecaptchaModule, ProductsRoutingModule],
+  providers: [
+    {
+      provide: RECAPTCHA_SETTINGS,
+      useValue: { siteKey: environment.recaptchaSiteKey } as RecaptchaSettings,
+    },
+  ],
 })
 export class ProductsModule {}

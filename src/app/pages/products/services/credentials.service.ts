@@ -29,7 +29,10 @@ export class CredentialsService {
    */
   createCredential(providerId: number, dto: CreateCredentialDto): Observable<Credential> {
     // Generate a default name based on timestamp and random suffix
-    const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
+    const timestamp = new Date()
+      .toISOString()
+      .replace(/[-:T.]/g, '')
+      .slice(0, 14);
     const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
     const defaultName = `Credential_${timestamp}_${randomSuffix}`;
 

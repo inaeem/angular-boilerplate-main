@@ -41,7 +41,7 @@ export class ProviderMapper {
       sandboxUrl: dto.sandbox_url,
       isCertified: dto.is_certified,
       comments: dto.comments,
-      additionalFiles: dto.additional_files.map(file => this.fromFileDto(file)),
+      additionalFiles: dto.additional_files.map((file) => this.fromFileDto(file)),
 
       // System fields
       createdAt: new Date(dto.created_at),
@@ -85,7 +85,7 @@ export class ProviderMapper {
       sandbox_url: provider.sandboxUrl,
       is_certified: provider.isCertified,
       comments: provider.comments,
-      additional_files: provider.additionalFiles.map(file => this.toFileDto(file)),
+      additional_files: provider.additionalFiles.map((file) => this.toFileDto(file)),
 
       // System fields
       created_at: provider.createdAt.toISOString(),

@@ -26,15 +26,12 @@ export class ProductsService {
       product_status: 'IN_STOCK',
       unit_price: 299.99,
       compare_at_price: 349.99,
-      cost_per_item: 150.00,
+      cost_per_item: 150.0,
       product_sku: 'WH-PRE-001',
       stock_quantity: 45,
       low_stock_threshold: 10,
       image_url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop',
-      gallery_images: [
-        'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop',
-        'https://images.unsplash.com/photo-1484704849700-f032a568e944?w=400&h=300&fit=crop',
-      ],
+      gallery_images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop', 'https://images.unsplash.com/photo-1484704849700-f032a568e944?w=400&h=300&fit=crop'],
       product_variants: [
         {
           id: 'var-1-1',
@@ -68,7 +65,7 @@ export class ProductsService {
       product_status: 'LOW_STOCK',
       unit_price: 399.99,
       compare_at_price: null,
-      cost_per_item: 200.00,
+      cost_per_item: 200.0,
       product_sku: 'SW-PRO-002',
       stock_quantity: 12,
       low_stock_threshold: 15,
@@ -88,7 +85,7 @@ export class ProductsService {
       product_description: 'Compact and powerful speaker with 360-degree sound and 12-hour battery.',
       unit_price: 89.99,
       compare_at_price: 109.99,
-      cost_per_item: 35.00,
+      cost_per_item: 35.0,
       product_sku: 'SPK-BT-003',
       product_category: 'Electronics',
       stock_quantity: 78,
@@ -110,7 +107,7 @@ export class ProductsService {
       product_description: '7-in-1 USB-C hub with HDMI, USB 3.0, SD card reader, and 100W power delivery.',
       unit_price: 49.99,
       compare_at_price: null,
-      cost_per_item: 20.00,
+      cost_per_item: 20.0,
       product_sku: 'HUB-USB-004',
       product_category: 'Accessories',
       stock_quantity: 0,
@@ -132,7 +129,7 @@ export class ProductsService {
       product_description: 'RGB backlit mechanical keyboard with Cherry MX switches and programmable keys.',
       unit_price: 149.99,
       compare_at_price: 179.99,
-      cost_per_item: 65.00,
+      cost_per_item: 65.0,
       product_sku: 'KBD-MCH-005',
       product_category: 'Accessories',
       stock_quantity: 32,
@@ -154,7 +151,7 @@ export class ProductsService {
       product_description: 'Vertical ergonomic mouse with adjustable DPI and wireless connectivity.',
       unit_price: 59.99,
       compare_at_price: 74.99,
-      cost_per_item: 22.00,
+      cost_per_item: 22.0,
       product_sku: 'MSE-ERG-006',
       product_category: 'Accessories',
       stock_quantity: 56,
@@ -176,7 +173,7 @@ export class ProductsService {
       product_description: 'Adjustable aluminum laptop stand with heat dissipation design.',
       unit_price: 39.99,
       compare_at_price: 49.99,
-      cost_per_item: 16.00,
+      cost_per_item: 16.0,
       product_sku: 'STD-LAP-007',
       product_category: 'Accessories',
       stock_quantity: 89,
@@ -198,7 +195,7 @@ export class ProductsService {
       product_description: 'Full HD webcam with auto-focus, noise reduction, and built-in microphone.',
       unit_price: 79.99,
       compare_at_price: null,
-      cost_per_item: 32.00,
+      cost_per_item: 32.0,
       product_sku: 'WBC-HD-008',
       product_category: 'Electronics',
       stock_quantity: 8,
@@ -220,7 +217,7 @@ export class ProductsService {
       product_description: 'High-precision wireless gaming mouse with RGB lighting and 20,000 DPI sensor.',
       unit_price: 79.99,
       compare_at_price: 99.99,
-      cost_per_item: 28.00,
+      cost_per_item: 28.0,
       product_sku: 'MSE-GMG-009',
       product_category: 'Accessories',
       stock_quantity: 25,
@@ -242,7 +239,7 @@ export class ProductsService {
       product_description: 'Ultra HD 4K monitor with HDR support, 144Hz refresh rate, and USB-C connectivity.',
       unit_price: 549.99,
       compare_at_price: 649.99,
-      cost_per_item: 280.00,
+      cost_per_item: 280.0,
       product_sku: 'MON-4K-010',
       product_category: 'Electronics',
       stock_quantity: 18,
@@ -264,7 +261,7 @@ export class ProductsService {
       product_description: 'Premium desk organizer with pen holder, document tray, and cable management.',
       unit_price: 34.99,
       compare_at_price: null,
-      cost_per_item: 12.00,
+      cost_per_item: 12.0,
       product_sku: 'ORG-DSK-011',
       product_category: 'Accessories',
       stock_quantity: 67,
@@ -286,7 +283,7 @@ export class ProductsService {
       product_description: 'Adjustable LED desk lamp with touch control, USB charging port, and eye-care mode.',
       unit_price: 45.99,
       compare_at_price: 59.99,
-      cost_per_item: 18.00,
+      cost_per_item: 18.0,
       product_sku: 'LMP-LED-012',
       product_category: 'Accessories',
       stock_quantity: 41,
@@ -351,7 +348,7 @@ export class ProductsService {
       catchError((error) => {
         console.error('Error fetching products from API:', error);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -363,7 +360,7 @@ export class ProductsService {
     const dtos = [...this.mockProductDtos];
     return of(dtos).pipe(
       map((dtos) => this.productMapper.fromDtoArray(dtos)),
-      delay(this.getRandomDelay())
+      delay(this.getRandomDelay()),
     );
   }
 
@@ -384,7 +381,7 @@ export class ProductsService {
       catchError((error) => {
         console.error(`Error fetching product ${id} from API:`, error);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -399,7 +396,7 @@ export class ProductsService {
     }
     return of(dto).pipe(
       map((dto) => this.productMapper.fromDto(dto)),
-      delay(this.getRandomDelay())
+      delay(this.getRandomDelay()),
     );
   }
 
@@ -421,7 +418,7 @@ export class ProductsService {
       catchError((error) => {
         console.error('Error searching products from API:', error);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -435,20 +432,17 @@ export class ProductsService {
     if (!lowerQuery) {
       return of([...this.mockProductDtos]).pipe(
         map((dtos) => this.productMapper.fromDtoArray(dtos)),
-        delay(this.getRandomDelay())
+        delay(this.getRandomDelay()),
       );
     }
 
     const filtered = this.mockProductDtos.filter(
-      (dto) =>
-        dto.product_name.toLowerCase().includes(lowerQuery) ||
-        dto.product_description.toLowerCase().includes(lowerQuery) ||
-        dto.product_category.toLowerCase().includes(lowerQuery)
+      (dto) => dto.product_name.toLowerCase().includes(lowerQuery) || dto.product_description.toLowerCase().includes(lowerQuery) || dto.product_category.toLowerCase().includes(lowerQuery),
     );
 
     return of(filtered).pipe(
       map((dtos) => this.productMapper.fromDtoArray(dtos)),
-      delay(this.getRandomDelay())
+      delay(this.getRandomDelay()),
     );
   }
 
@@ -468,7 +462,7 @@ export class ProductsService {
         console.error(`Error toggling favorite for product ${productId}:`, error);
         return throwError(() => error);
       }),
-      delay(500) // Quick action
+      delay(500), // Quick action
     );
   }
 
@@ -501,7 +495,7 @@ export class ProductsService {
         console.error(`Error deleting product ${productId}:`, error);
         return throwError(() => error);
       }),
-      delay(1000)
+      delay(1000),
     );
   }
 
@@ -537,7 +531,7 @@ export class ProductsService {
       catchError((error) => {
         console.error('Error creating product:', error);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -574,7 +568,7 @@ export class ProductsService {
 
     return of(newDto).pipe(
       map((dto) => this.productMapper.fromDto(dto)),
-      delay(this.getRandomDelay())
+      delay(this.getRandomDelay()),
     );
   }
 
@@ -597,7 +591,7 @@ export class ProductsService {
       catchError((error) => {
         console.error(`Error updating product ${productId}:`, error);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -627,7 +621,7 @@ export class ProductsService {
 
     return of(dto).pipe(
       map((dto) => this.productMapper.fromDto(dto)),
-      delay(this.getRandomDelay())
+      delay(this.getRandomDelay()),
     );
   }
 }

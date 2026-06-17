@@ -61,11 +61,6 @@ export class PlanMapper {
    * @returns boolean - True if valid
    */
   isValidDto(dto: any): dto is PlanApiDto {
-    return (
-      dto &&
-      typeof dto.id === 'number' &&
-      typeof dto.plan_name === 'string' &&
-      typeof dto.price_amount === 'number'
-    );
+    return dto && typeof dto.id === 'number' && typeof dto.plan_name === 'string' && typeof dto.price_amount === 'number';
   }
 }

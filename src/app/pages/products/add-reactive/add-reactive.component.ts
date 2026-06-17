@@ -137,14 +137,16 @@ export class AddReactiveComponent implements OnInit {
     });
 
     // Auto-calculate age when dateOfBirth changes
-    this.providerForm.get('dateOfBirth')!.valueChanges
-      .pipe(untilDestroyed(this))
-      .subscribe(dob => this.calculateAge(dob));
+    this.providerForm
+      .get('dateOfBirth')!
+      .valueChanges.pipe(untilDestroyed(this))
+      .subscribe((dob) => this.calculateAge(dob));
 
     // Swap group-field validators when provider type changes
-    this.providerForm.get('providerType')!.valueChanges
-      .pipe(untilDestroyed(this))
-      .subscribe(type => this.updateGroupValidators(type === 'group'));
+    this.providerForm
+      .get('providerType')!
+      .valueChanges.pipe(untilDestroyed(this))
+      .subscribe((type) => this.updateGroupValidators(type === 'group'));
   }
 
   private updateGroupValidators(isGroup: boolean): void {
@@ -158,7 +160,7 @@ export class AddReactiveComponent implements OnInit {
       complianceOfficerEmail: [Validators.required, Validators.email],
     };
 
-    Object.keys(validatorMap).forEach(field => {
+    Object.keys(validatorMap).forEach((field) => {
       const control = this.providerForm.get(field);
       if (!control) return;
       if (isGroup) {
@@ -188,7 +190,7 @@ export class AddReactiveComponent implements OnInit {
     if (!control.value) return null;
     try {
       const url = new URL(control.value);
-      return (url.protocol === 'http:' || url.protocol === 'https:') ? null : { invalidUrl: true };
+      return url.protocol === 'http:' || url.protocol === 'https:' ? null : { invalidUrl: true };
     } catch {
       return { invalidUrl: true };
     }
@@ -198,7 +200,7 @@ export class AddReactiveComponent implements OnInit {
     if (!control.value || control.value.trim() === '') return null;
     try {
       const url = new URL(control.value);
-      return (url.protocol === 'http:' || url.protocol === 'https:') ? null : { invalidUrl: true };
+      return url.protocol === 'http:' || url.protocol === 'https:' ? null : { invalidUrl: true };
     } catch {
       return { invalidUrl: true };
     }
@@ -225,10 +227,24 @@ export class AddReactiveComponent implements OnInit {
   private getStepFields(step: number): string[] {
     switch (step) {
       case 1:
-        return ['providerType', 'providerGroupName', 'groupRegistrationNumber', 'groupType',
-                'numberOfProviders', 'numberOfLocations', 'complianceOfficerName', 'complianceOfficerEmail',
-                'applicationName', 'applicationDescription', 'businessUrl', 'registeredBusinessAddress',
-                'contactPersonName', 'designation', 'officialEmail', 'selectedPlans'];
+        return [
+          'providerType',
+          'providerGroupName',
+          'groupRegistrationNumber',
+          'groupType',
+          'numberOfProviders',
+          'numberOfLocations',
+          'complianceOfficerName',
+          'complianceOfficerEmail',
+          'applicationName',
+          'applicationDescription',
+          'businessUrl',
+          'registeredBusinessAddress',
+          'contactPersonName',
+          'designation',
+          'officialEmail',
+          'selectedPlans',
+        ];
       case 2:
         return ['licenseNumber', 'dateOfBirth', 'age'];
       case 3:
@@ -244,7 +260,7 @@ export class AddReactiveComponent implements OnInit {
 
   isStepValid(step: number): boolean {
     const fields = this.getStepFields(step);
-    const allFieldsValid = fields.every(field => {
+    const allFieldsValid = fields.every((field) => {
       const control = this.providerForm.get(field);
       if (!control) return true;
       return control.valid;
@@ -273,13 +289,13 @@ export class AddReactiveComponent implements OnInit {
 
   markStepAsTouched(step: number): void {
     const fields = this.getStepFields(step);
-    fields.forEach(field => {
+    fields.forEach((field) => {
       const control = this.providerForm.get(field);
       if (control) {
         control.markAsTouched();
         control.markAsDirty();
         if (control instanceof FormArray) {
-          control.controls.forEach(c => {
+          control.controls.forEach((c) => {
             c.markAsTouched();
             c.markAsDirty();
           });
@@ -305,12 +321,9 @@ export class AddReactiveComponent implements OnInit {
         if (url.hasError('required')) errors.push('Business URL is required');
         else if (url.hasError('invalidUrl')) errors.push('Business URL must be a valid URL');
 
-        if (this.providerForm.get('registeredBusinessAddress')!.hasError('required'))
-          errors.push('Registered business address is required');
-        if (this.providerForm.get('contactPersonName')!.hasError('required'))
-          errors.push('Contact person name is required');
-        if (this.providerForm.get('designation')!.hasError('required'))
-          errors.push('Designation is required');
+        if (this.providerForm.get('registeredBusinessAddress')!.hasError('required')) errors.push('Registered business address is required');
+        if (this.providerForm.get('contactPersonName')!.hasError('required')) errors.push('Contact person name is required');
+        if (this.providerForm.get('designation')!.hasError('required')) errors.push('Designation is required');
 
         const email = this.providerForm.get('officialEmail')!;
         if (email.hasError('required')) errors.push('Official email is required');
@@ -325,8 +338,7 @@ export class AddReactiveComponent implements OnInit {
         if (lic.hasError('required')) errors.push('License number is required');
         else if (lic.hasError('minlength')) errors.push('License number must be at least 5 characters');
 
-        if (this.providerForm.get('dateOfBirth')!.hasError('required'))
-          errors.push('Date of birth is required');
+        if (this.providerForm.get('dateOfBirth')!.hasError('required')) errors.push('Date of birth is required');
 
         const age = this.providerForm.get('age')!.value;
         if (age === null) errors.push('Age must be calculated from date of birth');
@@ -334,10 +346,8 @@ export class AddReactiveComponent implements OnInit {
         break;
       }
       case 3: {
-        if (this.providerForm.get('allowedGrant')!.hasError('required'))
-          errors.push('Grant type selection is required');
-        if (this.redirectUrls.length === 0)
-          errors.push('At least one redirect URL is required');
+        if (this.providerForm.get('allowedGrant')!.hasError('required')) errors.push('Grant type selection is required');
+        if (this.redirectUrls.length === 0) errors.push('At least one redirect URL is required');
         else {
           this.redirectUrls.controls.forEach((ctrl, i) => {
             if (ctrl.hasError('invalidUrl')) errors.push(`Redirect URL ${i + 1} is not valid`);
@@ -363,10 +373,7 @@ export class AddReactiveComponent implements OnInit {
 
     if (!this.isStepValid(this.currentStep)) {
       const errors = this.getStepErrors(this.currentStep);
-      this._toastService.warning(
-        this._translateService.instant('Validation Error'),
-        errors.join(', ')
-      );
+      this._toastService.warning(this._translateService.instant('Validation Error'), errors.join(', '));
       return;
     }
 
@@ -415,7 +422,7 @@ export class AddReactiveComponent implements OnInit {
   // ─── Plan Selection ────────────────────────────────────────────
 
   togglePlan(planId: number): void {
-    const index = this.selectedPlans.controls.findIndex(c => c.value === planId);
+    const index = this.selectedPlans.controls.findIndex((c) => c.value === planId);
     if (index > -1) {
       this.selectedPlans.removeAt(index);
     } else {
@@ -424,7 +431,7 @@ export class AddReactiveComponent implements OnInit {
   }
 
   isPlanSelected(planId: number): boolean {
-    return this.selectedPlans.controls.some(c => c.value === planId);
+    return this.selectedPlans.controls.some((c) => c.value === planId);
   }
 
   toggleAllPlans(): void {
@@ -432,7 +439,7 @@ export class AddReactiveComponent implements OnInit {
       this.selectedPlans.clear();
     } else {
       this.selectedPlans.clear();
-      this.plans.forEach(plan => this.selectedPlans.push(new FormControl(plan.id)));
+      this.plans.forEach((plan) => this.selectedPlans.push(new FormControl(plan.id)));
     }
   }
 
@@ -448,10 +455,8 @@ export class AddReactiveComponent implements OnInit {
     if (this.selectedPlans.length === 0) {
       return this._translateService.instant('Select plans...');
     }
-    const selectedIds = this.selectedPlans.controls.map(c => c.value);
-    const selectedNames = this.plans
-      .filter(plan => selectedIds.includes(plan.id))
-      .map(plan => plan.name);
+    const selectedIds = this.selectedPlans.controls.map((c) => c.value);
+    const selectedNames = this.plans.filter((plan) => selectedIds.includes(plan.id)).map((plan) => plan.name);
 
     if (selectedNames.length <= 2) {
       return selectedNames.join(', ');
@@ -465,7 +470,7 @@ export class AddReactiveComponent implements OnInit {
 
   addRedirectUrl(): void {
     if (this.tempRedirectUrl && this.isValidUrl(this.tempRedirectUrl)) {
-      const exists = this.redirectUrls.controls.some(c => c.value === this.tempRedirectUrl);
+      const exists = this.redirectUrls.controls.some((c) => c.value === this.tempRedirectUrl);
       if (exists) {
         this._toastService.warning('Duplicate URL', 'This redirect URL already exists.');
         return;
@@ -582,14 +587,7 @@ export class AddReactiveComponent implements OnInit {
       const buffer = await file.slice(0, 5).arrayBuffer();
       const bytes = new Uint8Array(buffer);
       // "%PDF-" = 0x25 0x50 0x44 0x46 0x2D
-      return (
-        bytes.length === 5 &&
-        bytes[0] === 0x25 &&
-        bytes[1] === 0x50 &&
-        bytes[2] === 0x44 &&
-        bytes[3] === 0x46 &&
-        bytes[4] === 0x2d
-      );
+      return bytes.length === 5 && bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46 && bytes[4] === 0x2d;
     } catch {
       return false;
     }
@@ -654,10 +652,7 @@ export class AddReactiveComponent implements OnInit {
             }
 
             this.isLoading = false;
-            this._toastService.info(
-              this._translateService.instant('Load Successful'),
-              `Loaded product "${product.name}" for editing.`
-            );
+            this._toastService.info(this._translateService.instant('Load Successful'), `Loaded product "${product.name}" for editing.`);
           } else {
             this.isLoading = false;
             this._toastService.error(this._translateService.instant('Load Failed'), 'Product not found.');
@@ -667,10 +662,7 @@ export class AddReactiveComponent implements OnInit {
         error: (error) => {
           console.error('Error loading product:', error);
           this.isLoading = false;
-          this._toastService.error(
-            this._translateService.instant('Load Failed'),
-            this._translateService.instant('Failed to load product details.')
-          );
+          this._toastService.error(this._translateService.instant('Load Failed'), this._translateService.instant('Failed to load product details.'));
           this._router.navigate(['/products']);
         },
       });
@@ -683,10 +675,7 @@ export class AddReactiveComponent implements OnInit {
 
     if (!this.isStepValid(4)) {
       const errors = this.getStepErrors(4);
-      this._toastService.error(
-        'Validation Failed',
-        'Please fix all validation errors before submitting. ' + errors.join('; ')
-      );
+      this._toastService.error('Validation Failed', 'Please fix all validation errors before submitting. ' + errors.join('; '));
 
       for (let step = 1; step <= 3; step++) {
         if (!this.isStepValid(step)) {
@@ -722,19 +711,13 @@ export class AddReactiveComponent implements OnInit {
         .subscribe({
           next: (updatedProduct) => {
             this.isLoading = false;
-            this._toastService.success(
-              this._translateService.instant('Product Updated'),
-              `"${updatedProduct.name}" has been successfully updated.`
-            );
+            this._toastService.success(this._translateService.instant('Product Updated'), `"${updatedProduct.name}" has been successfully updated.`);
             this._router.navigate(['/products']);
           },
           error: (error) => {
             console.error('Error updating product:', error);
             this.isLoading = false;
-            this._toastService.error(
-              this._translateService.instant('Update Failed'),
-              'An error occurred while updating the product.'
-            );
+            this._toastService.error(this._translateService.instant('Update Failed'), 'An error occurred while updating the product.');
           },
         });
     } else {
@@ -744,19 +727,13 @@ export class AddReactiveComponent implements OnInit {
         .subscribe({
           next: (newProduct) => {
             this.isLoading = false;
-            this._toastService.success(
-              this._translateService.instant('Product Created'),
-              `"${newProduct.name}" has been successfully created.`
-            );
+            this._toastService.success(this._translateService.instant('Product Created'), `"${newProduct.name}" has been successfully created.`);
             this._router.navigate(['/products']);
           },
           error: (error) => {
             console.error('Error creating product:', error);
             this.isLoading = false;
-            this._toastService.error(
-              this._translateService.instant('Creation Failed'),
-              'An error occurred while creating the product.'
-            );
+            this._toastService.error(this._translateService.instant('Creation Failed'), 'An error occurred while creating the product.');
           },
         });
     }
@@ -774,21 +751,31 @@ export class AddReactiveComponent implements OnInit {
 
   getStepTitle(step: number): string {
     switch (step) {
-      case 1: return 'Application Information';
-      case 2: return 'Personal Information';
-      case 3: return 'Authorization and Scopes';
-      case 4: return 'Preview and Submit';
-      default: return '';
+      case 1:
+        return 'Application Information';
+      case 2:
+        return 'Personal Information';
+      case 3:
+        return 'Authorization and Scopes';
+      case 4:
+        return 'Preview and Submit';
+      default:
+        return '';
     }
   }
 
   getStepIcon(step: number): string {
     switch (step) {
-      case 1: return 'ti-briefcase';
-      case 2: return 'ti-user';
-      case 3: return 'ti-lock';
-      case 4: return 'ti-check';
-      default: return 'ti-circle';
+      case 1:
+        return 'ti-briefcase';
+      case 2:
+        return 'ti-user';
+      case 3:
+        return 'ti-lock';
+      case 4:
+        return 'ti-check';
+      default:
+        return 'ti-circle';
     }
   }
 
@@ -801,7 +788,7 @@ export class AddReactiveComponent implements OnInit {
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   }
 
   getFileIcon(type: string): string {

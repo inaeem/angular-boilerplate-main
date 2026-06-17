@@ -47,7 +47,9 @@
 }
 
 // Typography
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   margin-bottom: 1rem;
 }
 
@@ -120,13 +122,15 @@ hr {
   &.table-bordered {
     border: 1px solid #dee2e6;
 
-    th, td {
+    th,
+    td {
       border: 1px solid #dee2e6;
     }
   }
 
   &.table-vcenter {
-    td, th {
+    td,
+    th {
       vertical-align: middle;
     }
   }
@@ -314,7 +318,8 @@ code {
   }
 
   // Remove unnecessary margins
-  .mb-4, .my-4 {
+  .mb-4,
+  .my-4 {
     margin-bottom: 1rem !important;
   }
 
@@ -329,7 +334,8 @@ code {
   }
 
   // Ensure borders are visible
-  .border, .table-bordered {
+  .border,
+  .table-bordered {
     border: 1px solid #000 !important;
   }
 
@@ -360,7 +366,8 @@ code {
   .table {
     font-size: 0.875rem;
 
-    th, td {
+    th,
+    td {
       padding: 0.5rem;
     }
   }
