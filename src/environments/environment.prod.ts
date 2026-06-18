@@ -13,7 +13,7 @@ export const environment = {
   oauth: {
     issuer: 'https://YOUR_PROD_IDP_ISSUER', // TODO: production issuer URL
     clientId: 'YOUR_PROD_CLIENT_ID', // TODO: production client id
-    scope: 'openid profile email',
+    scope: 'openid profile email offline_access', // offline_access → IdP issues a refresh token for silent refresh
     responseType: 'code',
   },
 

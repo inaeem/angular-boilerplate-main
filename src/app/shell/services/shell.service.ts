@@ -1,6 +1,7 @@
 import { Route, Router, Routes } from '@angular/router';
 
-import { AuthenticationGuard, PERMISSIONS, PermissionService } from '@app/auth';
+import { AuthenticationGuard, PermissionService } from '@app/auth';
+import { PermissionGuard } from '@app/auth/guard/permission.guard';
 import { ShellComponent } from '@app/shell/shell.component';
 import { BehaviorSubject } from 'rxjs';
 import { Injectable } from '@angular/core';
@@ -20,7 +21,11 @@ export class Shell {
       path: '',
       component: ShellComponent,
       children: routes,
+      // Authentication gates entry to the shell; both guards also run on every
+      // child navigation (PermissionGuard reads each route's `data.roles` /
+      // `data.permissions`, and passes through routes that declare none).
       canActivate: [AuthenticationGuard],
+      canActivateChild: [AuthenticationGuard, PermissionGuard],
 
       data: { reuse: true },
     };
@@ -44,10 +49,6 @@ export class ShellService {
   allowedAccess(item: NavMenuItem): boolean {
     if (item.roles && item.roles.length) {
       return item.roles.includes(this._permissionService.userRole);
-    }
-
-    if (item.permissions && item.permissions.length) {
-      return item.permissions.some((permission: PERMISSIONS) => this._permissionService.hasPermission(permission));
     }
 
     return true;

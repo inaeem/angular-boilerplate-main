@@ -26,6 +26,15 @@ export const authConfig: AuthConfig = {
   // (Enabled by default for responseType 'code', set explicitly for clarity.)
   // disablePKCE defaults to false.
 
+  // --- Automatic silent refresh via refresh-token rotation ---
+  // The `offline_access` scope (set in environment.oauth.scope) makes the IdP
+  // issue a refresh token. With code flow, setupAutomaticSilentRefresh() then
+  // silently calls the token endpoint with that refresh token before the
+  // access token expires — no iframe or silent-refresh.html needed.
+  useSilentRefresh: false, // iframe-based silent refresh is for implicit flow; not used here
+  // Renew when the access token has used up this fraction of its lifetime (0.75 = at 75%).
+  timeoutFactor: 0.75,
+
   // Allow http issuers (e.g. a local IdP) in development only.
   requireHttps: environment.production ? true : false,
 

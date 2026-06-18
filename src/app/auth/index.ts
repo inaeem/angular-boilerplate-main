@@ -10,5 +10,4 @@ export * from './services/permissions.service';
 export * from './oauth.config';
 
 // Enums
-export * from './enums/permissions.enum';
 export * from './enums/roles.enum';

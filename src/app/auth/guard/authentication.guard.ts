@@ -67,4 +67,10 @@ export class AuthenticationGuard {
       }),
     );
   }
+
+  // Allow this guard to be used as `canActivateChild` so every child route
+  // (including deeply nested / lazy ones) is re-checked on navigation.
+  canActivateChild(): Observable<boolean> {
+    return this.canActivate();
+  }
 }

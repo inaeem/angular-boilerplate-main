@@ -8,5 +8,4 @@ export interface NavMenuItem {
   disabled?: boolean;
   divider?: boolean;
   roles?: string[];
-  permissions?: string[];
 }

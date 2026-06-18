@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { OAuthService } from 'angular-oauth2-oidc';
+import { Router } from '@angular/router';
+import { OAuthEvent, OAuthService } from 'angular-oauth2-oidc';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { distinctUntilChanged, filter, map } from 'rxjs/operators';
 
@@ -34,21 +35,59 @@ export class AuthenticationService {
     this.isDoneLoading$,
   ]).pipe(map((flags) => flags.every(Boolean)));
 
+  /**
+   * OAuth events that mean the session is gone and cannot be recovered
+   * (refresh failed / IdP session ended). When one fires, we force a re-login.
+   */
+  private static readonly SESSION_LOST_EVENTS = [
+    'token_refresh_error',
+    'silent_refresh_error',
+    'silent_refresh_timeout',
+    'session_terminated',
+    'session_error',
+  ];
+
   constructor(
     private readonly _oauth: OAuthService,
     private readonly _credentialsService: CredentialsService,
+    private readonly _router: Router,
   ) {
     this._oauth.configure(authConfig);
 
     // Subscribed at construction (before runInitialLoginSequence) so the
     // token_received event fired during tryLogin can never be missed.
-    this._oauth.events.subscribe(() => {
+    this._oauth.events.subscribe((event) => {
       this._isAuthenticated$.next(this._oauth.hasValidAccessToken());
       this._syncCredentials();
+      this._handleSessionExpiry(event);
     });
 
-    // Keep the access token fresh automatically (silent refresh / refresh token).
-    this._oauth.setupAutomaticSilentRefresh();
+    // Keep the access token fresh automatically. With code flow + a refresh
+    // token (offline_access scope) this silently calls the token endpoint
+    // before the *access token* expires. If the refresh fails, a *_error event
+    // handled above redirects the user to login.
+    this._oauth.setupAutomaticSilentRefresh({}, 'access_token');
+  }
+
+  /**
+   * Actively redirect to the login page the moment the session is lost — even
+   * if the user is idle on a page (the route guard only re-checks on navigation).
+   */
+  private _handleSessionExpiry(event: OAuthEvent): void {
+    const sessionLost = AuthenticationService.SESSION_LOST_EVENTS.includes(event.type);
+    // token_expires fires just before expiry; only act if no refresh kept us valid.
+    const expiredWithoutRefresh = event.type === 'token_expires' && !this._oauth.hasValidAccessToken();
+
+    if ((sessionLost || expiredWithoutRefresh) && !this._oauth.hasValidAccessToken()) {
+      this._redirectToLogin();
+    }
+  }
+
+  private _redirectToLogin(): void {
+    this._credentialsService.setCredentials(); // ensure local credentials are cleared
+    if (!this._router.url.startsWith('/login')) {
+      this._router.navigate(['/login'], { replaceUrl: true });
+    }
   }
 
   /**

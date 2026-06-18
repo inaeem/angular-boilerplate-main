@@ -13,7 +13,7 @@ export const environment = {
   oauth: {
     issuer: 'https://YOUR_IDP_ISSUER', // TODO: e.g. https://login.microsoftonline.com/<tenant>/v2.0 or your Keycloak realm URL
     clientId: 'YOUR_CLIENT_ID', // TODO: public client id registered with the IdP
-    scope: 'openid profile email',
+    scope: 'openid profile email offline_access', // offline_access → IdP issues a refresh token for silent refresh
     responseType: 'code',
   },
 
