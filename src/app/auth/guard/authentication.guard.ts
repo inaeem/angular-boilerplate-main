@@ -5,7 +5,7 @@ import { filter, map, take } from 'rxjs/operators';
 
 import { Logger } from '@app/@core/services';
 import { UntilDestroy } from '@ngneat/until-destroy';
-import { OAuthAuthService } from '@app/auth/services/oauth-auth.service';
+import { AuthenticationService } from '@app/auth/services/authentication.service';
 
 const log = new Logger('AuthenticationGuard');
 
@@ -19,7 +19,7 @@ const log = new Logger('AuthenticationGuard');
 })
 export class AlreadyLoggedCheckGuard {
   constructor(
-    private readonly _auth: OAuthAuthService,
+    private readonly _auth: AuthenticationService,
     private readonly _router: Router,
   ) {}
 
@@ -29,7 +29,7 @@ export class AlreadyLoggedCheckGuard {
       filter(Boolean),
       take(1),
       map(() => {
-        if (this._auth.hasValidToken()) {
+        if (this._auth.isAuthenticated()) {
           log.debug('Already authenticated, redirecting to dashboard');
           this._router.navigateByUrl('/dashboard');
           return false;
@@ -50,7 +50,7 @@ export class AlreadyLoggedCheckGuard {
 export class AuthenticationGuard {
   constructor(
     private readonly _router: Router,
-    private readonly _auth: OAuthAuthService,
+    private readonly _auth: AuthenticationService,
   ) {}
 
   canActivate(): Observable<boolean> {
@@ -58,7 +58,7 @@ export class AuthenticationGuard {
       filter(Boolean),
       take(1),
       map(() => {
-        if (this._auth.hasValidToken()) {
+        if (this._auth.isAuthenticated()) {
           return true;
         }
         log.debug('Not authenticated, redirecting to login');

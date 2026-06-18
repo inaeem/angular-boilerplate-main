@@ -7,7 +7,6 @@ export * from './guard/authentication.guard';
 export * from './services/authentication.service';
 export * from './services/credentials.service';
 export * from './services/permissions.service';
-export * from './services/oauth-auth.service';
 export * from './oauth.config';
 
 // Enums

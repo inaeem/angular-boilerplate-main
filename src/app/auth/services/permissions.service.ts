@@ -1,23 +1,17 @@
 import { Injectable } from '@angular/core';
 import { CredentialsService, PERMISSIONS, ROLE } from '@app/auth';
-import { Credentials } from '@core/entities';
 import { appSetting } from '@core/constants';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PermissionService {
-  private readonly _credentials: Credentials;
-
-  constructor(private readonly _credentialsService: CredentialsService) {
-    this._credentials = this._credentialsService.credentials;
-    if (!this._credentials) {
-      this._credentials = this._credentialsService.credentials;
-    }
-  }
+  constructor(private readonly _credentialsService: CredentialsService) {}
 
   get userRole(): ROLE {
-    return this._credentials?.roles[0] as ROLE;
+    // Always read fresh — credentials are populated after OIDC login, which
+    // happens after this singleton is first constructed.
+    return this._credentialsService.credentials?.roles?.[0] as ROLE;
   }
 
   /**

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { UntilDestroy } from '@ngneat/until-destroy';
-import { OAuthAuthService } from '@app/auth/services/oauth-auth.service';
+import { AuthenticationService } from '@app/auth/services/authentication.service';
 
 import { environment } from '@env/environment';
 
@@ -31,7 +31,7 @@ export class LoginComponent {
     developer: { type: 'developer', role: 'Developer' },
   };
 
-  constructor(private readonly _auth: OAuthAuthService) {}
+  constructor(private readonly _auth: AuthenticationService) {}
 
   /**
    * Get translation parameters for portal name
@@ -50,7 +50,7 @@ export class LoginComponent {
   /**
    * Start the OAuth/OIDC login by redirecting to the identity provider.
    * The browser navigates away to the IdP; after a successful login it is
-   * redirected back and `OAuthAuthService.runInitialLoginSequence()` (run via
+   * redirected back and `AuthenticationService.runInitialLoginSequence()` (run via
    * APP_INITIALIZER) completes the flow and stores the tokens.
    */
   login(portalType: PortalType): void {

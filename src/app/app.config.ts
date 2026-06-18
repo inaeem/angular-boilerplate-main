@@ -6,7 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { environment } from '@env/environment';
 import { ShellModule } from './shell/shell.module';
 import { OAuthStorage, provideOAuthClient } from 'angular-oauth2-oidc';
-import { OAuthAuthService } from '@app/auth/services/oauth-auth.service';
+import { AuthenticationService } from '@app/auth/services/authentication.service';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { ApiPrefixInterceptor, ErrorHandlerInterceptor } from '@core/interceptors';
 import { RouteReusableStrategy } from '@core/helpers';
@@ -84,6 +84,6 @@ export const appConfig: ApplicationConfig = {
     { provide: OAuthStorage, useFactory: () => sessionStorage },
 
     // Load discovery doc + process the IdP redirect callback before any route activates.
-    provideAppInitializer(() => inject(OAuthAuthService).runInitialLoginSequence()),
+    provideAppInitializer(() => inject(AuthenticationService).runInitialLoginSequence()),
   ],
 };

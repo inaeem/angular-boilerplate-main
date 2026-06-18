@@ -39,6 +39,18 @@ export class HeaderComponent implements OnInit {
       });
   }
 
+  /** Display name for the logged-in user, falling back gracefully. */
+  get userName(): string {
+    const c = this._credentialsService.credentials;
+    if (!c) return '';
+    const full = `${c.firstName ?? ''} ${c.lastName ?? ''}`.trim();
+    return full || c.username || c.email || '';
+  }
+
+  get userEmail(): string {
+    return this._credentialsService.credentials?.email ?? '';
+  }
+
   activateMenuItem(index: number): void {
     const item = this.menuItems[index];
     if (item.disabled) return;
