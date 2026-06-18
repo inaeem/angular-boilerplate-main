@@ -5,6 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { catchError, finalize } from 'rxjs/operators';
 import { CredentialsService } from '@auth';
 import { Router } from '@angular/router';
+import { environment } from '@env/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -26,7 +27,11 @@ export class ApiPrefixInterceptor implements HttpInterceptor {
 
     let headers = request.headers;
     const { token } = this._credentialsService.credentials || {};
-    const currentLang = this._translateService.currentLang.substring(0, 2);
+    // currentLang is only set after I18nService.init() calls translate.use().
+    // Early requests (e.g. the OIDC discovery fetch in APP_INITIALIZER) run
+    // before that, so fall back to the default language to avoid a null deref.
+    const lang = this._translateService.currentLang || this._translateService.defaultLang || environment.defaultLanguage || 'en';
+    const currentLang = lang.substring(0, 2);
 
     if (token) {
       if (!(request.body instanceof FormData)) {

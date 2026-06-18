@@ -7,6 +7,7 @@ import { environment } from '@env/environment';
 import { ShellModule } from './shell/shell.module';
 import { OAuthStorage, provideOAuthClient } from 'angular-oauth2-oidc';
 import { AuthenticationService } from '@app/auth/services/authentication.service';
+import { I18nService } from '@app/i18n';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { ApiPrefixInterceptor, ErrorHandlerInterceptor } from '@core/interceptors';
 import { RouteReusableStrategy } from '@core/helpers';
@@ -82,6 +83,12 @@ export const appConfig: ApplicationConfig = {
 
     // Persist tokens in sessionStorage (cleared when the tab closes).
     { provide: OAuthStorage, useFactory: () => sessionStorage },
+
+    // Initialize i18n FIRST so TranslateService.currentLang is set before any
+    // HTTP request runs (e.g. the OIDC discovery fetch in the initializer below,
+    // which passes through ApiPrefixInterceptor). Synchronous, runs before the
+    // OAuth initializer's body executes.
+    provideAppInitializer(() => inject(I18nService).init(environment.defaultLanguage, environment.supportedLanguages)),
 
     // Load discovery doc + process the IdP redirect callback before any route activates.
     provideAppInitializer(() => inject(AuthenticationService).runInitialLoginSequence()),

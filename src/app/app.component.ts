@@ -34,8 +34,8 @@ export class AppComponent implements OnInit, OnDestroy {
       Logger.enableProductionMode();
     }
 
-    // Initialize i18nService with default language and supported languages
-    this._i18nService.init(environment.defaultLanguage, environment.supportedLanguages);
+    // i18nService is initialized in an APP_INITIALIZER (see app.config.ts) so the
+    // language is set before the first HTTP request fires during bootstrap.
 
     const onNavigationEnd = this._router.events.pipe(filter((event) => event instanceof NavigationEnd));
 
